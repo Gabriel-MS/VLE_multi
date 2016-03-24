@@ -1,0 +1,79 @@
+# depslib dependency file v1.0
+1458170646 source:c:\ufrj\atoms\projeto - vle\vle_multicomponente_phi_phi.cpp
+	<cmath>
+	<cstdio>
+	<stdio.h>
+	<iostream>
+	<fstream>
+	"mixingrules.h"
+	"EdE.h"
+	"Gibbs.h"
+	"Association.h"
+	<Eigen/Dense>
+	<unsupported/Eigen/MatrixFunctions>
+	<unsupported/Eigen/KroneckerProduct>
+
+1457875686 c:\ufrj\atoms\projeto - vle\mixingrules.h
+	<Eigen/Dense>
+	<unsupported/Eigen/MatrixFunctions>
+	<unsupported/Eigen/KroneckerProduct>
+	"Gibbs.h"
+
+1457875686 c:\ufrj\atoms\projeto - vle\gibbs.h
+	<Eigen/Dense>
+	<unsupported/Eigen/MatrixFunctions>
+
+1458270314 c:\ufrj\atoms\projeto - vle\ede.h
+	<Eigen/Dense>
+	<unsupported/Eigen/MatrixFunctions>
+	<unsupported/Eigen/KroneckerProduct>
+	"Gibbs.h"
+	"mixingrules.h"
+	"Association.h"
+
+1458265526 c:\ufrj\atoms\projeto - vle\association.h
+	<Eigen/Dense>
+	<unsupported/Eigen/MatrixFunctions>
+	<unsupported/Eigen/KroneckerProduct>
+	"Gibbs.h"
+	"EdE.h"
+
+1458502875 source:c:\ufrj\atoms\projeto - vle\código fonte\vle_multicomponente_phi_phi.cpp
+	<cmath>
+	<cstdio>
+	<stdio.h>
+	<iostream>
+	<fstream>
+	"mixingrules.h"
+	"EdE.h"
+	"Gibbs.h"
+	"Association.h"
+	<Eigen/Dense>
+	<unsupported/Eigen/MatrixFunctions>
+	<unsupported/Eigen/KroneckerProduct>
+
+1457875686 c:\ufrj\atoms\projeto - vle\código fonte\mixingrules.h
+	<Eigen/Dense>
+	<unsupported/Eigen/MatrixFunctions>
+	<unsupported/Eigen/KroneckerProduct>
+	"Gibbs.h"
+
+1457875686 c:\ufrj\atoms\projeto - vle\código fonte\gibbs.h
+	<Eigen/Dense>
+	<unsupported/Eigen/MatrixFunctions>
+
+1458781225 c:\ufrj\atoms\projeto - vle\código fonte\ede.h
+	<Eigen/Dense>
+	<unsupported/Eigen/MatrixFunctions>
+	<unsupported/Eigen/KroneckerProduct>
+	"Gibbs.h"
+	"mixingrules.h"
+	"Association.h"
+
+1458783157 c:\ufrj\atoms\projeto - vle\código fonte\association.h
+	<Eigen/Dense>
+	<unsupported/Eigen/MatrixFunctions>
+	<unsupported/Eigen/KroneckerProduct>
+	"Gibbs.h"
+	"EdE.h"
+
