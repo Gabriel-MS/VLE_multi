@@ -464,7 +464,7 @@ Residue_vapor << iota_res << ";" << Residue << endl;
 int iter;
 iter = 0;
     //while(cond_iota>tolV || max_dP_dV>0)
-    //while(cond_iota>tolV || max_dP_dV<0 || i<3)
+    //while(cond_iota>tolV || max_dP_dV>0 || i<3)
     while(cond_iota>tolV || i<3)
     {
 
@@ -582,7 +582,7 @@ iter = 0;
     K = ((one_4_x_vector*one_4_x_vector.transpose()).cwiseProduct(DELTA))/(*V);
     QXX1 = (((X2.asDiagonal().inverse())*one_4_x_vector).asDiagonal());
     QXX = -QXX1-K;
-    dX_dV = (-QXX.inverse())*QXV;
+    dX_dV = (QXX.inverse())*(-QXV);
 //**********************************************************************************************************************
 
     h_1 = (n_v*one_4.transpose()).transpose();
@@ -622,15 +622,25 @@ iter = 0;
 
     //**********************************************************************
     dP_dV_SRK = -R*T/(((*V)-bm)*((*V)-bm))+am/(bm*(*V)*(*V))-am/(bm*((*V)+bm)*((*V)+bm));
+    dP_dV_SRK = -R*T/(((*V)-bm)*((*V)-bm))+am/(((*V)+bm)*((*V)+bm)*(*V))+am/((*V)*((*V)+bm)*((*V)+bm));
     //dP_dV = dPassoc_dV.array() + dP_dV_SRK;
 
     //max_dP_dV = dP_dV.maxCoeff();
     max_dP_dV = dP_dV_SRK - (R*T)*QVV;
 
+    //ESSES ESTAVAM ATIVOS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     dP_dV = dPassoc_dV + dP_dV_SRK;
     max_dP_dV = dP_dV;
 
+    //MUDEI AQUI################################################################################################3
+    /*
+    F_obj_plus = CPA_volume_obj_function(nc, (*V), R, P, am, bm, T, x, X, Bcpa, iota+iota*0.00001, i, a);
+    F_obj_minus = CPA_volume_obj_function(nc, (*V), R, P, am, bm, T, x, X, Bcpa, iota-iota*0.00001, i, a);
+    F_obj_derivate =(F_obj_plus-F_obj_minus)/(2*iota*0.00001);
+
+    max_dP_dV = ((((F_obj_plus)/(1-iota+iota*0.00001))+P)-(((F_obj_minus)/(1-iota-iota*0.00001))+P))/(2*(*V)*0.00001);
     //max_dP_dV = F_obj_derivate;
+*/
 
     (*dP_dV_output) = max_dP_dV;
 
@@ -638,12 +648,15 @@ iter = 0;
     if(isnan(*V)==1 || isinf(*V)==1)
     {
         (*V) = Vinit+Vinit*0.1*k;
+        iota = bm/(*V);
         X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row, tolX, x, EdE,
                      EdE_parameters, b, tolZ, (*V), deltaV, X, i, a, &Q_func);
         max_dP_dV = 0.1;
         cond_iota = tolV+1;
         k++;
         cout << "VOLUME = NAN or INF \n";
+
+        Vinit = (*V);
         //cin.get();
     }
 

@@ -161,6 +161,7 @@ case 7: //4B
     beta_DB = beta;
     beta_DC = beta;
     break;
+
 /*
 case 8: //4C
 //Volume de associação
@@ -813,7 +814,7 @@ X_max = tolX + 1;
 
 while(X_max>tolX || g.maxCoeff()>tolX)
 {
-    if(i<=2) //Os primeiros cinco passos são dados com o método de substituição sucessiva
+    if(i<=4) //Os primeiros cinco passos são dados com o método de substituição sucessiva
     {
     DELTA = DELTA_function(combining_rule, nc, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
                            EdE, x, X, EdE_parameters, bi, tolZ, V);

@@ -4,8 +4,9 @@ mudei max_dP_dV
 
 troquei max_dP_dV
 
-coloquei um if mudando o div no loop do V
 loop do V --> comentário no F_obj_deriv
 	      comentário do cond_iota
 
-coloquei apenas 2 passos de substituição sucessiva
+coloquei apenas 4 passos de substituição sucessiva
+
+01/04/16
