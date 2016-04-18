@@ -480,18 +480,14 @@ MatrixXd E_cross(nc4,nc4), E_cross_1(nc4,nc4), beta_cross(nc4,nc4), DELTA(nc4,nc
     */
     E_cross_1 = E_cross.array()-1;
     DELTA = (g_Vm * E_cross_1).cwiseProduct(Bij.cwiseProduct(beta_cross));
-    //cout << "DELTA = \n" << DELTA << endl;
-    //cin.get();
-/*
-    cout << "E_row = \n" << E_row << endl;
-    cout << "E_col = \n" << E_col << endl;
-    cout << "beta_row = \n" << beta_row << endl;
-    cout << "beta_col = \n" << beta_col << endl;
-    cout << "E_cross = \n" << E_cross << endl;
-    cout << "beta_cross = \n" << beta_cross << endl;
-    cout << "DELTA = \n" << DELTA << endl;
-    cin.get();
-*/
+    /*cout << "\nE_row = \n" << E_row << endl;
+    cout << "\nE_col = \n" << E_col << endl;
+    cout << "\nbeta_row = \n" << beta_row << endl;
+    cout << "\nbeta_col = \n" << beta_col << endl;
+    cout << "\nE_cross = \n" << E_cross << endl;
+    cout << "\nbeta_cross = \n" << beta_cross << endl;
+    cout << "\nDELTA = \n" << DELTA << endl;
+    cin.get();*/
     break;
 
   case 2: //CR-2
@@ -752,6 +748,8 @@ VectorXd fraction_nbs(int nc, int combining_rule, int phase, double R, double T,
     double X_max, Q, Qold;
     int i;
 
+    double DELTA_pure;
+
     VectorXd one(nc);
     for(i=0;i<nc;i++)
     {
@@ -774,6 +772,8 @@ VectorXd fraction_nbs(int nc, int combining_rule, int phase, double R, double T,
     DELTA = DELTA_function(combining_rule, nc, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
                            EdE, x, X, EdE_parameters, bi, tolZ, V);
 
+    DELTA_pure = (1/(1-1.9*(bm/4/V)))*(exp(E_col(1,0)/R/T)-1)*((bi(0)+bi(1))/2)*beta_col(0,1);
+
     zero_one << 0, 0, 0, 0, 1, 1, 1, 1,
                 0, 0, 0, 0, 1, 1, 1, 1,
                 0, 0, 0, 0, 1, 1, 1, 1,
@@ -782,6 +782,15 @@ VectorXd fraction_nbs(int nc, int combining_rule, int phase, double R, double T,
                 1, 1, 1, 1, 0, 0, 0, 0,
                 1, 1, 1, 1, 0, 0, 0, 0,
                 1, 1, 1, 1, 0, 0, 0, 0;
+
+    zero_one << 1, 1, 1, 1, 0, 0, 0, 0,
+                1, 1, 1, 1, 0, 0, 0, 0,
+                1, 1, 1, 1, 0, 0, 0, 0,
+                1, 1, 1, 1, 0, 0, 0, 0,
+                0, 0, 0, 0, 1, 1, 1, 1,
+                0, 0, 0, 0, 1, 1, 1, 1,
+                0, 0, 0, 0, 1, 1, 1, 1,
+                0, 0, 0, 0, 1, 1, 1, 1;
 
     DELTA1 = DELTA.cwiseProduct(zero_one);
 
@@ -828,6 +837,15 @@ while(X_max>tolX || g.maxCoeff()>tolX)
                 1, 1, 1, 1, 0, 0, 0, 0,
                 1, 1, 1, 1, 0, 0, 0, 0;
 
+    zero_one << 1, 1, 1, 1, 0, 0, 0, 0,
+                1, 1, 1, 1, 0, 0, 0, 0,
+                1, 1, 1, 1, 0, 0, 0, 0,
+                1, 1, 1, 1, 0, 0, 0, 0,
+                0, 0, 0, 0, 1, 1, 1, 1,
+                0, 0, 0, 0, 1, 1, 1, 1,
+                0, 0, 0, 0, 1, 1, 1, 1,
+                0, 0, 0, 0, 1, 1, 1, 1;
+
     DELTA1 = DELTA.cwiseProduct(zero_one);
 
 
@@ -859,6 +877,17 @@ while(X_max>tolX || g.maxCoeff()>tolX)
     {
     DELTA = DELTA_function(combining_rule, nc, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
                            EdE, x, X, EdE_parameters, bi, tolZ, V);
+
+    zero_one << 1, 1, 1, 1, 0, 0, 0, 0,
+                1, 1, 1, 1, 0, 0, 0, 0,
+                1, 1, 1, 1, 0, 0, 0, 0,
+                1, 1, 1, 1, 0, 0, 0, 0,
+                0, 0, 0, 0, 1, 1, 1, 1,
+                0, 0, 0, 0, 1, 1, 1, 1,
+                0, 0, 0, 0, 1, 1, 1, 1,
+                0, 0, 0, 0, 1, 1, 1, 1;
+
+    DELTA1 = DELTA.cwiseProduct(zero_one);
 
     K = ((one_4_x_vector*one_4_x_vector.transpose()).cwiseProduct(DELTA))/V;
     H_1 = ((X.asDiagonal().inverse())*(one_4_x_vector+(X.transpose()*K).transpose())).asDiagonal();
@@ -920,6 +949,16 @@ while(X_max>tolX || g.maxCoeff()>tolX)
 
     i++;
 }
+/*
+    X(0) = ((-1+pow((1+4/V*DELTA(0,1)),0.5))/(2/V*DELTA(0,1)));
+    X(1) = ((-1+pow((1+4/V*DELTA(0,1)),0.5))/(2/V*DELTA(0,1)));
+    X(2) = 1;
+    X(3) = 1;
+    X(4) = 1;
+    X(5) = 1;
+    X(6) = 1;
+    X(7) = 1;
+*/
 
     return X;
 }

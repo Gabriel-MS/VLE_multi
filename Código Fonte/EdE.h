@@ -209,6 +209,12 @@ double CPA_volume_obj_function(int nc, double V, double R, double P, double am, 
     VectorXd pre_F_vector(Map<VectorXd>(pre_F.data(), pre_F.cols()*pre_F.rows()));
     pre_F_v = pre_F_vector.transpose()*(one_4nc-X);
     F = ((R*T/(V-bm) - am/(V*(V+bm)) - 0.5*R*T/V * (1+0.475*B/(V-0.475*B)) * pre_F_v) - P);
+    /*
+    cout << "(R*T/(V-bm) - am/(V*(V+bm)) = " << R*T/(V-bm) - am/(V*(V+bm)) << endl;
+    cout << "0.5*R*T/V =                   " << 0.5*R*T/V << endl;
+    cout << "(1+0.475*B/(V-0.475*B)) =     " << (1+0.475*B/(V-0.475*B)) << endl;
+    cout << "pre_F_v =                     " << pre_F_v << endl;
+    */
 /*
     //falta kij!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     //***************************************************************************************************************
@@ -465,7 +471,7 @@ int iter;
 iter = 0;
     //while(cond_iota>tolV || max_dP_dV>0)
     //while(cond_iota>tolV || max_dP_dV>0 || i<3)
-    while(cond_iota>tolV || i<3)
+    while(cond_iota>tolV)
     {
 
     if(i==0)
@@ -546,10 +552,10 @@ iter = 0;
 
     iota = iota2;
 
+    deltaV = bm/iota - (*V);
+
     (*V) = bm/iota;
     (*V_obj) = F_obj;
-
-    deltaV = bm/iota - (*V);
 
     //-----------------------------------------------------------------------------------
     one_4_x = one_4*x.transpose();
@@ -668,7 +674,7 @@ iter = 0;
         cout << "VOLUME MAX ITER REACHED \n";
         //cin.get();
     }
-    //cout << "V = " << *V << endl;
+    //cout << "F_obj = " << F_obj << endl;
     //cout << "X = \n" << X << endl;
     //cout << "max_dP_dV = " << max_dP_dV << endl;
     //cout << "cond_iota = " << cond_iota << endl;

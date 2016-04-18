@@ -77,7 +77,7 @@
 	"Gibbs.h"
 	"EdE.h"
 
-1459208069 source:c:\ufrj\atoms\projeto-vle\código fonte\vle_multicomponente_phi_phi.cpp
+1460928532 source:c:\ufrj\atoms\projeto-vle\código fonte\vle_multicomponente_phi_phi.cpp
 	<cmath>
 	<cstdio>
 	<stdio.h>
@@ -91,17 +91,17 @@
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
 
-1457875686 c:\ufrj\atoms\projeto-vle\código fonte\mixingrules.h
+1459849434 c:\ufrj\atoms\projeto-vle\código fonte\mixingrules.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
 	"Gibbs.h"
 
-1457875686 c:\ufrj\atoms\projeto-vle\código fonte\gibbs.h
+1459849434 c:\ufrj\atoms\projeto-vle\código fonte\gibbs.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 
-1459559359 c:\ufrj\atoms\projeto-vle\código fonte\ede.h
+1460904431 c:\ufrj\atoms\projeto-vle\código fonte\ede.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
@@ -109,7 +109,7 @@
 	"mixingrules.h"
 	"Association.h"
 
-1459551103 c:\ufrj\atoms\projeto-vle\código fonte\association.h
+1460932870 c:\ufrj\atoms\projeto-vle\código fonte\association.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>

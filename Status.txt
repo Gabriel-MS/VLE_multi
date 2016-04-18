@@ -1,6 +1,13 @@
--Misturas binárias
+﻿-Misturas binárias
+
 SRK - OK
+
 PR - OK
+
 SRK-HV-NRTL - OK
+
 CPA - Misturas sem associação - OK
     - Misturas com associação - Problema no azeótropo
+
+
+DELTA1 active
