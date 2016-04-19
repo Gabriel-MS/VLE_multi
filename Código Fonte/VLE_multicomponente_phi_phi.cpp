@@ -98,7 +98,7 @@ double log10P, Tb, Tinit, Told;
 double G_ex;
 VectorXd Tsat(nc), Alog10P(nc), gama(nc), ln_gama(nc);
 
-double init_T, final_T, step;
+double init_T, final_T, step, BETCR;
 
 int max_num_iter, counter, stop;
 //--------------------------------------------------------------------------------
@@ -135,8 +135,6 @@ double prop[150][18]; //Matrix to hold all data from properties.csv organized
     }
 
     //Choosing EoS
-cout << "\n \n ATTENTION!!!!! \n THE CODE IS ONLY RUNNING FOR BINARY MIXTURES" << endl;
-cout << "Answer the next questions typing the number of the correspondent choice" << endl;
 cout << "\n Choose the EoS: \n 1.Soave-Redlich-Kwong \n 2.Peng-Robinson \n 3.CPA-SRK " << endl;
 cin >> EdE;
 output << "Equation of state = " << EdE << endl;
@@ -409,10 +407,23 @@ if(EdE==3)
     //The program asks the user for the combination rule in DELTA calculation
     //DELTA is not calculated here because it dependes on variables calculated in the main iteration
 
-    cout << "ATTENTION!!! \n ONLY CR-1 IS WORKING!!!!!!" << endl;
-    cout << "Choose the combining rule:\n 1. CR-1 \n 2. CR-2 \n 3. CR-3 \n 4. CR-4 \n 5. ECR" << endl;
+
+    cout << "\nChoose the combining rule:\n 1. CR-1 \n 2. CR-2 \n 3. CR-3 \n 4. CR-4 \n 5. ECR \n 6. CR-1 (+Solvation) (2B)" << endl;
     cin >> combining_rule;
     output << "Combining Rule = " << combining_rule << endl;
+
+    if(combining_rule==6)
+    {
+        cout << "\nDefine BETCR: ";
+        cin >> BETCR;
+        cout << "\n";
+        output << "BETCR = " << BETCR << endl;
+    }
+
+    if(combining_rule!=6)
+    {
+        BETCR=0.00;
+    }
 
 int nc4, i, j;
 double E_component, beta_component;
@@ -426,7 +437,7 @@ for (j=0; j<nc; j++)
 {
     cout <<   "Association scheme of component " << j+1 << ": ";
     cin >> assoc_type[j];
-    output << "Association model component " << j+1 << " =" << assoc_scheme << endl;
+    output << "Association model component " << j+1 << " =" << assoc_type[j] << endl;
 }
 //Defining matrix for energy and volume of auto-association
 for (j=0; j<nc; j++)
@@ -489,7 +500,7 @@ output     << "x1 " << ";" << "y1 " << ";" << "T " << ";" << "P" << ";" << "Vl" 
 //Main Iteration------------------------------------------------------------------------------------------
 if(mixture==1)
 {
-    cout << "\nmixture = 1";
+
 cout << "\nDefine initial Temperature: ";
 cin >> init_T;
 
@@ -732,11 +743,11 @@ for(i=0;i<(4*nc);i++)
     deltaV = 0;
     phase = 1;
     Xl = volume_function(nc, EdE, phase, x, Xl, EdE_parameters, bl, al, R, T, P, tolV, tolZl, b, combining_rule, beta_row,
-                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vl, Vlinit, a, &Vl_obj, &Ql, &dP_dVl);
+                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vl, Vlinit, a, &Vl_obj, &Ql, &dP_dVl, BETCR);
 
     phase = 2;
     Xv = volume_function(nc, EdE, phase, y, Xv, EdE_parameters, bv, av, R, T, P, tolV, tolZv, b, combining_rule, beta_row,
-                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv);
+                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv, BETCR);
     }
     X1l = Xl(0)*Xl(1)*Xl(2)*Xl(3);
     X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3);
@@ -820,7 +831,7 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
     phase = 2;
     deltaV = 0;
     Xv = volume_function(nc, EdE, phase, y, Xv, EdE_parameters, bv, av, R, T, P, tolV, tolZv, b, combining_rule, beta_row,
-                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv);
+                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv, BETCR);
     X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3);
     }
 
@@ -1057,9 +1068,8 @@ Told = T;
 
 if(mixture==2)
 {
-cout << "\nmixture = 2";
 
-for (x(0)=0.2 ; x(0)<=1.000 ; x(0)=x(0)+0.001)
+for (x(0)=0.001 ; x(0)<=1.000 ; x(0)=x(0)+0.001)
 {
  x(1) = 1-x(0);
 
@@ -1291,11 +1301,11 @@ for(i=0;i<(4*nc);i++)
     deltaV = 0;
     phase = 1;
     Xl = volume_function(nc, EdE, phase, x, Xl, EdE_parameters, bl, al, R, T, P, tolV, tolZl, b, combining_rule, beta_row,
-                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vl, Vlinit, a, &Vl_obj, &Ql, &dP_dVl);
+                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vl, Vlinit, a, &Vl_obj, &Ql, &dP_dVl, BETCR);
 
     phase = 2;
     Xv = volume_function(nc, EdE, phase, y, Xv, EdE_parameters, bv, av, R, T, P, tolV, tolZv, b, combining_rule, beta_row,
-                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv);
+                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv, BETCR);
     }
     X1l = Xl(0)*Xl(1)*Xl(2)*Xl(3);
     X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3);
@@ -1378,7 +1388,8 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
     phase = 2;
     deltaV = 0;
     Xv = volume_function(nc, EdE, phase, y, Xv, EdE_parameters, bv, av, R, T, P, tolV, tolZv, b, combining_rule, beta_row,
-                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv);
+                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv, BETCR);
+    X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3);
     }
 
     phase = 2;
