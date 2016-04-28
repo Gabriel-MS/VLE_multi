@@ -420,7 +420,6 @@ MatrixXd DELTA_function(int combining_rule, int nc, int phase, double R, double 
                MatrixXd E_row, int EdE, VectorXd x, VectorXd X, VectorXd EdE_parameters, VectorXd bi, double tolZ,
                double V, double BETCR)
 {
-
     int nc4;
     nc4 = 4*nc;
 

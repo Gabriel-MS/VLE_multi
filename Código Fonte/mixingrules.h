@@ -70,7 +70,7 @@ switch(MR)
     axx = ((raiz_aiaj_kij*x.asDiagonal()).transpose())*(x.asDiagonal());
     VectorXd a_vector(Map<VectorXd>(axx.data(), axx.cols()*axx.rows()));
     a = one.transpose()*a_vector;
-    a = x.transpose()*(raiz_aiaj_kij*x);
+    //a = x.transpose()*(raiz_aiaj_kij*x);
     //cout << "kij = " << endl;
     //cout << "kij1 = " << kij1 << endl;
     //cout << "a = " << a << endl;

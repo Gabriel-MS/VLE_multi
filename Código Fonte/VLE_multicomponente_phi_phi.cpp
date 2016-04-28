@@ -63,13 +63,13 @@ switch(mixture)
 }
 output << "Number of Components = " << nc << endl;
 
-cout << "\nLook at 'properties.csv' file to choose components from it's number\n" << endl;
+//cout << "\nLook at 'properties.csv' file to choose components from it's number\n" << endl;
 
 //Usuário escolhe quais os componentes
 int cp[nc];
 for(i=0; i<nc; i++)
 {
-cout << "choose component " << i+1 << ": ";
+cout << "Choose component " << i+1 << ": ";
 cin >> cp[i];
 output << "Component " << i+1 << " = " << cp[i] << endl;
 }
@@ -135,7 +135,7 @@ double prop[150][18]; //Matrix to hold all data from properties.csv organized
     }
 
     //Choosing EoS
-cout << "\n Choose the EoS: \n 1.Soave-Redlich-Kwong \n 2.Peng-Robinson \n 3.CPA-SRK " << endl;
+cout << "\nChoose the EoS: \n 1.Soave-Redlich-Kwong \n 2.Peng-Robinson \n 3.CPA-SRK " << endl;
 cin >> EdE;
 output << "Equation of state = " << EdE << endl;
 
@@ -175,28 +175,28 @@ if(EdE==3)
 
     if(bCPA_a[n]==0)
 {
-    cout << "\nmissing bCPA for component " << n+1 << " in DATA BANK! \n";
+    cout << "\nmissing bCPA for component " << n+1 << " in properties.csv! \n";
     cout << "enter bCPA value for component " << n+1 << ": ";
     cin >> bCPA[n];
 }
 
     if(c1_a[n]==0)
 {
-    cout << "\nmissing c1 for component " << n+1 << " in DATA BANK! \n";
+    cout << "\nmissing c1 for component " << n+1 << " in properties.csv! \n";
     cout << "enter c1 value for component " << n+1 << ": ";
     cin >> c1[n];
 }
 
     if(E_a[n]==0)
 {
-    cout << "\nmissing Epsilon(AB) for component " << n+1 << " in DATA BANK! \n";
+    cout << "\nmissing Epsilon(AB) for component " << n+1 << " in properties.csv! \n";
     cout << "enter Epsilon(AB) value for component " << n+1 << ": ";
     cin >> E[n];
 }
 
     if(beta_a[n]==0)
 {
-    cout << "\nmissing beta(AB) for component " << n+1 << " in DATA BANK! \n";
+    cout << "\nmissing beta(AB) for component " << n+1 << " in properties.csv! \n";
     cout << "enter beta(AB) value for component " << n+1 << ": ";
     cin >> beta[n];
 }
@@ -246,8 +246,8 @@ cin >> Aij(1,0);
 */
 Aij(0,0) = 0;
 Aij(1,1) = 0;
-//Aij(0,1) = 293.3380968; Ethane+trifluoroethane 212.84K
-//Aij(1,0) = 286.330996;
+Aij(0,1) = 293.3380968; //Ethane+trifluoroethane 212.84K
+Aij(1,0) = 286.330996;
 
 //Aij(0,1) = 1393.054062;
 //Aij(1,0) = 1110.410746;
@@ -255,8 +255,8 @@ Aij(1,1) = 0;
 //Aij(0,1) = 59;
 //Aij(1,0) = 105;
 
-Aij(0,1) = 202.8736674;
-Aij(1,0) = 622.787037;
+//Aij(0,1) = 202.8736674;
+//Aij(1,0) = 622.787037;
 
 //Aij(0,1) = 224.0479571; //MTBE Tolueno
 //Aij(1,0) = -113.9470169;
@@ -269,7 +269,7 @@ Aij(1,0) = 622.787037;
 alfa_NRTL(0,0) = 0;
 alfa_NRTL(1,1) = 0;
 //alfa_NRTL(0,1) = 0.400765;
-alfa_NRTL(0,1) = 0.4;
+alfa_NRTL(0,1) = 0.3;
 alfa_NRTL(1,0) = alfa_NRTL(0,1);
 /*
 alfa_NRTL << 0, 0.4,
@@ -306,23 +306,23 @@ cin >> process;
 switch(process)
 {
 case 1: //Isothermic
-cout << "\n Define Temperature in K:" << endl;
+cout << "\nDefine Temperature in K: ";
 cin >> T;
 output << "Defined Temperature = " << T << " K" << endl;
 break;
 
 case 2: //Isobaric
-cout << "\n Define Pressure in bar: ";
+cout << "\nDefine Pressure in bar: ";
 cin >> P;
 output << "Defined Pressure = " << P << " kPa" << endl;
 break;
 }
 
-cout << "\n Use binary interaction parameter? \n 1.Yes \n 2.No" << endl;
+cout << "\nUse binary interaction parameter? \n 1.Yes \n 2.No" << endl;
 cin >> binary_interaction;
 if(binary_interaction==1)
 {
-cout << "Enter the value for k12: \n";
+cout << "\nEnter the value for k12: ";
 cin >> k12;
 output << "kij = " << k12 << endl;
 }
@@ -866,7 +866,7 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
     cin.get();
 */
 
- if(counter2==100)
+ if(counter2==200)
  {
    sumKx = sumKxold;
    errorSUMKx = 0.00000000000001;
@@ -1065,7 +1065,7 @@ Told = T;
 }
 
 }
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 if(mixture==2)
 {
 
@@ -1307,8 +1307,8 @@ for(i=0;i<(4*nc);i++)
     Xv = volume_function(nc, EdE, phase, y, Xv, EdE_parameters, bv, av, R, T, P, tolV, tolZv, b, combining_rule, beta_row,
                         beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv, BETCR);
     }
-    X1l = Xl(0)*Xl(1)*Xl(2)*Xl(3);
-    X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3);
+    X1l = Xl(0)*Xl(1)*Xl(2)*Xl(3)*Xl(4)*Xl(5)*Xl(6)*Xl(7);
+    X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3)*Xv(4)*Xv(5)*Xv(6)*Xv(7);
     phase = 1;
     phi_liquid_phase = fugacity_function(nc, phase, al, bl, a, b, R, T, P, tolZl, EdE_parameters, MR, q_prime, r, Aij, x, q, EdE,
                                          alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1);

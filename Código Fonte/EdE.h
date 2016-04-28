@@ -113,6 +113,12 @@ switch(EdE)
     pre_a2 = pre_a.transpose()*Tc2.asDiagonal();
     a = pre_a2.transpose()*Pc.asDiagonal().inverse();
     a = a.array()*1000;
+
+    pre_a = PSI*R*R*alfa.array();
+    Tc2 = Tc.array().pow(2)/1000; //sem essa divisão, o valor extrapola o limite superior
+    pre_a2 = (Tc2.asDiagonal())*pre_a;
+    a = (Pc.asDiagonal().inverse())*pre_a2;
+    a = a.array()*1000;
     break;
 
     case 2: //PR
@@ -441,15 +447,15 @@ PSI = EdE_parameters[3];
     deltaV = 0;
 
 /*
-        ofstream Residue_liquid("../Análise/F_obj_liquid.csv");
-        ofstream Residue_vapor("../Análise/F_obj_vapor.csv");
+        ofstream Residue_liquid("../Planilhas de análise/F_obj_liquid.csv");
+        ofstream Residue_vapor("../Planilhas de análise/F_obj_vapor.csv");
 
-for (iota_res=0.001 ; iota_res<=1.000 ; iota_res=iota_res+0.001)
+for (iota_res=0.0001 ; iota_res<=1.000 ; iota_res=iota_res+0.0002)
 {
     V_residue = bm/iota_res;
 
     X_residue = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row, tolX, x, EdE,
-                     EdE_parameters, b, tolZ, V_residue, deltaV, X, i, a, &Q_func);
+                     EdE_parameters, b, tolZ, V_residue, deltaV, X, i, a, &Q_func, BETCR);
 
     Residue = CPA_volume_obj_function(nc, V_residue, R, P, am, bm, T, x, X_residue, Bcpa, iota, i, a);
 
@@ -682,12 +688,15 @@ iter = 0;
     //cout << "i = " << i << endl;
     //cin.get();
     }
+    //cout << "iota = " << iota << endl;
+    //cout << "dP_dV = " << max_dP_dV << endl;
+    //cin >> i;
     break;
 
 
 
     }
-    //cin.get();
+
 return X;
 }
 
@@ -823,10 +832,10 @@ return X;
 */
 
 //Function to calculate fugacity
-VectorXd fugacity_function(int nc, int phase, double am, double bm, VectorXd a, VectorXd b, double R, double T, double P, double tolZ,
-                           VectorXd EdE_parameters, int MR, VectorXd q_prime, VectorXd r, MatrixXd A, VectorXd x, VectorXd qUNIQUAC,
-                           int EdE, MatrixXd alfa_NRTL, int G_ex_model, double k12, VectorXd X, double tolV, double V, VectorXd n_v,
-                           double Vt, double *Z_phase, double *u_phase)
+VectorXd fugacity_function(int nc, int phase, double am, double bm, VectorXd a, VectorXd b, double R, double T, double P,
+                           double tolZ, VectorXd EdE_parameters, int MR, VectorXd q_prime, VectorXd r, MatrixXd A, VectorXd x,
+                           VectorXd qUNIQUAC, int EdE, MatrixXd alfa_NRTL, int G_ex_model, double k12, VectorXd X, double tolV,
+                           double V, VectorXd n_v, double Vt, double *Z_phase, double *u_phase)
 {
     //Variables-----------------------------------------------------------------------
     int d;
@@ -1023,6 +1032,44 @@ d = 0;
 
     Z = P*V/(R*T);
 
+    switch(phase) //Calculating compressibility factor
+    {
+    case 1: //Liquid phase - PR - SRK -------
+    Zi = B; //Initial guess
+    errorZ = tolZ + 1;
+      while(errorZ>tolZ)
+      {
+       Z = B + (Zi+epsilon*B) * (Zi+sigma*B) * ((1+B-Zi)/(qe*B));
+       errorZ = fabs(Z-Zi);
+       Zi = Z;
+       if(d==1000)
+       {
+           errorZ = tolZ-1;
+       }
+       d++;
+      }
+    break;
+
+
+    case 2: //Vapor phase - PR - SRK ----------------------------
+    Zi = 1; //Initial guess
+    errorZ = tolZ + 1;
+     while(errorZ>tolZ)
+      {
+       Z = 1+ B - (qe*B)*((Zi-B)/((Zi+epsilon*B)*(Zi+sigma*B)));
+       errorZ = fabs(Z-Zi);
+       Zi = Z;
+
+       if(d==1000)
+       {
+           errorZ = tolZ-1;
+       }
+       d++;
+      }
+    break;
+    }
+
+
     (*Z_phase) = Z;
 
     I = (1/(sigma-epsilon))*(log((Z+B*sigma)/(Z+B*epsilon)));
@@ -1210,6 +1257,10 @@ d = 0;
     VectorXd one_4(4), one_nc(nc), one_4nc(nc4), Biv(nc), Biv1(nc), Div(nc), dlng_dn(nc);
     MatrixXd one_4c(nc4,nc), kij(nc,nc), aij(nc,nc), aiaj(nc,nc), raiz_aiaj(nc,nc), raiz_aiaj_kij(nc,nc), kij1(nc,nc), bij(nc,nc), h_1(nc,4), u_assoc_2(nc,4);
 
+    double Am, Bm, ln_phi_phys2;
+    VectorXd ln_phi_phys1(nc), ln_phi_phys3(nc);
+
+
 sigma = EdE_parameters[0];
 epsilon = EdE_parameters[1];
 OMEGA = EdE_parameters[2];
@@ -1289,47 +1340,60 @@ PSI = EdE_parameters[3];
 
 
     n_v = n_v.asDiagonal()*x;
-
+    n_v = x;
+    //cout << "n_v = " << n_v << endl;
+    //cout << "WOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOW" << endl;
 
     //cout << "n_v after = " << n_v << endl;
     //*********************************************************************************************************
     //cout << "x = \n" << x << endl;
     //cout << "n_v = \n" << n_v << endl;
 
-     //Parâmetros de auílio para os cálculos de Z e u
+     //Parâmetros de auxílio para os cálculos de Z e u
      n_t = one_nc.transpose()*n_v;
      bij = (((b*(one_nc.transpose()))+((b*(one_nc.transpose())).transpose())).array())/2;
      Bcpa = n_v.transpose()*b;
+
+
+     Bcpa = x.transpose()*b;
+
+
      Biv1 = 2*((bij*n_v).array());
      Biv = (Biv1.array()-Bcpa)/n_t;
      Div = 2*((aij*n_v).array());
-     dlng_dn = (b.array())*(0.475/(Vt-0.475*Bcpa));
+     dlng_dn = (b.array())*(0.475/(V-0.475*Bcpa));
+
+
+     dlng_dn = (Biv.array())*(0.475/(V-0.475*Bcpa));
+
+
      p_dlng_dp = 0.475*bm/(V-0.475*bm);
-     p_dlng_dp = 0.475*Bcpa/(V-0.475*Bcpa);
+     //p_dlng_dp = 0.475*Bcpa/(V-0.475*Bcpa);
      eta = bm/(4*V);
      g = 1/(1-1.9*eta);
      h_1 = (n_v*one_4.transpose()).transpose();
+
+     h_1 = (x*one_4.transpose()).transpose();
+
+
      VectorXd h_1_vector(Map<VectorXd>(h_1.data(), h_1.cols()*h_1.rows()));
      h = (h_1_vector.transpose())*(one_4nc-X);
-     //cout << "X = \n" << X << endl;
-
 
      //Associative compressibility factor
      Z_assoc = -0.5*(1+p_dlng_dp)*h;
-     //cout << "p_dlng_dp = " << p_dlng_dp << endl;
-     //cout << "h = " << h << endl;
-     //Z_assoc = +2*(1+eta/g*p_dlng_dp)*h;
 
      //Physical(SRK) compressibility factor
      Z_SRK = V/(V-bm)-am/(R*T*(V+bm));
-     //cout << "am = " << am << endl;
-     //cout << "bm = " << bm << endl;
 
      //CPA compressibility factor
      Z_CPA = Z_SRK + Z_assoc;
      (*Z_phase) = Z_CPA;
 
      //Associative residual chemical potential for CPA
+     //g = (1-0.5*eta)/((1-eta)*(1-eta)*(1-eta));
+     //dlng_dn = b*P/(R*T)*(2.5-eta)/(8*g*Z_CPA)/((1-eta)*(1-eta)*(1-eta)*(1-eta));
+
+
      lnX = X.array().log();
      u_assoc_1 = one_4nc.transpose()*(((lnX.asDiagonal())*one_4c));
      u_assoc_2 = ((dlng_dn)*one_4.transpose()).transpose();
@@ -1340,16 +1404,21 @@ PSI = EdE_parameters[3];
      u_assoc_3c = n_v.asDiagonal()*u_assoc_3b;
      u_assoc_4 = (one_nc.transpose())*u_assoc_3c;
      u_assoc = u_assoc_1.array()-0.5*u_assoc_4;
+     //u_assoc = u_assoc_1.array()+u_assoc_4;
+
 /*
+     cout << "X = \n" << X << endl;
+     cout << "lnX = \n" << lnX << endl;
+     cout << "dlng_dn = \n" << dlng_dn << endl;
      cout << "0.5*((one_nc.transpose()*u_assoc_4).array()) = \n" << 0.5*((one_nc.transpose()*u_assoc_4).array()) << endl;
      cout << "u_assoc_3 = \n" << u_assoc_3 << endl;
      cout << "u_assoc_2 = \n" << u_assoc_2 << endl;
      cout << "u_assoc_1.array()-0.5*((one_nc.transpose()*u_assoc_4).array()) = \n" << u_assoc_1.array()-0.5*((one_nc.transpose()*u_assoc_4).array()) << endl;
      cout << "u_assoc_1.array() = \n" << u_assoc_1.array() << endl;
      cout << "u_assoc_2_vector = \n" << u_assoc_2_vector << endl;
-     cout << "u_assoc = \n" << u_assoc << endl;;
+     cout << "u_assoc = \n" << u_assoc << endl;
+     cin.get();
 */
-
      //Physical(SRK) residual chemical potential for CPA
      Fn = -(log(1-Bcpa/Vt));
      f = (log(1+Bcpa/Vt))/(R*Bcpa);
@@ -1387,7 +1456,36 @@ PSI = EdE_parameters[3];
 
      ln_phi = u_CPA.array() - log(Z_CPA);
      phi = ln_phi.array().exp();
-     //cout << "phi = \n" << phi << endl;
+
+     Am = am*P/(R*R*T*T);
+     Bm = bm*P/(R*T);
+     ln_phi_phys1 = b/bm*(Z_CPA-1);
+     ln_phi_phys2 = log(Z_CPA-Bm);
+     ln_phi_phys3 = 2*(x.transpose()*aij).transpose().array()/am - (b/bm).array();
+     ln_phi_phys3 = Am/Bm*ln_phi_phys3*log((Z_CPA+Bm)/Z_CPA);
+     ln_phi = ln_phi_phys1.array()-ln_phi_phys2-ln_phi_phys3.array();
+     ln_phi = ln_phi.array()+u_assoc.array();
+     //phi = ln_phi.array().exp();
+     /*
+     cout << "///////////////////////////////" << endl;
+     cout << "Z_CPA = " << Z_CPA << endl;
+     cout << "Am = " << Am << endl;
+     cout << "Bm = " << Bm << endl;
+     cout << "u_assoc = " << u_assoc << endl;
+     cout << "ln_phi_phys1 = " << ln_phi_phys1.transpose() << endl;
+     cout << "ln_phi_phys2 = " << ln_phi_phys2 << endl;
+     cout << "aij = \n" << aij << endl;
+     cout << "am = " << am << endl;
+     cout << "x = \n" << n_v << endl;
+     cout << "x.transpose()*aij = \n" << x.transpose()*aij << endl;
+     cout << "2*(x.transpose()*aij) = \n" << 2*(x.transpose()*aij) << endl;
+     cout << "(x.transpose()*aij).transpose().array()/am = \n" << (x.transpose()*aij).transpose().array()/am << endl;
+     cout << "2*(x.transpose()*aij).transpose().array()/am = \n" << 2*(x.transpose()*aij).transpose().array()/am << endl;
+     cout << "b/bm = \n" << b/bm << endl;
+     cout << "ln_phi_phys3 = " << ln_phi_phys3.transpose() << endl;
+     cout << "ln_phi = " << ln_phi.transpose() << endl;
+     cout << "phi = " << phi.transpose() << endl;
+     */
      break;
 
     }
