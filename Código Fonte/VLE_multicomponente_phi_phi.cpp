@@ -846,6 +846,9 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
 
     finalSUMKx = sumKxnew;
     errorSUMKx = fabs(finalSUMKx - initialSUMKx);
+
+    errorSUMKx = errorSUMKx/finalSUMKx;
+
     sumKx = sumKxnew;
 
 /*
@@ -883,6 +886,9 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
 double errorKxnew;
 Ey = sumKx-1;
 errorKx = fabs(Ey);
+
+errorKx = errorKx/sumKx;
+
 y = Kx.array()/sumKx;
 
 //cout << "sumKx = " << sumKx << endl;
@@ -1069,7 +1075,7 @@ Told = T;
 if(mixture==2)
 {
 
-for (x(0)=0.001 ; x(0)<=1.000 ; x(0)=x(0)+0.001)
+for (x(0)=0.0001 ; x(0)<=1.000 ; x(0)=x(0)+0.005)
 {
  x(1) = 1-x(0);
 
@@ -1307,8 +1313,8 @@ for(i=0;i<(4*nc);i++)
     Xv = volume_function(nc, EdE, phase, y, Xv, EdE_parameters, bv, av, R, T, P, tolV, tolZv, b, combining_rule, beta_row,
                         beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv, BETCR);
     }
-    X1l = Xl(0)*Xl(1)*Xl(2)*Xl(3)*Xl(4)*Xl(5)*Xl(6)*Xl(7);
-    X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3)*Xv(4)*Xv(5)*Xv(6)*Xv(7);
+    X1l = Xl(0)*Xl(1)*Xl(2)*Xl(3);
+    X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3);
     phase = 1;
     phi_liquid_phase = fugacity_function(nc, phase, al, bl, a, b, R, T, P, tolZl, EdE_parameters, MR, q_prime, r, Aij, x, q, EdE,
                                          alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1);
@@ -1404,7 +1410,7 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
     finalSUMKx = sumKxnew;
     errorSUMKx = fabs(finalSUMKx - initialSUMKx);
 
-    //errorSUMKx = errorSUMKx/initialSUMKx;
+    errorSUMKx = errorSUMKx/finalSUMKx;
 
     sumKx = sumKxnew;
 
@@ -1426,10 +1432,10 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
     cin.get();
 */
 
- if(counter2==100)
+ if(counter2==200)
  {
    sumKx = sumKxold;
-   errorSUMKx = 0.00000000000001;
+   errorSUMKx = 0.0000000001;
  }
  counter2++;
 
@@ -1444,7 +1450,7 @@ double errorKxnew;
 Ey = sumKx-1;
 errorKx = fabs(Ey);
 
-//errorKx = errorKx/sumKx;
+errorKx = errorKx/sumKx;
 
 y = Kx.array()/sumKx;
 

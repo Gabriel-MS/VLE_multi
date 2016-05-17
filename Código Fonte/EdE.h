@@ -525,13 +525,7 @@ iter = 0;
     }
 */
     iota_new = iota - div;
-/*
-    cout << "F_obj = " << F_obj << endl;
-    cout << "iota = " << iota << endl;
-    cout << "iota_min = " << iota_min << endl;
-    cout << "iota_max = " << iota_max << endl;
-    cout << "iota_new = " << iota_new << endl;
-*/
+
     if(iota_min<iota_new && iota_new<iota_max)
     {
         iota2 = iota_new;
@@ -544,17 +538,14 @@ iter = 0;
         //cout << "caso 2 \n" << endl;
     }
 
-    cond_iota = fabs(iota2 - iota);
+    cond_iota = fabs(iota2 - iota)/iota;
     cond_iota = fabs(F_obj);
     //esse if como comentário
 
     if(i>0)
     {
     cond_iota = fabs(F_obj/F_obj_derivate);
-
     }
-
-    //cond_iota = fabs(iota2-iota)/iota;
 
     i = i+1;
 
@@ -661,7 +652,7 @@ iter = 0;
 
     if(isnan(*V)==1 || isinf(*V)==1)
     {
-        (*V) = Vinit+Vinit*0.1*k;
+        (*V) = Vinit+Vinit*0.001*k;
         iota = bm/(*V);
         X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row, tolX, x, EdE,
                      EdE_parameters, b, tolZ, (*V), deltaV, X, i, a, &Q_func, BETCR);
@@ -1360,7 +1351,9 @@ PSI = EdE_parameters[3];
 
 
      Biv1 = 2*((bij*n_v).array());
+
      Biv = (Biv1.array()-Bcpa)/n_t;
+
      Div = 2*((aij*n_v).array());
      dlng_dn = (b.array())*(0.475/(V-0.475*Bcpa));
 
@@ -1406,8 +1399,8 @@ PSI = EdE_parameters[3];
      u_assoc_4 = (one_nc.transpose())*u_assoc_3c;
      u_assoc = u_assoc_1.array()-0.5*u_assoc_4;
      //u_assoc = u_assoc_1.array()+u_assoc_4;
-
 /*
+     cout << "x = \n" << x << endl;
      cout << "X = \n" << X << endl;
      cout << "lnX = \n" << lnX << endl;
      cout << "dlng_dn = \n" << dlng_dn << endl;
@@ -1425,12 +1418,31 @@ PSI = EdE_parameters[3];
      f = (log(1+Bcpa/Vt))/(R*Bcpa);
      //f = 1/(R*Bcpa)*(log(1+Bcpa/Vt));
      fV = -(1/(R*Vt*(Vt+Bcpa)));
-     D_T = n_v.transpose()*(aij*n_v);
+     D_T = x.transpose()*(aij*x);
+
+     D_T = am;
+
      FB = n_t/(Vt-Bcpa)+D_T*(f+Vt*fV)/(T*Bcpa);
      FD = -f/T;
      u_SRK = Fn + FB*(Biv.array()) + FD*(Div.array());
 
      //Cálculo do potencial químico residual da CPA
+/*
+    qe = (am/(bm*R*T));
+    diag_a = a.asDiagonal();
+    pre_q_ = (diag_a/am).array().pow(0.5);
+    q_ = qe*(b/bm-2*pre_q_.diagonal());
+
+    B = bm*P/(R*T);
+
+    I = (1/(sigma-epsilon))*(log((Z_SRK+B*sigma)/(Z_SRK+B*epsilon)));
+    logZB = log(Z_SRK-B);
+    q_I = q_*I;
+    Z1 = Z_SRK-1;
+    bZ1 = b/bm*Z1;
+    pre_phi = bZ1.array()-logZB+q_I.array();
+    u_SRK = pre_phi.array() + log(Z_SRK);
+*/
      u_CPA = u_assoc + u_SRK;
      (*u_phase) = u_CPA(0);
 
@@ -1455,7 +1467,7 @@ PSI = EdE_parameters[3];
      cout << "u_SRK = " << u_SRK << endl;
      */
 
-     ln_phi = u_CPA.array()/(R*T) - log(Z_CPA);
+     ln_phi = u_CPA.array() - log(Z_CPA);
      phi = ln_phi.array().exp();
 
      Am = am*P/(R*R*T*T);
@@ -1467,7 +1479,7 @@ PSI = EdE_parameters[3];
      ln_phi = ln_phi_phys1.array()-ln_phi_phys2-ln_phi_phys3.array();
      ln_phi = ln_phi.array()+u_assoc.array();
      //phi = ln_phi.array().exp();
-/*
+     /*
      cout << "///////////////////////////////" << endl;
      cout << "Z_CPA = " << Z_CPA << endl;
      cout << "Am = " << Am << endl;
@@ -1486,8 +1498,7 @@ PSI = EdE_parameters[3];
      cout << "ln_phi_phys3 = " << ln_phi_phys3.transpose() << endl;
      cout << "ln_phi = " << ln_phi.transpose() << endl;
      cout << "phi = " << phi.transpose() << endl;
-
-*/
+     */
      break;
 
     }

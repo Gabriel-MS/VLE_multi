@@ -895,8 +895,9 @@ while(X_max>tolX || g.maxCoeff()>tolX)
     Xcond = Xcond.array().abs();
     X_max = Xcond.maxCoeff(); //Valor necessário para convergência
 
-    X = Xnew;
+    X_max = X_max/(X.maxCoeff());
 
+    X = Xnew;
     }
 
     else //Os passos restantes são dados com o método de segunda ordem
@@ -966,11 +967,11 @@ while(X_max>tolX || g.maxCoeff()>tolX)
     Xcond = Xcond.array().abs();
     X_max = Xcond.maxCoeff(); //Valor necessário para convergência
 
+    X_max = X_max/(X.maxCoeff());
+
     X = Xnew;
 
     //ESSE IF ESTAVA ANTES DO Q_FUNC
-
-
     }
 
     i++;
