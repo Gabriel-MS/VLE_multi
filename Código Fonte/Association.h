@@ -897,7 +897,6 @@ while(X_max>tolX || g.maxCoeff()>tolX)
 
     X = Xnew;
 
-
     }
 
     else //Os passos restantes são dados com o método de segunda ordem

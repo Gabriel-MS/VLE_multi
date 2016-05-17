@@ -285,10 +285,10 @@ R = 0.08314462; // L.bar/K/mol
 //Tolerances
 tolZv = 0.0000001; //Erro para convergência de Zv
 tolZl = 0.0000001; //Erro para convergência de Zl
-tolSUMKx = 0.0001; //Erro para convergência no somatório de Kx
-tolKx = 0.000001; //Erro para convergência de Kx
-tolX = 0.000001; //Fraction of non-associating sites tolerance
-tolV = 0.000001; //Volume tolerance
+tolSUMKx = 0.000001; //Erro para convergência no somatório de Kx
+tolKx = 0.00001; //Erro para convergência de Kx
+tolX = 0.00000001; //Fraction of non-associating sites tolerance
+tolV = 0.0000001; //Volume tolerance
 
 Tr = T*Tc.asDiagonal().inverse().diagonal(); //Vetor com temperaturas reduzidas
 //Cálculo dos alfas
@@ -1403,6 +1403,9 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
 
     finalSUMKx = sumKxnew;
     errorSUMKx = fabs(finalSUMKx - initialSUMKx);
+
+    //errorSUMKx = errorSUMKx/initialSUMKx;
+
     sumKx = sumKxnew;
 
 /*
@@ -1440,6 +1443,9 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
 double errorKxnew;
 Ey = sumKx-1;
 errorKx = fabs(Ey);
+
+//errorKx = errorKx/sumKx;
+
 y = Kx.array()/sumKx;
 
 //cout << "sumKx = " << sumKx << endl;

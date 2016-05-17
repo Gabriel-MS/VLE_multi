@@ -547,13 +547,14 @@ iter = 0;
     cond_iota = fabs(iota2 - iota);
     cond_iota = fabs(F_obj);
     //esse if como comentário
-    /*
+
     if(i>0)
     {
     cond_iota = fabs(F_obj/F_obj_derivate);
 
     }
-    */
+
+    //cond_iota = fabs(iota2-iota)/iota;
 
     i = i+1;
 
@@ -1454,7 +1455,7 @@ PSI = EdE_parameters[3];
      cout << "u_SRK = " << u_SRK << endl;
      */
 
-     ln_phi = u_CPA.array() - log(Z_CPA);
+     ln_phi = u_CPA.array()/(R*T) - log(Z_CPA);
      phi = ln_phi.array().exp();
 
      Am = am*P/(R*R*T*T);
@@ -1466,7 +1467,7 @@ PSI = EdE_parameters[3];
      ln_phi = ln_phi_phys1.array()-ln_phi_phys2-ln_phi_phys3.array();
      ln_phi = ln_phi.array()+u_assoc.array();
      //phi = ln_phi.array().exp();
-     /*
+/*
      cout << "///////////////////////////////" << endl;
      cout << "Z_CPA = " << Z_CPA << endl;
      cout << "Am = " << Am << endl;
@@ -1485,7 +1486,8 @@ PSI = EdE_parameters[3];
      cout << "ln_phi_phys3 = " << ln_phi_phys3.transpose() << endl;
      cout << "ln_phi = " << ln_phi.transpose() << endl;
      cout << "phi = " << phi.transpose() << endl;
-     */
+
+*/
      break;
 
     }
