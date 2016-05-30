@@ -827,7 +827,7 @@ return X;
 VectorXd fugacity_function(int nc, int phase, double am, double bm, VectorXd a, VectorXd b, double R, double T, double P,
                            double tolZ, VectorXd EdE_parameters, int MR, VectorXd q_prime, VectorXd r, MatrixXd A, VectorXd x,
                            VectorXd qUNIQUAC, int EdE, MatrixXd alfa_NRTL, int G_ex_model, double k12, VectorXd X, double tolV,
-                           double V, VectorXd n_v, double Vt, double *Z_phase, double *u_phase, VectorXd y)
+                           double V, VectorXd n_v, double Vt, double *Z_phase, double *u_phase)
 {
     //Variables-----------------------------------------------------------------------
     int d;
@@ -1333,13 +1333,8 @@ PSI = EdE_parameters[3];
 
     //n_v = n_v.asDiagonal()*x;
     n_v = x;
-    double n_t_phase;
-    VectorXd z(nc), n_phase(nc);
-
-    z = (x.array()+y.array())/2;
     n_t = one_nc.transpose()*n_v;
-    n_phase = (((y.array()-z.array()).abs())/(((y.array()-x.array())).abs()))*n_t;
-    n_t_phase = one_nc.transpose()*n_phase;
+
 
     //cout << "n_v = " << n_v << endl;
     //cout << "WOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOW" << endl;
@@ -1441,7 +1436,7 @@ PSI = EdE_parameters[3];
      f = (log(1+Bcpa/Vt))/(R*Bcpa);
      //f = 1/(R*Bcpa)*(log(1+Bcpa/Vt));
      fV = -(1/(R*Vt*(Vt+Bcpa)));
-     D_T = n_phase.transpose()*(aij*n_phase);
+     D_T = x.transpose()*(aij*x);
 
      D_T = am;
 
