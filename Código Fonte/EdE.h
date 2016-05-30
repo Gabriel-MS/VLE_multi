@@ -827,7 +827,7 @@ return X;
 VectorXd fugacity_function(int nc, int phase, double am, double bm, VectorXd a, VectorXd b, double R, double T, double P,
                            double tolZ, VectorXd EdE_parameters, int MR, VectorXd q_prime, VectorXd r, MatrixXd A, VectorXd x,
                            VectorXd qUNIQUAC, int EdE, MatrixXd alfa_NRTL, int G_ex_model, double k12, VectorXd X, double tolV,
-                           double V, VectorXd n_v, double Vt, double *Z_phase, double *u_phase)
+                           double V, VectorXd n_v, double Vt, double *Z_phase, double *u_phase, VectorXd y)
 {
     //Variables-----------------------------------------------------------------------
     int d;
@@ -1023,7 +1023,7 @@ d = 0;
     }
 
     Z = P*V/(R*T);
-
+/*
     switch(phase) //Calculating compressibility factor
     {
     case 1: //Liquid phase - PR - SRK -------
@@ -1061,7 +1061,7 @@ d = 0;
     break;
     }
 
-
+*/
     (*Z_phase) = Z;
 
     I = (1/(sigma-epsilon))*(log((Z+B*sigma)/(Z+B*epsilon)));
@@ -1331,8 +1331,16 @@ PSI = EdE_parameters[3];
     //cout << "n_v phi" << n_v << endl;
 
 
-    n_v = n_v.asDiagonal()*x;
+    //n_v = n_v.asDiagonal()*x;
     n_v = x;
+    double n_t_phase;
+    VectorXd z(nc), n_phase(nc);
+
+    z = (x.array()+y.array())/2;
+    n_t = one_nc.transpose()*n_v;
+    n_phase = (((y.array()-z.array()).abs())/(((y.array()-x.array())).abs()))*n_t;
+    n_t_phase = one_nc.transpose()*n_phase;
+
     //cout << "n_v = " << n_v << endl;
     //cout << "WOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOW" << endl;
 
@@ -1342,23 +1350,28 @@ PSI = EdE_parameters[3];
     //cout << "n_v = \n" << n_v << endl;
 
      //Parâmetros de auxílio para os cálculos de Z e u
-     n_t = one_nc.transpose()*n_v;
      bij = (((b*(one_nc.transpose()))+((b*(one_nc.transpose())).transpose())).array())/2;
      Bcpa = n_v.transpose()*b;
 
 
      Bcpa = x.transpose()*b;
+     //Bcpa = n_phase.transpose()*b;
 
 
      Biv1 = 2*((bij*n_v).array());
+     //Biv1 = 2*((bij*n_phase).array());//-----------------NEW-------------------NEW----------------NEW------------------------
 
      Biv = (Biv1.array()-Bcpa)/n_t;
 
      Div = 2*((aij*n_v).array());
+     //Div = 2*((aij*n_phase).array());//-----------------NEW-------------------NEW----------------NEW------------------------
+
+     Vt = V;
+
      dlng_dn = (b.array())*(0.475/(V-0.475*Bcpa));
 
 
-     dlng_dn = (Biv.array())*(0.475/(V-0.475*Bcpa));
+     //dlng_dn = (Biv.array())*(0.475/(V-0.475*Bcpa));
 
 
      p_dlng_dp = 0.475*bm/(V-0.475*bm);
@@ -1368,7 +1381,6 @@ PSI = EdE_parameters[3];
      h_1 = (n_v*one_4.transpose()).transpose();
 
      h_1 = (x*one_4.transpose()).transpose();
-
 
      VectorXd h_1_vector(Map<VectorXd>(h_1.data(), h_1.cols()*h_1.rows()));
      h = (h_1_vector.transpose())*(one_4nc-X);
@@ -1396,8 +1408,19 @@ PSI = EdE_parameters[3];
      u_assoc_3 = u_assoc_2_vector.asDiagonal()*(one_4nc-X);
      u_assoc_3b = one_4nc.transpose()*(((u_assoc_3.asDiagonal())*one_4c));
      u_assoc_3c = n_v.asDiagonal()*u_assoc_3b;
+
+     //u_assoc_3c = n_phase.asDiagonal()*u_assoc_3b;//-----------------NEW-------------------NEW----------------NEW------------------------
+
+
      u_assoc_4 = (one_nc.transpose())*u_assoc_3c;
      u_assoc = u_assoc_1.array()-0.5*u_assoc_4;
+
+
+     lnX = X.array().log();
+     u_assoc_1 = one_4c.transpose()*lnX;
+     u_assoc_2 = h*dlng_dn.array();
+     u_assoc = u_assoc_1-0.5*u_assoc_2;
+
      //u_assoc = u_assoc_1.array()+u_assoc_4;
 /*
      cout << "x = \n" << x << endl;
@@ -1418,7 +1441,7 @@ PSI = EdE_parameters[3];
      f = (log(1+Bcpa/Vt))/(R*Bcpa);
      //f = 1/(R*Bcpa)*(log(1+Bcpa/Vt));
      fV = -(1/(R*Vt*(Vt+Bcpa)));
-     D_T = x.transpose()*(aij*x);
+     D_T = n_phase.transpose()*(aij*n_phase);
 
      D_T = am;
 
