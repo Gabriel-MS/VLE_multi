@@ -12,7 +12,6 @@
 using namespace std;
 using namespace Eigen;
 
-//Função para calcular o volume de auto-associação--------------------------------------------------
 MatrixXd volume_auto_association(int assoc_scheme, double beta)
 {
 
@@ -409,6 +408,163 @@ E_auto << E_AA, E_AB, E_AC, E_AD,
           E_CA, E_CB, E_CC, E_CD,
           E_DA, E_DB, E_DC, E_DD;
 
+E_auto_assoc = (E_auto.array()/(R*T)).exp();
+
+return E_auto_assoc;
+}
+
+//Função para calcular o volume de auto-associação--------------------------------------------------
+MatrixXd volume_cross_association(int assoc_scheme, double beta)
+{
+
+double beta_AA, beta_AB, beta_BB, beta_BA, beta_AC, beta_BC, beta_CC, beta_CB, beta_CA, beta_AD,
+       beta_BD, beta_CD, beta_DD, beta_DC, beta_DB, beta_DA;
+MatrixXd beta_auto(4,2);
+
+switch(assoc_scheme)
+{
+case 1:  //1
+//Volume de associação
+    beta_auto << beta, beta,
+                 0,    0,
+                 0,    0,
+                 0,    0;
+    break;
+
+case 2: //2A
+//Volume de associação
+    beta_auto << beta,    beta,
+                 beta,    beta,
+                 0,    0,
+                 0,    0;
+    break;
+
+case 3: //2B
+//Volume de associação
+    beta_auto << 0,    beta,
+                 beta, 0,
+                 0,    0,
+                 0,    0;
+    break;
+
+case 4: //3A
+//Volume de associação
+    beta_auto << beta,    beta,
+                 beta,    beta,
+                 beta,    beta,
+                 0,    0;
+    break;
+
+case 5: //3B
+//Volume de associação
+    beta_auto << 0,    beta,
+                 0,    beta,
+                 beta,    0,
+                 0,       0;
+    break;
+
+case 6: //4A
+//Volume de associação
+    beta_auto << beta,    beta,
+                 beta,    beta,
+                 beta,    beta,
+                 beta,    beta;
+    break;
+
+case 7: //4B
+//Volume de associação
+    beta_auto << 0,    0,
+                 0,    0,
+                 0,    0,
+                 0,    0;
+    break;
+
+
+case 8: //4C
+//Volume de associação
+    beta_auto << 0,    beta,
+                 0,    beta,
+                 beta,    0,
+                 beta,    0;
+    break;
+}
+
+return beta_auto;
+}
+
+//Função para calcular a energia de auto-associação-------------------------------------------------
+MatrixXd energy_cross_association(int assoc_scheme, double E, double R, double T)
+{
+double E_AA, E_AB, E_BB, E_BA, E_AC, E_BC, E_CC, E_CB, E_CA, E_AD, E_BD, E_CD, E_DD, E_DC, E_DB, E_DA;
+MatrixXd E_auto(4,2), E_auto_assoc(4,2);
+
+switch(assoc_scheme)
+{
+case 1:  //1
+//Energia de associação
+    E_auto << E, E,
+              0, 0,
+              0, 0,
+              0, 0;
+    break;
+
+case 2: //2A
+//Energia de associação
+    E_auto << 0, 0,
+              0, 0,
+              0, 0,
+              0, 0;
+    break;
+
+case 3: //2B
+//Energia de associação
+    E_auto << 0, E,
+              E, 0,
+              0, 0,
+              0, 0;
+    break;
+
+case 4: //3A
+//Energia de associação
+    E_auto << 0, 0,
+              0, 0,
+              0, 0,
+              0, 0;
+    break;
+
+case 5: //3B
+//Energia de associação
+    E_auto << 0, E,
+              0, E,
+              E, 0,
+              0, 0;
+    break;
+
+case 6: //4A
+//Energia de associação
+    E_auto << E, E,
+              E, E,
+              E, E,
+              E, E;
+    break;
+
+case 7: //4B
+//Energia de associação
+    E_auto << 0, 0,
+              0, 0,
+              0, 0,
+              0, 0;
+    break;
+
+case 8: //4C
+//Energia de associação
+    E_auto << 0, E,
+              0, E,
+              E, 0,
+              E, 0;
+    break;
+}
+
 E_auto_assoc = (E_auto.array()/(2*R*T)).exp();
 
 return E_auto_assoc;
@@ -418,7 +574,7 @@ return E_auto_assoc;
 MatrixXd DELTA_function(int combining_rule, int nc, int phase, double R, double T, double P, double tolV,
                VectorXd alfa, double am, double bm, MatrixXd beta_col, MatrixXd beta_row, MatrixXd E_col,
                MatrixXd E_row, int EdE, VectorXd x, VectorXd X, VectorXd EdE_parameters, VectorXd bi, double tolZ,
-               double V, double BETCR)
+               double V, double BETCR, MatrixXd E_auto, MatrixXd beta_auto)
 {
     int nc4;
     nc4 = 4*nc;
@@ -466,28 +622,67 @@ cout << "BiBj2 = \n" << BiBj2 << endl;
 
 //Definindo a matriz para energia e volume de associação-cruzada
 MatrixXd E_cross(nc4,nc4), E_cross_1(nc4,nc4), beta_cross(nc4,nc4), DELTA(nc4,nc4), DELTA_row(nc4,nc4),
-         E_row_1(nc4,nc4), E_col_1(nc4,nc4), DELTA_col(nc4,nc4), beta_cross_BETCR(nc4,nc4);
+         E_row_1(nc4,nc4), E_col_1(nc4,nc4), DELTA_col(nc4,nc4), beta_cross_BETCR(nc4,nc4), zero4(nc4,nc4);
+         int j;
   switch(combining_rule)
   {
   case 1: //CR-1
-    E_cross = E_row.cwiseProduct(E_col);
-    beta_cross = (beta_row.cwiseProduct(beta_col)).array().pow(0.5);
-    /*
-    beta_cross << 0, 0.01, 0, 0, 0, 0, 0, 0,
-                 0.01, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0;
-    */
+    zero4 = MatrixXd::Zero(4,4);
+
+    for(i=0;i<4*nc;i++)
+    {
+        for(j=0;j<2;j++)
+        {
+            if(E_row(i,j)==1)
+            {
+                E_row(i,j) = 0;
+            }
+        }
+    }
+
+    E_cross = E_row*E_row.transpose();
+    beta_cross = (beta_row*beta_row.transpose()).array().pow(0.5);
+/*
+    //beta_cross(0,5) = pow((beta_cross(0,1)*beta_cross(4,4)),(0.5));
+    beta_cross(1,4) = pow((beta_cross(0,1)*beta_cross(4,4)),(0.5));
+    //beta_cross(5,0) = pow((beta_cross(0,1)*beta_cross(4,4)),(0.5));
+    beta_cross(4,1) = pow((beta_cross(0,1)*beta_cross(4,4)),(0.5));
+
+    E_cross(1,4) = pow(E_cross(0,1)*E_cross(4,4),0.5);
+    E_cross(4,1) = pow(E_cross(0,1)*E_cross(4,4),0.5);
+*/
+    for(j=0;j<nc;j++)
+    {
+        E_cross.block(4*j, 4*j, 4, 4) << zero4;
+        beta_cross.block(4*j, 4*j, 4, 4) = zero4;
+    }
+
+    E_cross = E_cross.array() + E_auto.array();
+    beta_cross = beta_cross.array() + beta_auto.array();
+
+    for(i=0;i<4*nc;i++)
+    {
+        for(j=0;j<4*nc;j++)
+        {
+            if(E_cross(i,j)<1e-100)
+            {
+                E_cross(i,j) = 1;
+            }
+        }
+    }
+
     E_cross_1 = E_cross.array()-1;
     DELTA = (g_Vm * E_cross_1).cwiseProduct(Bij.cwiseProduct(beta_cross));
-    /*cout << "\nE_row = \n" << E_row << endl;
-    cout << "\nE_col = \n" << E_col << endl;
+/*
+    cout << "\nE_row = \n" << E_row << endl;
+    cout << "\nE_auto = \n" << E_auto << endl;
     cout << "\nbeta_row = \n" << beta_row << endl;
-    cout << "\nbeta_col = \n" << beta_col << endl;
+    cout << "\nbeta_auto = \n" << beta_auto << endl;
     cout << "\nE_cross = \n" << E_cross << endl;
     cout << "\nbeta_cross = \n" << beta_cross << endl;
     cout << "\nDELTA = \n" << DELTA << endl;
-    cin.get();*/
+    cin.get();
+*/
     break;
 
   case 2: //CR-2
@@ -536,17 +731,46 @@ MatrixXd E_cross(nc4,nc4), E_cross_1(nc4,nc4), beta_cross(nc4,nc4), DELTA(nc4,nc
 
     E_cross = E_row.cwiseProduct(E_col);
     beta_cross = (beta_row.cwiseProduct(beta_col)).array().pow(0.5);
-    beta_cross = (beta_cross.cwiseProduct(BiBj2)).cwiseQuotient(Bij);
+    //beta_cross = (beta_cross.cwiseProduct(BiBj2)).cwiseQuotient(Bij);
+
+    beta_cross(0,5) = 0.008511757;
+    beta_cross(1,4) = 0.008511757;
+    beta_cross(5,0) = 0.008511757;
+    beta_cross(4,1) = 0.008511757;
+
     E_cross_1 = E_cross.array()-1;
     DELTA = (g_Vm * E_cross_1).cwiseProduct(Bij.cwiseProduct(beta_cross));
+
+
+    E_cross = E_row.cwiseProduct(E_col);
+    beta_cross = (beta_row.cwiseProduct(beta_col)).array().pow(0.5);
+
+    //beta_cross(0,5) = pow((beta_cross(0,1)*beta_cross(4,4)),(0.5));
+    beta_cross(1,4) = pow((beta_cross(0,1)*beta_cross(4,4)),(0.5));
+    //beta_cross(5,0) = pow((beta_cross(0,1)*beta_cross(4,4)),(0.5));
+    beta_cross(4,1) = pow((beta_cross(0,1)*beta_cross(4,4)),(0.5));
+
+    E_cross(1,4) = pow(E_cross(0,1)*E_cross(4,4),0.5);
+    E_cross(4,1) = pow(E_cross(0,1)*E_cross(4,4),0.5);
+
+    E_cross_1 = E_cross.array()-1;
+    DELTA = (g_Vm * E_cross_1).cwiseProduct(Bij.cwiseProduct(beta_cross));
+
+    DELTA(0,5) = pow((DELTA(0,1)*DELTA(4,4)),(0.5));
+    DELTA(1,4) = pow((DELTA(0,1)*DELTA(4,4)),(0.5));
+    DELTA(5,0) = pow((DELTA(0,1)*DELTA(4,4)),(0.5));
+    DELTA(4,1) = pow((DELTA(0,1)*DELTA(4,4)),(0.5));
+
+    DELTA(0,5) = 0;
+    DELTA(5,0) = 0;
 /*
-    cout << "E_row = \n" << E_row << endl;
-    cout << "E_col = \n" << E_col << endl;
-    cout << "beta_row = \n" << beta_row << endl;
-    cout << "beta_col = \n" << beta_col << endl;
-    cout << "E_cross = \n" << E_cross << endl;
-    cout << "beta_cross = \n" << beta_cross << endl;
-    cout << "DELTA = \n" << DELTA << endl;
+    cout << "\nE_row = \n" << E_row << endl;
+    cout << "\nE_col = \n" << E_col << endl;
+    cout << "\nbeta_row = \n" << beta_row << endl;
+    cout << "\nbeta_col = \n" << beta_col << endl;
+    cout << "\nE_cross = \n" << E_cross << endl;
+    cout << "\nbeta_cross = \n" << beta_cross << endl;
+    cout << "\nDELTA = \n" << DELTA << endl;
     cin.get();
 */
     break;
@@ -584,7 +808,7 @@ return DELTA;
 VectorXd fraction_nbs_initial(int nc, int combining_rule, int phase, double R, double T, double P, double tolV,
                       VectorXd alfa, double am, double bm, MatrixXd beta_col, MatrixXd beta_row, MatrixXd E_col,
                       MatrixXd E_row, double tolX, VectorXd x, int EdE, VectorXd EdE_parameters, VectorXd bi,
-                      double tolZ, double V, double BETCR)
+                      double tolZ, double V, double BETCR, MatrixXd E_auto, MatrixXd beta_auto)
 {
     VectorXd X(4*nc), Xnew(4*nc), Xcond(4*nc), pre_Xnew(4*nc), g(4*nc), deltaX(4*nc), lnXX(4*nc), X1(4*nc), lnXX2(4*nc);
     MatrixXd DELTA(4*nc,4*nc), xXD (4*nc,4*nc), one_4_x(4,nc), H(4*nc,4*nc), K(4*nc,4*nc), I(4*nc,4*nc), H_1(4*nc,4*nc);
@@ -674,7 +898,7 @@ while(X_max>tolX)
     if(i<=5) //Os primeiros cinco passos são dados com o método de substituição sucessiva
     {
     DELTA = DELTA_function(combining_rule, nc, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
-                           EdE, x, X, EdE_parameters, bi, tolZ, V, BETCR);
+                           EdE, x, X, EdE_parameters, bi, tolZ, V, BETCR, E_auto, beta_auto);
 
     zero_one << 0, 0, 0, 0, 1, 1, 1, 1,
                0, 0, 0, 0, 1, 1, 1, 1,
@@ -765,7 +989,7 @@ VectorXd fraction_nbs(int nc, int combining_rule, int phase, double R, double T,
                       VectorXd alfa, double am, double bm, MatrixXd beta_col, MatrixXd beta_row, MatrixXd E_col,
                       MatrixXd E_row, double tolX, VectorXd x, int EdE, VectorXd EdE_parameters,
                       VectorXd bi, double tolZ, double V, double deltaV, VectorXd X, int iter, VectorXd a,
-                      double *Q_func, double BETCR)
+                      double *Q_func, double BETCR, MatrixXd E_auto, MatrixXd beta_auto)
 {
     VectorXd Xnew(4*nc), Xnew2(4*nc), Xcond(4*nc), pre_Xnew(4*nc), pre_XnewV2(4*nc), g(4*nc), deltaX(4*nc), lnXX(4*nc),
              X1(4*nc), lnXX2(4*nc), dX_dV(4*nc), QXV(4*nc), X2(4*nc);
@@ -797,7 +1021,7 @@ VectorXd fraction_nbs(int nc, int combining_rule, int phase, double R, double T,
 
     //Chute inicial de X a partir de deltaV
     DELTA = DELTA_function(combining_rule, nc, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
-                           EdE, x, X, EdE_parameters, bi, tolZ, V, BETCR);
+                           EdE, x, X, EdE_parameters, bi, tolZ, V, BETCR, E_auto, beta_auto);
 
     DELTA_pure = (1/(1-1.9*(bm/4/V)))*(exp(E_col(1,0)/R/T)-1)*((bi(0)+bi(1))/2)*beta_col(0,1);
 
@@ -853,7 +1077,7 @@ while(X_max>tolX || g.maxCoeff()>tolX)
     if(i<=4) //Os primeiros cinco passos são dados com o método de substituição sucessiva
     {
     DELTA = DELTA_function(combining_rule, nc, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
-                           EdE, x, X, EdE_parameters, bi, tolZ, V, BETCR);
+                           EdE, x, X, EdE_parameters, bi, tolZ, V, BETCR, E_auto, beta_auto);
 
     zero_one << 0, 0, 0, 0, 1, 1, 1, 1,
                 0, 0, 0, 0, 1, 1, 1, 1,
@@ -903,7 +1127,7 @@ while(X_max>tolX || g.maxCoeff()>tolX)
     else //Os passos restantes são dados com o método de segunda ordem
     {
     DELTA = DELTA_function(combining_rule, nc, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
-                           EdE, x, X, EdE_parameters, bi, tolZ, V, BETCR);
+                           EdE, x, X, EdE_parameters, bi, tolZ, V, BETCR, E_auto, beta_auto);
 
     zero_one << 1, 1, 1, 1, 0, 0, 0, 0,
                 1, 1, 1, 1, 0, 0, 0, 0,
@@ -967,7 +1191,7 @@ while(X_max>tolX || g.maxCoeff()>tolX)
     Xcond = Xcond.array().abs();
     X_max = Xcond.maxCoeff(); //Valor necessário para convergência
 
-    X_max = X_max/(X.maxCoeff());
+    //X_max = X_max/(X.maxCoeff());
 
     X = Xnew;
 
@@ -986,6 +1210,7 @@ while(X_max>tolX || g.maxCoeff()>tolX)
     X(6) = 1;
     X(7) = 1;
 */
+    //cout << "X_max = " << X_max << endl;
 
     return X;
 }

@@ -261,7 +261,7 @@ VectorXd volume_function(int nc, int EdE, int phase, VectorXd x, VectorXd X, Vec
                        double am, double R, double T, double P, double tolV, double tolZ, VectorXd b, int combining_rule,
                        MatrixXd beta_row, MatrixXd beta_col, MatrixXd E_row, MatrixXd E_col, VectorXd alfa, double tolX,
                        VectorXd n_v, double *V, double Vinit, VectorXd a, double *V_obj, double *Q, double *dP_dV_output,
-                       double BETCR)
+                       double BETCR, MatrixXd E_auto, MatrixXd beta_auto)
 {
     int i;
     double B, sigma, epsilon, OMEGA, PSI, Vi, errorV, errorZ, condV, Vnew, F_obj, F_obj_plus, F_obj_minus;
@@ -484,7 +484,7 @@ iter = 0;
     if(i==0)
     {
     X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row, tolX, x, EdE,
-                     EdE_parameters, b, tolZ, (*V), deltaV, X, i, a, &Q_func, BETCR);
+                     EdE_parameters, b, tolZ, (*V), deltaV, X, i, a, &Q_func, BETCR, E_auto, beta_auto);
     }
 
     F_obj = CPA_volume_obj_function(nc, (*V), R, P, am, bm, T, x, X, Bcpa, iota, i, a);
@@ -563,7 +563,7 @@ iter = 0;
     if(i!=0)
     {
     X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row, tolX, x, EdE,
-                     EdE_parameters, b, tolZ, (*V), deltaV, X, i, a, &Q_func, BETCR);
+                     EdE_parameters, b, tolZ, (*V), deltaV, X, i, a, &Q_func, BETCR, E_auto, beta_auto);
     }
 
     v_dlng_dv = 0.475*bm/((*V)-0.475*bm);
@@ -579,7 +579,7 @@ iter = 0;
 
 //********************************ESSA PARTE É NOVA PARA CALCULAR NOVO h!!!!!********************************************************************
     DELTA = DELTA_function(combining_rule, nc, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
-                           EdE, x, X, EdE_parameters, b, tolZ, (*V), BETCR);
+                           EdE, x, X, EdE_parameters, b, tolZ, (*V), BETCR, E_auto, beta_auto);
     xXD = (((one_4_x_vector.asDiagonal()*X)*one_4nc.transpose()).transpose()).cwiseProduct(DELTA);
     pre_Xnew = ((one_4nc.transpose()*xXD).array())/(*V);
     QXV = (one_4_x_vector.asDiagonal()*pre_Xnew)*(1/(*V)-1);
@@ -655,7 +655,7 @@ iter = 0;
         (*V) = Vinit+Vinit*0.001*k;
         iota = bm/(*V);
         X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row, tolX, x, EdE,
-                     EdE_parameters, b, tolZ, (*V), deltaV, X, i, a, &Q_func, BETCR);
+                     EdE_parameters, b, tolZ, (*V), deltaV, X, i, a, &Q_func, BETCR, E_auto, beta_auto);
         max_dP_dV = 0.1;
         cond_iota = tolV+1;
         k++;
@@ -665,7 +665,7 @@ iter = 0;
         //cin.get();
     }
 
-    if (i>500)
+    if (i>300)
     {
         max_dP_dV = -0.1;
         cond_iota = tolV-1;

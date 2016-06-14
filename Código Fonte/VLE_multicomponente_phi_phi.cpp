@@ -81,7 +81,8 @@ VectorXd ln10(nc), logPsat(nc), lnPsat(nc), x(nc), y(nc), phi_liquid_phase(nc), 
 VectorXd a0(nc), bCPA(nc), E(nc), beta(nc), c1(nc), X(4*nc), Xl(4*nc), Xv(4*nc);
 VectorXd n_v(nc), n_vx(nc), n_vy(nc), yinit(nc);
 MatrixXd DELTA (4*nc,4*nc), alfa_NRTL(nc,nc), Aij(nc,nc);
-MatrixXd E_row(4*nc,4*nc), E_col(4*nc,4*nc), beta_row(4*nc,4*nc), beta_col(4*nc,4*nc), E_i(4,4), beta_i(4,4), E_iRT(4,4);
+MatrixXd E_row(4*nc,2), E_col(4*nc,2), beta_row(4*nc,2), beta_col(4*nc,2), E_i(4,2), beta_i(4,2), E_iRT(4,2);
+MatrixXd E_n(4*nc,4*nc), beta_n(4*nc,4*nc), beta_auto(4*nc,4*nc), E_auto(4*nc,4*nc);
 VectorXd u_liquid(nc), u_vapor(nc), cond_u(nc);
 double tol_u, max_cond_u, u_liquid1, u_vapor1;
 int combining_rule, assoc_scheme;
@@ -249,10 +250,10 @@ R = 0.08314462; // L.bar/K/mol
 //Tolerances
 tolZv = 0.0000001; //Erro para convergência de Zv
 tolZl = 0.0000001; //Erro para convergência de Zl
-tolSUMKx = 0.000001; //Erro para convergência no somatório de Kx
-tolKx = 0.00001; //Erro para convergência de Kx
-tolX = 0.00000001; //Fraction of non-associating sites tolerance
-tolV = 0.0000001; //Volume tolerance
+tolSUMKx = 0.00001; //Erro para convergência no somatório de Kx
+tolKx = 0.0001; //Erro para convergência de Kx
+tolX = 0.0000001; //Fraction of non-associating sites tolerance
+tolV = 0.000001; //Volume tolerance
 
 Tr = T*Tc.asDiagonal().inverse().diagonal(); //Vetor com temperaturas reduzidas
 //Cálculo dos alfas
@@ -404,23 +405,35 @@ for (j=0; j<nc; j++)
     cin >> assoc_type[j];
     output << "Association model component " << j+1 << " =" << assoc_type[j] << endl;
 }
+
 //Defining matrix for energy and volume of auto-association
 for (j=0; j<nc; j++)
 {
 
     E_component = E(j);
     beta_component = beta(j);
-    E_i = energy_auto_association(assoc_type[j], E_component, R, T);
-    beta_i = volume_auto_association(assoc_type[j], beta_component);
+    E_i = energy_cross_association(assoc_type[j], E_component, R, T);
+    beta_i = volume_cross_association(assoc_type[j], beta_component);
 
-    for (i=0; i<nc; i++)
-    {
-        E_col.block(4*i,4*j,4,4) << E_i;
-        beta_col.block(4*i,4*j,4,4) = beta_i;
-    }
+    E_n = energy_auto_association(assoc_type[j], E_component, R, T);
+    beta_n = volume_auto_association(assoc_type[j], beta_component);
 
+    E_col.block(4*j, 0, 4, 2) << E_i;
+    beta_col.block(4*j, 0, 4, 2) = beta_i;
+
+    E_auto.block(4*j,4*j,4,4) << E_n;
+    beta_auto.block(4*j,4*j,4,4) << beta_n;
+
+    E_row = E_col;
+    beta_row = beta_col;
+/*
+    cout << "\nE_n = \n" << E_n << endl;
+    cout << "\nE_auto = \n" << E_auto << endl;
+    cout << "\nbeta_n = \n" << beta_n << endl;
+    cout << "\nbeta_auto = \n" << beta_auto << endl;
+*/
 }
-
+/*
 for (i=0; i<nc; i++)
 {
     E_component = E(i);
@@ -434,7 +447,7 @@ for (i=0; i<nc; i++)
         beta_row.block(4*i,4*j,4,4) = beta_i;
     }
 }
-
+*/
 }
 
 
@@ -678,11 +691,11 @@ for(i=0;i<(4*nc);i++)
     deltaV = 0;
     phase = 1;
     Xl = volume_function(nc, EdE, phase, x, Xl, EdE_parameters, bl, al, R, T, P, tolV, tolZl, b, combining_rule, beta_row,
-                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vl, Vlinit, a, &Vl_obj, &Ql, &dP_dVl, BETCR);
+                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vl, Vlinit, a, &Vl_obj, &Ql, &dP_dVl, BETCR, E_auto, beta_auto);
 
     phase = 2;
     Xv = volume_function(nc, EdE, phase, y, Xv, EdE_parameters, bv, av, R, T, P, tolV, tolZv, b, combining_rule, beta_row,
-                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv, BETCR);
+                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv, BETCR, E_auto, beta_auto);
     }
     X1l = Xl(0)*Xl(1)*Xl(2)*Xl(3);
     X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3);
@@ -738,7 +751,7 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
     phase = 2;
     deltaV = 0;
     Xv = volume_function(nc, EdE, phase, y, Xv, EdE_parameters, bv, av, R, T, P, tolV, tolZv, b, combining_rule, beta_row,
-                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv, BETCR);
+                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv, BETCR, E_auto, beta_auto);
     X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3);
     }
 
@@ -1089,8 +1102,6 @@ tol_u = 0.00001;
 
 while(errorKx>tolKx)
 {
-
-cout << "T = " << T << endl;
 Tr = T*Tc.asDiagonal().inverse().diagonal();
 alfa = alfa_function(EdE, nc, Tr, omega, a0, c1);
 a = a_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, EdE, a0);
@@ -1138,11 +1149,11 @@ for(i=0;i<(4*nc);i++)
     deltaV = 0;
     phase = 1;
     Xl = volume_function(nc, EdE, phase, x, Xl, EdE_parameters, bl, al, R, T, P, tolV, tolZl, b, combining_rule, beta_row,
-                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vl, Vlinit, a, &Vl_obj, &Ql, &dP_dVl, BETCR);
+                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vl, Vlinit, a, &Vl_obj, &Ql, &dP_dVl, BETCR, E_auto, beta_auto);
 
     phase = 2;
     Xv = volume_function(nc, EdE, phase, y, Xv, EdE_parameters, bv, av, R, T, P, tolV, tolZv, b, combining_rule, beta_row,
-                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv, BETCR);
+                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv, BETCR, E_auto, beta_auto);
     }
     X1l = Xl(0)*Xl(1)*Xl(2)*Xl(3);
     X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3);
@@ -1197,7 +1208,7 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
     phase = 2;
     deltaV = 0;
     Xv = volume_function(nc, EdE, phase, y, Xv, EdE_parameters, bv, av, R, T, P, tolV, tolZv, b, combining_rule, beta_row,
-                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv, BETCR);
+                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv, BETCR, E_auto, beta_auto);
     X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3);
     }
 
@@ -1217,7 +1228,7 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
 
     sumKx = sumKxnew;
 
- if(counter2==200)
+ if(counter2==100)
  {
    sumKx = sumKxold;
    errorSUMKx = 0.0000000001;
@@ -1248,6 +1259,7 @@ case 2: //Isobaric
 
     E_row = ((E_row.array().log())*Told/T).exp();
     E_col = ((E_col.array().log())*Told/T).exp();
+    E_auto = ((E_auto.array().log())*Told/T).exp();
 break;
 }
 
