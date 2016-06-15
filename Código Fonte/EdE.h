@@ -13,8 +13,97 @@
 
 using namespace Eigen;
 using namespace std;
+/*
+VectorXd Renormalization(double T, VectorXd L_v, VectorXd fi_v, VectorXd x, double V, double am, int nc)
+{
+    int i;
+    double kB, L, L3, fi, K, rho, rho_plus, rho_minus, alfa, fl_plus, fl, fl_minus, fs_plus, fs, fs_minus;
+    double Gl, Gs, OMEGA, delta_f, f, f0, fl_old_plus, fl_old_minus, fs_old_plus, fs_old_minus, fl_old, fs_old;
+    double OMEGAs, OMEGAl, f_old;
+    VectorXd L3_v(nc);
 
+    kB = 0; //Boltzmann constant
+    alfa = 0.5*am; //0.5 para 2B, 0.8 para 4C
 
+    L3_v = L_v.array().pow(3);
+    L3 = x.transpose()*L3_v;
+    L = pow(L3,(1/3)); //Cut-off Length
+
+    rho = 1/V;
+    rho_plus = rho+0.001;
+    rho_minus = rho-0.001;
+
+    fi = x.transpose()*fi_v; //Second crossover parameter phi
+
+    for(i=0;i=8;i++)
+    {
+        K = kB*T/((pow(2,3*i))*pow(L,3));
+
+        fl_plus = fl_old_plus + alfa*rho_plus*rho_plus;
+        fl = fl_old + alfa*rho*rho;
+        fl_minus = fl_old_minus + alfa*rho_minus*rho_minus;
+
+        fs_plus = fs_old_plus + alfa*fi*rho_plus*rho_plus/(pow(2,2*i+1));
+        fs = fs_old + alfa*fi*rho*rho/(pow(2,2*i+1));
+        fs_minus = fs_old_minus + alfa*fi*rho_minus*rho_minus/(pow(2,2*i+1));
+
+        Gl = (fl_plus-2*fl+fl_minus)/2;
+        Gs = (fs_plus-2*fs+fs_minus)/2;
+
+        OMEGA = 0;
+        delta_f = -K*log(OMEGAs/OMEGAl);
+
+        f = f_old - delta_f;
+    }
+
+    return f;
+}
+
+VectorXd Renormalization_u(double T, VectorXd L_v, VectorXd fi_v, VectorXd x, double V, double am, int nc)
+{
+    int i;
+    double kB, L, L3, fi, K, rho, rho_plus, rho_minus, alfa, fl_plus, fl, fl_minus, fs_plus, fs, fs_minus;
+    double Gl, Gs, OMEGA, delta_f, f, f0, fl_old_plus, fl_old_minus, fs_old_plus, fs_old_minus, fl_old, fs_old;
+    double OMEGAs, OMEGAl, f_old;
+    VectorXd L3_v(nc);
+
+    kB = 0; //Boltzmann constant
+    alfa = 0.5*am; //0.5 para 2B, 0.8 para 4C
+
+    L3_v = L_v.array().pow(3);
+    L3 = x.transpose()*L3_v;
+    L = pow(L3,(1/3)); //Cut-off Length
+
+    rho = 1/V;
+    rho_plus = rho+0.001;
+    rho_minus = rho-0.001;
+
+    fi = x.transpose()*fi_v; //Second crossover parameter phi
+
+    for(i=0;i=8;i++)
+    {
+        K = kB*T/((pow(2,3*i))*pow(L,3));
+
+        fl_plus = fl_old_plus + alfa*rho_plus*rho_plus;
+        fl = fl_old + alfa*rho*rho;
+        fl_minus = fl_old_minus + alfa*rho_minus*rho_minus;
+
+        fs_plus = fs_old_plus + alfa*fi*rho_plus*rho_plus/(pow(2,2*i+1));
+        fs = fs_old + alfa*fi*rho*rho/(pow(2,2*i+1));
+        fs_minus = fs_old_minus + alfa*fi*rho_minus*rho_minus/(pow(2,2*i+1));
+
+        Gl = (fl_plus-2*fl+fl_minus)/2;
+        Gs = (fs_plus-2*fs+fs_minus)/2;
+
+        OMEGA = 0;
+        delta_f = -K*log(OMEGAs/OMEGAl);
+
+        f = f_old - delta_f;
+    }
+
+    return f;
+}
+*/
 //Function to calculate alfa
 VectorXd alfa_function(int EdE, int nc, VectorXd Tr, VectorXd omega, VectorXd a0, VectorXd c1)
 {
@@ -56,7 +145,7 @@ switch(EdE)
 return alfa;
 }
 
-//Function to get set up EdE parameters
+//Function to set up EdE parameters
 VectorXd EdE_parameters_function(int EdE)
 {
     double sigma, epsilon, OMEGA, PSI;

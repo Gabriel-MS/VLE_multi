@@ -622,8 +622,10 @@ cout << "BiBj2 = \n" << BiBj2 << endl;
 
 //Definindo a matriz para energia e volume de associação-cruzada
 MatrixXd E_cross(nc4,nc4), E_cross_1(nc4,nc4), beta_cross(nc4,nc4), DELTA(nc4,nc4), DELTA_row(nc4,nc4),
-         E_row_1(nc4,nc4), E_col_1(nc4,nc4), DELTA_col(nc4,nc4), beta_cross_BETCR(nc4,nc4), zero4(nc4,nc4);
+         E_row_1(nc4,nc4), E_col_1(nc4,nc4), DELTA_col(nc4,nc4), beta_cross_BETCR(nc4,nc4), zero4(nc4,nc4),
+         E_auto_1(nc4,nc4), DELTA_auto(nc4,nc4), DELTA_cross(nc4,nc4);
          int j;
+
   switch(combining_rule)
   {
   case 1: //CR-1
@@ -708,71 +710,47 @@ MatrixXd E_cross(nc4,nc4), E_cross_1(nc4,nc4), beta_cross(nc4,nc4), DELTA(nc4,nc
 
 
   case 5: //ECR
-/*
-    E_row_1 = g_Vm*(E_row.array())-1;
-    E_col_1 = g_Vm*(E_col.array())-1;
-    DELTA_row = (E_row_1).cwiseProduct(beta_row);
-    DELTA_col = (E_col_1).cwiseProduct(beta_col);
-    DELTA = ((DELTA_row.cwiseProduct(DELTA_col)).cwiseProduct(Bij)).array().pow(0.5);
-    */
+    zero4 = MatrixXd::Zero(4,4);
 
-    /*
-    cout << "E_row = \n" << E_row << endl;
-    cout << "E_col = \n" << E_col << endl;
-    cout << "beta_row = \n" << beta_row << endl;
-    cout << "beta_col = \n" << beta_col << endl;
-    cout << "E_row_1 = \n" << E_row_1 << endl;
-    cout << "E_col_1 = \n" << E_col_1 << endl;
-    cout << "DELTA_row = \n" << DELTA_row << endl;
-    cout << "DELTA_col = \n" << DELTA_col << endl;
-    cout << "DELTA = \n" << DELTA << endl;
-    cin >> phase;
-    */
+    for(i=0;i<4*nc;i++)
+    {
+        for(j=0;j<2;j++)
+        {
+            if(E_row(i,j)==1)
+            {
+                E_row(i,j) = 0;
+            }
+        }
+    }
 
-    E_cross = E_row.cwiseProduct(E_col);
-    beta_cross = (beta_row.cwiseProduct(beta_col)).array().pow(0.5);
-    //beta_cross = (beta_cross.cwiseProduct(BiBj2)).cwiseQuotient(Bij);
+    E_cross = E_row*E_row.transpose();
+    beta_cross = (beta_row*beta_row.transpose()).array().pow(0.5);
 
-    beta_cross(0,5) = 0.008511757;
-    beta_cross(1,4) = 0.008511757;
-    beta_cross(5,0) = 0.008511757;
-    beta_cross(4,1) = 0.008511757;
+    for(j=0;j<nc;j++)
+    {
+        E_cross.block(4*j, 4*j, 4, 4) << zero4;
+        beta_cross.block(4*j, 4*j, 4, 4) = zero4;
+    }
 
-    E_cross_1 = E_cross.array()-1;
-    DELTA = (g_Vm * E_cross_1).cwiseProduct(Bij.cwiseProduct(beta_cross));
-
-
-    E_cross = E_row.cwiseProduct(E_col);
-    beta_cross = (beta_row.cwiseProduct(beta_col)).array().pow(0.5);
-
-    //beta_cross(0,5) = pow((beta_cross(0,1)*beta_cross(4,4)),(0.5));
-    beta_cross(1,4) = pow((beta_cross(0,1)*beta_cross(4,4)),(0.5));
-    //beta_cross(5,0) = pow((beta_cross(0,1)*beta_cross(4,4)),(0.5));
-    beta_cross(4,1) = pow((beta_cross(0,1)*beta_cross(4,4)),(0.5));
-
-    E_cross(1,4) = pow(E_cross(0,1)*E_cross(4,4),0.5);
-    E_cross(4,1) = pow(E_cross(0,1)*E_cross(4,4),0.5);
+    for(i=0;i<4*nc;i++)
+    {
+        for(j=0;j<4*nc;j++)
+        {
+            if(E_cross(i,j)<1e-100)
+            {
+                E_cross(i,j) = 1;
+            }
+        }
+    }
 
     E_cross_1 = E_cross.array()-1;
-    DELTA = (g_Vm * E_cross_1).cwiseProduct(Bij.cwiseProduct(beta_cross));
+    E_auto_1 = E_auto.array()-1;
 
-    DELTA(0,5) = pow((DELTA(0,1)*DELTA(4,4)),(0.5));
-    DELTA(1,4) = pow((DELTA(0,1)*DELTA(4,4)),(0.5));
-    DELTA(5,0) = pow((DELTA(0,1)*DELTA(4,4)),(0.5));
-    DELTA(4,1) = pow((DELTA(0,1)*DELTA(4,4)),(0.5));
+    DELTA_auto = (g_Vm * E_cross_1).cwiseProduct(Bij.cwiseProduct(beta_cross));
+    DELTA_cross = (g_Vm * E_auto_1).cwiseProduct(Bij.cwiseProduct(beta_auto));
+    DELTA = DELTA_auto.array() + DELTA_cross.array();
 
-    DELTA(0,5) = 0;
-    DELTA(5,0) = 0;
-/*
-    cout << "\nE_row = \n" << E_row << endl;
-    cout << "\nE_col = \n" << E_col << endl;
-    cout << "\nbeta_row = \n" << beta_row << endl;
-    cout << "\nbeta_col = \n" << beta_col << endl;
-    cout << "\nE_cross = \n" << E_cross << endl;
-    cout << "\nbeta_cross = \n" << beta_cross << endl;
-    cout << "\nDELTA = \n" << DELTA << endl;
-    cin.get();
-*/
+
     break;
 
     case 6: //mCR-1

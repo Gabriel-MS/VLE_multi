@@ -97,7 +97,7 @@ double Vl_obj, Vv_obj, Ql, Qv, dP_dVl, dP_dVv;
 double log10P, Tb, Tinit, Told;
 double G_ex;
 VectorXd Tsat(nc), Alog10P(nc), gama(nc), ln_gama(nc);
-double init_T, final_T, step, BETCR;
+double init_T, final_T, step, BETCR, init_P, final_P, Pold;
 int max_num_iter, counter, stop;
 //--------------------------------------------------------------------------------
 max_num_iter = 500;
@@ -478,18 +478,38 @@ output     << "x1 " << ";" << "y1 " << ";" << "T " << ";" << "P" << ";" << "Vl" 
 if(mixture==1)
 {
 
-cout << "\nDefine initial Temperature: ";
-cin >> init_T;
+if(process==1)
+{
+    cout << "\nDefine initial Temperature: ";
+    cin >> init_T;
 
-cout << "\nDefine final Temperature: ";
-cin >> final_T;
+    cout << "\nDefine final Temperature: ";
+    cin >> final_T;
 
-cout << "\nDefine steps: ";
-cin >> step;
+    cout << "\nDefine steps: ";
+    cin >> step;
 
-T = init_T;
-Told = T;
+    T = init_T;
+    Told = T;
+}
 
+if(process==2)
+{
+    cout << "\nDefine initial Pressure: ";
+    cin >> init_P;
+
+    cout << "\nDefine final Pressure: ";
+    cin >> final_P;
+
+    cout << "\nDefine steps: ";
+    cin >> step;
+
+    P = init_P;
+    Pold = P;
+}
+
+if(process==1)
+{
 for (T = init_T ; T<=final_T ; T=T+step)
 {
  x(0) = 0.999999;
@@ -803,6 +823,7 @@ case 2: //Isobaric
 
     E_row = ((E_row.array().log())*Told/T).exp();
     E_col = ((E_col.array().log())*Told/T).exp();
+    E_auto = ((E_auto.array().log())*Told/T).exp();
 break;
 }
 
@@ -940,6 +961,466 @@ if(iter_choice==1)
 Told = T;
 
 
+
+}
+
+}
+
+
+if(process==2)
+{
+for (P = init_P ; P<=final_P ; P=P+step)
+{
+ x(0) = 0.999999;
+ x(1) = 1-x(0);
+
+ if(iter_choice==1)
+ {
+ cout << "Define Pressure: ";
+ cin >> P;
+
+ counter = 0;
+
+    if(counter==0)
+    {
+        switch(process)
+        {
+            case 1: //Isothermic
+            P = Psat.transpose()*x;
+            Pinit = P;
+            break;
+
+            case 2: //Isobaric
+            T = Tsat.transpose()*x;
+            Tinit = T;
+            CT = C.array()+T;
+            logPsat = A - (CT.asDiagonal().inverse()*B);
+            ln10.fill(log(10));
+            lnPsat = (logPsat*ln10.transpose()).diagonal();
+            Psat = lnPsat.array().exp();
+            cout << "Tinit" << Tinit << endl;
+            break;
+            //cin.get();
+        }
+
+    y = ((Psat*x.transpose()).diagonal()).array()/P;
+    yinit = y;
+    }
+
+ }
+
+ if(nc>2)
+ {
+     iter_choice=1;
+
+     int q;
+     q = 0;
+     while(q<nc)
+     {
+     cout << "Define x for component " << q+1 << " : ";
+     cin >> x(q);
+     q++;
+     }
+ }
+
+/*
+switch(process)
+{
+case 1: //Isothermic
+P = Pinit;
+break;
+
+case 2: //Isobaric
+T = Tinit;
+CT = C.array()+T;
+logPsat = A - (CT.asDiagonal().inverse()*B);
+ln10.fill(log(10));
+lnPsat = (logPsat*ln10.transpose()).diagonal();
+Psat = lnPsat.array().exp();
+
+Tr = T*Tc.asDiagonal().inverse().diagonal();
+alfa = alfa_function(EdE, nc, Tr, omega, a0, c1);
+a = a_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, EdE, a0);
+b = b_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, bCPA, EdE);
+break;
+}
+*/
+
+if(counter == max_num_iter)
+{
+    switch(process)
+    {
+    case 1: //Isothermic
+    P = Psat.transpose()*x;
+    break;
+
+    case 2: //Isobaric
+    T = Tsat.transpose()*x;
+    CT = C.array()+T;
+    logPsat = A - (CT.asDiagonal().inverse()*B);
+    ln10.fill(log(10));
+    lnPsat = (logPsat*ln10.transpose()).diagonal();
+    Psat = lnPsat.array().exp();
+    break;
+    }
+
+y = ((Psat*x.transpose()).diagonal()).array()/P;
+}
+
+if(counter != max_num_iter)
+{
+    switch(process)
+    {
+    case 1: //Isothermic
+    P = Pinit;
+
+        if(isnan(y(0))==1 || isinf(y(0))==1)
+        {
+        y = ((Psat*x.transpose()).diagonal()).array()/P;
+        }
+
+        else
+        {
+        y = yinit;
+        }
+    break;
+
+    case 2: //Isobaric
+    T = Tinit;
+    CT = C.array()+T;
+    logPsat = A - (CT.asDiagonal().inverse()*B);
+    ln10.fill(log(10));
+    lnPsat = (logPsat*ln10.transpose()).diagonal();
+    Psat = lnPsat.array().exp();
+
+        if(isnan(y(0))==1 || isinf(y(0))==1)
+        {
+        y = ((Psat*x.transpose()).diagonal()).array()/P;
+        }
+
+        else
+        {
+        y = yinit;
+        }
+
+    Tr = T*Tc.asDiagonal().inverse().diagonal();
+    alfa = alfa_function(EdE, nc, Tr, omega, a0, c1);
+    a = a_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, EdE, a0);
+    b = b_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, bCPA, EdE);
+    break;
+    }
+
+Vlinit = Vl;
+Vvinit = Vv;
+}
+
+counter = 0;
+int k;
+k=1;
+errorKx = tolKx + 1;
+tol_u = 0.00001;
+
+while(errorKx>tolKx)
+{
+Tr = T*Tc.asDiagonal().inverse().diagonal();
+alfa = alfa_function(EdE, nc, Tr, omega, a0, c1);
+a = a_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, EdE, a0);
+b = b_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, bCPA, EdE);
+
+double Bcpa;
+MatrixXd pre_F(nc,4);
+    VectorXd one_4(4), one_4nc(4*nc);
+    Bcpa = x.transpose()*b;
+one_4 <<    1,
+            1,
+            1,
+            1;
+
+for(i=0;i<(4*nc);i++)
+{
+    one_4nc(i) = 1;
+}
+
+    //Liquid phase fugacity calculation
+    //am and bm calculation
+    phase = 1; //1 for liquid, 2 for vapor
+    bl = b_mixing_rules_function(nc, b, x, MR);
+    al = a_mixing_rules_function(nc, MR, a, x, k12, bl, b, T, q, r, Aij, R, alfa_NRTL, EdE, G_ex_model);
+
+    phase = 2;
+    bv = b_mixing_rules_function(nc, b, y, MR);
+    av = a_mixing_rules_function(nc, MR, a, y, k12, bv, b, T, q, r, Aij, R, alfa_NRTL, EdE, G_ex_model);
+
+    if(counter == 0 || counter == max_num_iter)
+    {
+        Vlinit = bl/0.99; //iota == 0.99
+        Vvinit = bv+(R*T/P); //iota = bv/(bv+(R*T/P), Vvinit = bv/iota
+
+        if(iter_choice==1)
+        {
+        Vl = Vlinit;
+        Vv = Vvinit;
+        }
+    }
+
+
+    if(EdE==3)
+    {
+    deltaV = 0;
+    phase = 1;
+    Xl = volume_function(nc, EdE, phase, x, Xl, EdE_parameters, bl, al, R, T, P, tolV, tolZl, b, combining_rule, beta_row,
+                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vl, Vlinit, a, &Vl_obj, &Ql, &dP_dVl, BETCR, E_auto, beta_auto);
+
+    phase = 2;
+    Xv = volume_function(nc, EdE, phase, y, Xv, EdE_parameters, bv, av, R, T, P, tolV, tolZv, b, combining_rule, beta_row,
+                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv, BETCR, E_auto, beta_auto);
+    }
+    X1l = Xl(0)*Xl(1)*Xl(2)*Xl(3);
+    X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3);
+
+    phase = 1;
+    phi_liquid_phase = fugacity_function(nc, phase, al, bl, a, b, R, T, P, tolZl, EdE_parameters, MR, q_prime, r, Aij, x, q, EdE,
+                                         alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1);
+
+    phase = 2;
+    phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1);
+
+
+K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
+Kx = (x.asDiagonal())*K;
+
+    for(i=0; i<nc; i++)
+    {
+         one(i) = 1;
+    }
+
+sumKx = one.transpose()*Kx;
+double sumKxold;
+sumKxold = sumKx;
+errorSUMKx = tolSUMKx + 1;
+
+
+double counter2;
+counter2 = 0;
+
+while(errorSUMKx>tolSUMKx || counter2<=1)
+    {
+    y = Kx.array()/sumKx;
+
+    initialSUMKx = sumKx;
+
+    //Vapor phase fugacity calculation
+    //am and bm calculation
+    if(process==2)
+    {
+    Tr = T*Tc.asDiagonal().inverse().diagonal();
+    alfa = alfa_function(EdE, nc, Tr, omega, a0, c1);
+    a = a_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, EdE, a0);
+    b = b_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, bCPA, EdE);
+    }
+
+    bv = b_mixing_rules_function(nc, b, y, MR);
+    av = a_mixing_rules_function(nc, MR, a, y, k12, bv, b, T, q, r, Aij, R, alfa_NRTL, EdE, G_ex_model);
+    phase = 2; //1 for liquid, 2 for vapor
+
+    if(EdE==3)
+    {
+    phase = 2;
+    deltaV = 0;
+    Xv = volume_function(nc, EdE, phase, y, Xv, EdE_parameters, bv, av, R, T, P, tolV, tolZv, b, combining_rule, beta_row,
+                        beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv, BETCR, E_auto, beta_auto);
+    X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3);
+    }
+
+    phase = 2;
+    phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1);
+
+
+    K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
+    Kx = (x.asDiagonal())*K;
+    sumKxnew = one.transpose()*Kx;
+
+    finalSUMKx = sumKxnew;
+    errorSUMKx = fabs(finalSUMKx - initialSUMKx);
+
+    errorSUMKx = errorSUMKx/finalSUMKx;
+
+    sumKx = sumKxnew;
+
+ if(counter2==200)
+ {
+   sumKx = sumKxold;
+   errorSUMKx = 0.00000000000001;
+ }
+ counter2++;
+
+    }
+
+double errorKxnew;
+Ey = sumKx-1;
+errorKx = fabs(Ey);
+
+errorKx = errorKx/sumKx;
+
+y = Kx.array()/sumKx;
+
+
+switch(process)
+{
+case 1: //Isothermic
+P = P*sumKx;
+break;
+
+case 2: //Isobaric
+
+    Told = T;
+
+    T = 0.1*T/sumKx+0.9*T; //AQUI DIVIDE
+
+    E_row = ((E_row.array().log())*Told/T).exp();
+    E_col = ((E_col.array().log())*Told/T).exp();
+    E_auto = ((E_auto.array().log())*Told/T).exp();
+break;
+}
+
+if(isnan(errorKx)==1 && process==1)
+{
+    P = (1+0.1*k)*Pinit;
+    y = ((Psat*x.transpose()).diagonal()).array()/P;
+    errorKx = 1;
+    k++;
+}
+
+counter++;
+
+double trivial, V_check;
+
+switch(process)
+{
+case 1: //Isothermic
+    if(isnan(P)==1 || isinf(P)==1)
+{
+    P = (1+0.1*k)*Pinit;
+    y = ((Psat*x.transpose()).diagonal()).array()/P;
+    errorKx = 1;
+    k++;
+    cout << "P = NAN OR INF" << endl;
+    cin.get();
+}
+break;
+
+case 2: //Isobaric
+    if(isnan(T)==1 || isinf(T)==1)
+{
+    T = (1+0.1*k)*T;
+    CT = C.array()+T;
+    logPsat = A - (CT.asDiagonal().inverse()*B);
+    ln10.fill(log(10));
+    lnPsat = (logPsat*ln10.transpose()).diagonal();
+    Psat = lnPsat.array().exp();
+    y = ((Psat*x.transpose()).diagonal()).array()/P;
+    errorKx = 1;
+    k++;
+    cout << "T = NAN OR INF" << endl;
+
+    counter = 500;
+    //cin.get();
+}
+break;
+}
+
+if(counter==max_num_iter)
+    {
+    errorKx=0.00000000000001;
+    }
+}
+
+if(counter!=max_num_iter)
+{
+    switch(process)
+    {
+    case 1: //Isothermic
+    Pinit = P;
+    break;
+
+    case 2: //Isobaric
+    Tinit = T;
+    break;
+    }
+    Vlinit = Vl;
+    Vvinit = Vv;
+    yinit = y;
+}
+
+if(counter==max_num_iter)
+{
+    switch(process)
+    {
+    case 1: //Isothermic
+        Pinit = Psat.transpose()*x;
+        break;
+
+    case 2: //Isobaric
+        Tinit = Tsat.transpose()*x;
+        break;
+    }
+
+    yinit = ((Psat*x.transpose()).diagonal()).array()/Pinit;
+}
+
+//------------------------------------------
+//P = P*100; //Converting from bar para kPa
+//Converting directly on output
+y = Kx;
+gama = Psat.asDiagonal().inverse()*(x.asDiagonal().inverse()*y);
+gama = P*gama.array();
+ln_gama = gama.array().log();
+G_ex = x.transpose()*ln_gama;
+G_ex = G_ex*R*T;
+cout << "--------------------------------" << endl;
+cout << "Zl = " << Zl << endl;
+cout << "Zv = " << Zv << endl;
+cout << "Vl = " << Vl << endl;
+cout << "Vv = " << Vv << endl;
+cout << "x1 = " << x(0) << endl;
+cout << "y1 = " << y(0) << endl;
+cout << "P(bar) = " << P << endl;
+cout << "T(K) = " << T << endl;
+cout << "errorKx = " << errorKx << endl;
+cout <<"--------- counter = " << counter << " ---------" << endl;
+    if(process==1)
+    {
+    output << x(0) << ";" << y(0) << ";" << T << ";" << P*100 << ";" << Vl << ";" << Vv << ";"
+           << sumKx << ";" << counter << ";" << u_liquid1 << ";" << u_vapor1 << ";"
+           << X1l << ";" << X1v << ";" << Zl << ";" << Zv << ";" << phi_liquid_phase(0)
+           << ";" << phi_liquid_phase(1) << ";" << phi_vapor_phase(0) << ";" << phi_vapor_phase(1)
+           << ";" << Vl_obj << ";" << Vv_obj << ";" << dP_dVl << ";" << dP_dVv << ";" << G_ex << endl;
+    }
+
+    if(process==2)
+    {
+    output << x(0) << ";" << y(0) << ";" << P*100 << ";" << T << ";" << Vl << ";" << Vv << ";"
+           << sumKx << ";" << counter << ";" << u_liquid1 << ";" << u_vapor1 << ";"
+           << X1l << ";" << X1v << ";" << Zl << ";" << Zv << ";" << phi_liquid_phase(0)
+           << ";" << phi_liquid_phase(1) << ";" << phi_vapor_phase(0) << ";" << phi_vapor_phase(1)
+           << ";" << Vl_obj << ";" << Vv_obj << ";" << dP_dVl << ";" << dP_dVv << ";" << G_ex << endl;
+    }
+
+
+if(iter_choice==1)
+ {
+ cout << "End of calculation \n \n";
+ counter = 0;
+ }
+
+
+Pold = P;
+
+
+
+}
 
 }
 
