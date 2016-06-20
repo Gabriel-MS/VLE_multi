@@ -1,16 +1,6 @@
-2
-48
-51
-1
-1
-3
-1
-2
-1.013
-2
-1
-3
-3
-3
-3
-2
+erro relativo no fraction_nbs - sem mudança - manter
+erro relativo na iteração da fase V (mixture = 1 e 2) - sem mudança - manter
+erro relativo na iteração principal (mixture = 1 e 2) - sem mudança - manter
+mudança no for da iteração principal
+mudança no phi do CPA
+erro relativo dentro do F_obj
