@@ -98,7 +98,7 @@ double log10P, Tb, Tinit, Told;
 double G_ex;
 VectorXd Tsat(nc), Alog10P(nc), gama(nc), ln_gama(nc);
 double init_T, final_T, step, BETCR, init_P, final_P, Pold;
-int max_num_iter, counter, stop;
+int max_num_iter, counter, stop, Renormalization;
 //--------------------------------------------------------------------------------
 max_num_iter = 500;
 
@@ -138,6 +138,10 @@ double prop[150][18]; //Matrix to hold all data from properties.csv organized
 cout << "\nChoose the EoS: \n 1.Soave-Redlich-Kwong \n 2.Peng-Robinson \n 3.CPA-SRK " << endl;
 cin >> EdE;
 output << "Equation of state = " << EdE << endl;
+
+cout << "\nConsider Renormalization? \n 1.Yes \n 2.No " << endl;
+cin >> Renormalization;
+output << "Renormalization = " << Renormalization << endl;
 
 //Transferring values from 'prop' matrix to vectors
 for(n=0; n<nc; n++)
@@ -473,8 +477,152 @@ output     << "x1 " << ";" << "y1 " << ";" << "T " << ";" << "P" << ";" << "Vl" 
            << "Vl_obj" << ";" << "Vv_obj" << ";" << "dP/dVl" << ";" << "dP/dVv" << ";" <<
               "G_excess" << endl;
 
+if(Renormalization==1)
+{
+    ofstream Renorm("../Planilhas de análise/Renormalization.csv");
+    Renorm << "rho" << ";" << "A" << endl;
+
+    int i;
+    double kB, L, L3, fi, K, rho, rho_plus, rho_minus, fl_plus, fl, fl_minus, fs_plus, fs, fs_minus;
+    double Gl, Gs, OMEGA, delta_f, f, f0, fl_old_plus, fl_old_minus, fs_old_plus, fs_old_minus, fl_old, fs_old;
+    double OMEGAs, OMEGAl, f_old, alfa_r, am, rho_max, bm, tolZ, Q_func, rho2, var, f0_plus, f0_minus;
+    double h, suml, sums, m, j, fl_plus_old, fl_minus_old, fs_plus_old, fs_minus_old;
+    VectorXd L3_v(nc), L_v(nc), fi_v(nc), lnXX2(4*nc), f_assoc(nc), one_4c(4*nc, 2);
+
+    one_4c << 1, 0,
+              1, 0,
+              1, 0,
+              1, 0,
+              0, 1,
+              0, 1,
+              0, 1,
+              0, 1;
+
+    x << 0.999999, 0.000001;
+    L_v << 7.40e10, 7.50e10;
+    fi_v << 8.39, 8.98;
+
+    phase = 1; //1 for liquid, 2 for vapor
+    bl = b_mixing_rules_function(nc, b, x, MR);
+    al = a_mixing_rules_function(nc, MR, a, x, k12, bl, b, T, q, r, Aij, R, alfa_NRTL, EdE, G_ex_model);
+
+    phase = 2;
+    //bv = b_mixing_rules_function(nc, b, y, MR);
+    //av = a_mixing_rules_function(nc, MR, a, y, k12, bv, b, T, q, r, Aij, R, alfa_NRTL, EdE, G_ex_model);
+
+    am = al;
+    bm = bl;
+
+    kB = 1.38064852e-25; //Boltzmann constant L.bar/K
+    alfa_r = 0.5*am; //0.5 para 2B, 0.8 para 4C
+
+    L3_v = L_v.array().pow(3);
+    L3 = x.transpose()*L3_v;
+    L = pow(L3,(1/3)); //Cut-off Length
+
+    fi = x.transpose()*fi_v; //Second crossover parameter phi
+
+    rho_max = 0.999999/bm;
+
+    alfa_r = am;
+
+for(rho=0.01; rho=rho_max*bm; rho=rho+rho_max/500)
+{
+    V = 1/rho;
+
+    if(EdE==3)
+    {
+    X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row, tolX, x, EdE,
+                     EdE_parameters, b, tolZ, V, deltaV, X, i, a, &Q_func, BETCR, E_auto, beta_auto);
+    lnXX2 = X.array().log()-X.array()/2;
+    f_assoc = (one_4c.transpose()*lnXX2).array()+0.5;
+    }
+
+    rho2 = min(rho, rho_max-rho);
+    var = rho2;
+    rho_plus = rho+0.0001;
+    rho_minus = rho-0.0001;
+
+    if(EdE==3)
+    {
+    f0 = rho*R*T*(log(rho/(1-rho*bm))-1) - rho*am/bm*log(1+rho*bm) + rho*R*T*x.transpose()*f_assoc;
+    f0_plus = rho_plus*R*T*(log(rho_plus/(1-rho_plus*bm))-1) - rho_plus*am/bm*log(1+rho_plus*bm) + rho_plus*R*T*x.transpose()*f_assoc;
+    f0_minus = rho_minus*R*T*(log(rho_minus/(1-rho_minus*bm))-1) - rho_minus*am/bm*log(1+rho_minus*bm) + rho_minus*R*T*x.transpose()*f_assoc;
+    }
+
+    f0 = -rho*R*T*log(1-rho*bm)-rho*am/bm*log(1+rho*bm)+0.5*alfa(0)*rho*rho;
+    f0 = -rho_plus*R*T*log(1-rho_plus*bm)-rho_plus*am/bm*log(1+rho_plus*bm)+0.5*alfa(0)*rho_plus*rho_plus;
+    f0 = -rho_minus*R*T*log(1-rho_minus*bm)-rho_minus*am/bm*log(1+rho_minus*bm)+0.5*alfa(0)*rho_minus*rho_minus;
+
+    fl_old = f0;
+    fl_old_plus = f0_plus;
+    fl_old_minus = f0_minus;
+
+    fs_old = f0;
+    fs_old_plus = f0_plus;
+    fs_old_minus = f0_minus;
+
+    alfa_r = am;
+
+    for(i=0;i<8;i++)
+    {
+        K = kB*T/((pow(2,3*i))*pow(L,3));
+
+        n = 10;
+        h = rho2/n;
+        suml = 0;
+        sums = 0;
+        m = n-1;
+
+        for(j=1;j<=m;j++)
+        {
+            var = j*h;
+
+            rho_plus = rho+var;
+            rho_minus = rho-var;
+
+            fl_plus = fl_old_plus + alfa_r*rho_plus*rho_plus;
+            fl = fl_old + alfa_r*rho*rho;
+            fl_minus = fl_old_minus + alfa_r*rho_minus*rho_minus;
+
+            fs_plus = fs_old_plus + alfa_r*0.5*rho_plus*rho_plus/(pow(2,-n));
+            fs = fs_old + alfa_r*0.5*rho*rho/(pow(2,-n));
+            fs_minus = fs_old_minus + alfa_r*0.5*rho_minus*rho_minus/(pow(2,-n));
+
+            Gl = (fl_plus-2*fl+fl_minus)/2;
+            Gs = (fs_plus-2*fs+fs_minus)/2;
+
+            suml = suml + exp(-Gl/K);
+            sums = sums + exp(-Gs/K);
+        }
+
+        OMEGAl = h*(f0+2*suml+fl)/2;
+        OMEGAs = h*(f0+2*suml+fs)/2;
+
+        delta_f = -K*log(OMEGAs/OMEGAl);
+
+        f = f_old - delta_f;
+
+        f_old = f;
+        fl_old = fl;
+        fs_old = fs;
+        fl_plus_old = fl_plus;
+        fl_minus_old = fl_minus;
+        fs_plus_old = fs_plus;
+        fs_minus_old = fs_minus;
+        cout << "delta_f = " << delta_f << "  // f = " << f << " // rho = " << rho << endl;
+    }
+
+    Renorm << rho << ";" << f << endl;
+}
+
+}
+
+if(Renormalization==2)
+{
+
 //CÁLCULO PARA COMPONENTE PURO
-//============================================================================================================
+//==============================================================================================================
 if(mixture==1)
 {
 
@@ -1876,6 +2024,8 @@ if(iter_choice==1)
  cout << "End of calculation \n \n";
  counter = 0;
  }
+
+}
 
 }
 
