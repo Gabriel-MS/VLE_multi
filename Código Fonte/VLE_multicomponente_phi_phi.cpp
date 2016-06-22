@@ -19,6 +19,7 @@
 #include "EdE.h"
 #include "Gibbs.h"
 #include "Association.h"
+#include "Renormalization.h"
 
 //define e include necessários para trabalhar com Eigen
 #define EIGEN_NO_DEBUG
@@ -502,69 +503,46 @@ if(Renormalization==1)
     L_v << 7.40e10, 7.50e10;
     fi_v << 8.39, 8.98;
 
-    phase = 1; //1 for liquid, 2 for vapor
-    bl = b_mixing_rules_function(nc, b, x, MR);
-    al = a_mixing_rules_function(nc, MR, a, x, k12, bl, b, T, q, r, Aij, R, alfa_NRTL, EdE, G_ex_model);
-
-    phase = 2;
-    //bv = b_mixing_rules_function(nc, b, y, MR);
-    //av = a_mixing_rules_function(nc, MR, a, y, k12, bv, b, T, q, r, Aij, R, alfa_NRTL, EdE, G_ex_model);
-
-    am = al;
-    bm = bl;
+    bm = b_mixing_rules_function(nc, b, x, MR);
+    am = a_mixing_rules_function(nc, MR, a, x, k12, bl, b, T, q, r, Aij, R, alfa_NRTL, EdE, G_ex_model);
+    alfa_r = am;
 
     kB = 1.38064852e-25; //Boltzmann constant L.bar/K
-    alfa_r = 0.5*am; //0.5 para 2B, 0.8 para 4C
 
-    L3_v = L_v.array().pow(3);
-    L3 = x.transpose()*L3_v;
-    L = pow(L3,(1/3)); //Cut-off Length
+    //L3_v = L_v.array().pow(3);
+    //L3 = x.transpose()*L3_v;
+    //L = pow(L3,(1/3)); //Cut-off Length
 
-    fi = x.transpose()*fi_v; //Second crossover parameter phi
+    L = 7.80e-9;
+
+    //fi = x.transpose()*fi_v; //Second crossover parameter phi
 
     rho_max = 0.999999/bm;
 
-    alfa_r = am;
 
-for(rho=0.01; rho=rho_max*bm; rho=rho+rho_max/500)
+for(rho=0.001; rho<=rho_max*bm; rho=rho+rho_max/400)
 {
     V = 1/rho;
 
-    if(EdE==3)
-    {
-    X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row, tolX, x, EdE,
-                     EdE_parameters, b, tolZ, V, deltaV, X, i, a, &Q_func, BETCR, E_auto, beta_auto);
-    lnXX2 = X.array().log()-X.array()/2;
-    f_assoc = (one_4c.transpose()*lnXX2).array()+0.5;
-    }
-
     rho2 = min(rho, rho_max-rho);
-    var = rho2;
-    rho_plus = rho+0.0001;
-    rho_minus = rho-0.0001;
 
-    if(EdE==3)
-    {
-    f0 = rho*R*T*(log(rho/(1-rho*bm))-1) - rho*am/bm*log(1+rho*bm) + rho*R*T*x.transpose()*f_assoc;
-    f0_plus = rho_plus*R*T*(log(rho_plus/(1-rho_plus*bm))-1) - rho_plus*am/bm*log(1+rho_plus*bm) + rho_plus*R*T*x.transpose()*f_assoc;
-    f0_minus = rho_minus*R*T*(log(rho_minus/(1-rho_minus*bm))-1) - rho_minus*am/bm*log(1+rho_minus*bm) + rho_minus*R*T*x.transpose()*f_assoc;
-    }
+    f0 = helmholtz_repulsive(EdE, R, T, rho, am, bm);
+    f0_plus = helmholtz_repulsive(EdE, R, T, rho+0.00001, am, bm);
+    f0_minus = helmholtz_repulsive(EdE, R, T, rho-0.00001, am, bm);
 
-    f0 = -rho*R*T*log(1-rho*bm)-rho*am/bm*log(1+rho*bm)+0.5*alfa(0)*rho*rho;
-    f0 = -rho_plus*R*T*log(1-rho_plus*bm)-rho_plus*am/bm*log(1+rho_plus*bm)+0.5*alfa(0)*rho_plus*rho_plus;
-    f0 = -rho_minus*R*T*log(1-rho_minus*bm)-rho_minus*am/bm*log(1+rho_minus*bm)+0.5*alfa(0)*rho_minus*rho_minus;
+    f_old = f0;
 
     fl_old = f0;
-    fl_old_plus = f0_plus;
-    fl_old_minus = f0_minus;
+    fl_plus_old = f0_plus;
+    fl_minus_old = f0_minus;
 
     fs_old = f0;
-    fs_old_plus = f0_plus;
-    fs_old_minus = f0_minus;
+    fs_plus_old = f0_plus;
+    fs_minus_old = f0_minus;
 
-    alfa_r = am;
+    //cout << "rho = " << rho << endl;
 
-    for(i=0;i<8;i++)
+    for(i=0;i<6;i++)
     {
         K = kB*T/((pow(2,3*i))*pow(L,3));
 
@@ -576,24 +554,36 @@ for(rho=0.01; rho=rho_max*bm; rho=rho+rho_max/500)
 
         for(j=1;j<=m;j++)
         {
-            var = j*h;
+            var = 0+j*h;
 
-            rho_plus = rho+var;
-            rho_minus = rho-var;
+            fl_plus = helmholtz_recursion_long(EdE, f_old, rho+var, am);
+            fl = helmholtz_recursion_long(EdE, f_old, rho, am);
+            fl_minus = helmholtz_recursion_long(EdE, f_old, rho-var, am);
 
-            fl_plus = fl_old_plus + alfa_r*rho_plus*rho_plus;
-            fl = fl_old + alfa_r*rho*rho;
-            fl_minus = fl_old_minus + alfa_r*rho_minus*rho_minus;
-
-            fs_plus = fs_old_plus + alfa_r*0.5*rho_plus*rho_plus/(pow(2,-n));
-            fs = fs_old + alfa_r*0.5*rho*rho/(pow(2,-n));
-            fs_minus = fs_old_minus + alfa_r*0.5*rho_minus*rho_minus/(pow(2,-n));
+            fs_plus = helmholtz_recursion_short(EdE, f_old, rho+var, am, i);
+            fs = helmholtz_recursion_short(EdE, f_old, rho, am, i);
+            fs_minus = helmholtz_recursion_short(EdE, f_old, rho-var, am, i);
 
             Gl = (fl_plus-2*fl+fl_minus)/2;
             Gs = (fs_plus-2*fs+fs_minus)/2;
 
             suml = suml + exp(-Gl/K);
             sums = sums + exp(-Gs/K);
+/*
+            cout << "\nK = " << K;
+            cout << "\nexp(-Gl/K) = " << exp(-Gl/K);
+            cout << "\nexp(-Gs/K) = " << exp(-Gs/K);
+            cout << "\nfl = " << fl;
+            cout << "\nfl_plus = " << fl_plus;
+            cout << "\nfl_minus = " << fl_minus;
+            cout << "\nfs = " << fs;
+            cout << "\nfs_plus = " << fs_plus;
+            cout << "\nfs_minus = " << fs_minus;
+            cout << "\nGl = " << Gl;
+            cout << "\nGs = " << Gs;
+            cout << "\nsuml = " << suml;
+            cout << "\nsums = " << sums << endl;
+            cin >> stop;*/
         }
 
         OMEGAl = h*(f0+2*suml+fl)/2;
@@ -601,18 +591,17 @@ for(rho=0.01; rho=rho_max*bm; rho=rho+rho_max/500)
 
         delta_f = -K*log(OMEGAs/OMEGAl);
 
-        f = f_old - delta_f;
+        f = f_old + delta_f;
 
         f_old = f;
-        fl_old = fl;
-        fs_old = fs;
-        fl_plus_old = fl_plus;
-        fl_minus_old = fl_minus;
-        fs_plus_old = fs_plus;
-        fs_minus_old = fs_minus;
-        cout << "delta_f = " << delta_f << "  // f = " << f << " // rho = " << rho << endl;
+        //f_plus_old = 0;
+        //f_minus_old = 0;
+        //cout << "\nOMEGAl = " << OMEGAl;
+        //cout << "\nOMEGAs = " << OMEGAs;
+        //cout << "\ndelta_f = " << delta_f << "  // f = " << f << " // rho = " << rho << endl;
     }
-
+    cout << "rho = " << rho << "  //  f = " << f << endl;
+    //cin >> stop;
     Renorm << rho << ";" << f << endl;
 }
 
