@@ -35,6 +35,8 @@
 		<Unit filename="../Código Fonte/Association.h" />
 		<Unit filename="../Código Fonte/EdE.h" />
 		<Unit filename="../Código Fonte/Gibbs.h" />
+		<Unit filename="../Código Fonte/Numeric.h" />
+		<Unit filename="../Código Fonte/Renormalization.h" />
 		<Unit filename="../Código Fonte/VLE_multicomponente_phi_phi.cpp" />
 		<Unit filename="../Código Fonte/mixingrules.h" />
 		<Extensions>

@@ -78,6 +78,7 @@ output << "Component " << i+1 << " = " << cp[i] << endl;
 //Variáveis------------------------------------------------------------------------
 VectorXd Tc(nc), Pc(nc), omega(nc), r(nc), q(nc), q_prime(nc), q_(nc), A(nc), B(nc), C(nc), CT(nc), Psat(nc);
 VectorXd Tr(nc), alfa(nc), a(nc), b(nc), EdE_parameters(nc), K(nc), Kx(nc), one(nc);
+VectorXd omega_virtual(nc), Tc_virtual(nc), Pc_virtual(nc);
 VectorXd ln10(nc), logPsat(nc), lnPsat(nc), x(nc), y(nc), phi_liquid_phase(nc), phi_vapor_phase(nc);
 VectorXd a0(nc), bCPA(nc), E(nc), beta(nc), c1(nc), X(4*nc), Xl(4*nc), Xv(4*nc);
 VectorXd n_v(nc), n_vx(nc), n_vy(nc), yinit(nc);
@@ -89,6 +90,7 @@ double tol_u, max_cond_u, u_liquid1, u_vapor1;
 int combining_rule, assoc_scheme;
 double Tc_a[nc], Pc_a[nc], omega_a[nc], r_a[nc], q_a[nc], q__a[nc], A_a[nc], B_a[nc], C_a[nc]; //Vetores em C++ apenas para gravar valores do arquivo
 double E_a[nc], beta_a[nc], a0_a[nc], bCPA_a[nc], c1_a[nc];
+double Tc_v[nc], Pc_v [nc], omega_v[nc];
 double P, T, R, Pnew, sumKx, al, bl, av, bv, Ey;
 double tolZv, tolZl, tolSUMKx, tolKx, initialSUMKx, sumKxnew, finalSUMKx, tolX, tolV;
 double errorZv, errorZl, errorSUMKx, errorKx, k12, V, dP_dV, rho_l, X1, Vl, Vv, Vt, deltaV;
@@ -112,7 +114,7 @@ n_v[i] = 1;
 
 //DATA INPUT FROM FILES
 //Reading Data Bank------------------------
-double prop[150][18]; //Matrix to hold all data from properties.csv organized
+double prop[150][30]; //Matrix to hold all data from properties.csv organized
 
     ifstream file("../Planilhas de análise/properties.csv");
 
@@ -124,7 +126,7 @@ double prop[150][18]; //Matrix to hold all data from properties.csv organized
             break;
         stringstream iss(line);
 
-        for (int col = 0; col < 18; ++col)
+        for (int col = 0; col < 30; ++col)
         {
             string val;
             getline(iss, val, ';');
@@ -162,7 +164,15 @@ bCPA_a[n] = prop[row][14];
 c1_a[n] = prop[row][15];
 E_a[n] = prop[row][16];
 beta_a[n] = prop[row][17];
+Tc_v[n] = prop[row][18];
+Pc_v[n] = prop[row][19];
+omega_v[n] = prop[row][20];
 }
+
+cout << "Tc = " << Tc << endl;
+cout << "Tc_v = " << Tc_v << endl;
+cout << "Pc_v = " << Pc_v << endl;
+cout << "omega_v = " << omega_v << endl;
 
 //Reading C++ vectors into Eigen type vectors
 for(n=0; n<nc; n++)
@@ -220,7 +230,15 @@ bCPA[n] = bCPA_a[n];
 c1[n] = c1_a[n];
 E[n] = E_a[n];
 beta[n] = beta_a[n];
+Tc_virtual[n] = Tc_v[n];
+Pc_virtual[n] = Pc_v[n];
+omega_virtual[n] = omega_v[n];
 }
+
+cout << "Tc = " << Tc << endl;
+cout << "Tc_virtual = " << Tc_virtual << endl;
+cout << "Pc_virtual = " << Pc_virtual << endl;
+cout << "omega_virtual = " << omega_virtual << endl;
 
 //--------------------------------------------------------------------------------
 cout << "\n Choose the mixing rule: \n 1.Van der Waals \n 2.Van der Waals 2 (not working!) \n 3.Huron-Vidal" << endl;
@@ -480,6 +498,14 @@ output     << "x1 " << ";" << "y1 " << ";" << "T " << ";" << "P" << ";" << "Vl" 
 
 if(Renormalization==1)
 {
+    Tr = T*Tc_virtual.asDiagonal().inverse().diagonal(); //Vetor com temperaturas reduzidas virtuais
+    alfa = alfa_function(EdE, nc, Tr, omega_virtual, a0, c1);
+    a = a_function(nc, R, EdE_parameters, omega_virtual, Tc_virtual, Pc_virtual, alfa, EdE, a0);
+    b = b_function(nc, R, EdE_parameters, omega_virtual, Tc_virtual, Pc_virtual, alfa, bCPA, EdE);
+    cout << "Pc_virtual = " << Pc_virtual << endl;
+    cout << "Tc_virtual = " << Tc_virtual << endl;
+    cout << "omega_virtual = " << omega_virtual << endl;
+
     ofstream Renorm("../Planilhas de análise/Renormalization.csv");
     Renorm << "rho" << ";" << "A" << endl;
 
@@ -487,7 +513,8 @@ if(Renormalization==1)
     double kB, L, L3, fi, K, rho, rho_plus, rho_minus, fl_plus, fl, fl_minus, fs_plus, fs, fs_minus;
     double Gl, Gs, OMEGA, delta_f, f, f0, fl_old_plus, fl_old_minus, fs_old_plus, fs_old_minus, fl_old, fs_old;
     double OMEGAs, OMEGAl, f_old, alfa_r, am, rho_max, bm, tolZ, Q_func, rho2, var, f0_plus, f0_minus;
-    double h, suml, sums, m, j, fl_plus_old, fl_minus_old, fs_plus_old, fs_minus_old;
+    double width, suml, sums, m, j, fl_plus_old, fl_minus_old, fs_plus_old, fs_minus_old;
+    double Gl0, Gs0, Gln, Gsn, eGl0, eGs0, eGln, eGsn;
     VectorXd L3_v(nc), L_v(nc), fi_v(nc), lnXX2(4*nc), f_assoc(nc), one_4c(4*nc, 2);
 
     one_4c << 1, 0,
@@ -517,92 +544,114 @@ if(Renormalization==1)
 
     //fi = x.transpose()*fi_v; //Second crossover parameter phi
 
-    rho_max = 0.999999/bm;
+    rho_max = 0.9999/bm;
 
+    rho = 0.001;
 
-for(rho=0.001; rho<=rho_max*bm; rho=rho+rho_max/400)
+    cout << "rho = " << rho << endl;
+    cout << "rho_max = " << rho_max << endl;
+    cout << "bm = " << bm << endl;
+
+while(rho<=rho_max)
 {
+
     V = 1/rho;
 
     rho2 = min(rho, rho_max-rho);
 
     f0 = helmholtz_repulsive(EdE, R, T, rho, am, bm);
-    f0_plus = helmholtz_repulsive(EdE, R, T, rho+0.00001, am, bm);
-    f0_minus = helmholtz_repulsive(EdE, R, T, rho-0.00001, am, bm);
 
     f_old = f0;
 
-    fl_old = f0;
-    fl_plus_old = f0_plus;
-    fl_minus_old = f0_minus;
-
-    fs_old = f0;
-    fs_plus_old = f0_plus;
-    fs_minus_old = f0_minus;
-
-    //cout << "rho = " << rho << endl;
+    cout << "b = " << b << endl;
+    cout << "bm = " << bm << endl;
+    cout << "rho = " << rho << endl;
+    cout << "f0 = " << f0 << endl;
 
     for(i=0;i<6;i++)
     {
         K = kB*T/((pow(2,3*i))*pow(L,3));
 
         n = 10;
-        h = rho2/n;
+        width = rho2/n;
         suml = 0;
         sums = 0;
         m = n-1;
 
-        for(j=1;j<=m;j++)
+        for(j=1;j==m;j++)
         {
-            var = 0+j*h;
+            var = 0+j*width;
 
             fl_plus = helmholtz_recursion_long(EdE, f_old, rho+var, am);
             fl = helmholtz_recursion_long(EdE, f_old, rho, am);
             fl_minus = helmholtz_recursion_long(EdE, f_old, rho-var, am);
 
-            fs_plus = helmholtz_recursion_short(EdE, f_old, rho+var, am, i);
-            fs = helmholtz_recursion_short(EdE, f_old, rho, am, i);
-            fs_minus = helmholtz_recursion_short(EdE, f_old, rho-var, am, i);
+            fs_plus = helmholtz_recursion_short(EdE, f_old, rho+var, am, i, L);
+            fs = helmholtz_recursion_short(EdE, f_old, rho, am, i, L);
+            fs_minus = helmholtz_recursion_short(EdE, f_old, rho-var, am, i, L);
 
             Gl = (fl_plus-2*fl+fl_minus)/2;
             Gs = (fs_plus-2*fs+fs_minus)/2;
 
+            if(j==1 || j==m)
+            {
             suml = suml + exp(-Gl/K);
             sums = sums + exp(-Gs/K);
-/*
-            cout << "\nK = " << K;
-            cout << "\nexp(-Gl/K) = " << exp(-Gl/K);
-            cout << "\nexp(-Gs/K) = " << exp(-Gs/K);
-            cout << "\nfl = " << fl;
-            cout << "\nfl_plus = " << fl_plus;
-            cout << "\nfl_minus = " << fl_minus;
-            cout << "\nfs = " << fs;
-            cout << "\nfs_plus = " << fs_plus;
-            cout << "\nfs_minus = " << fs_minus;
-            cout << "\nGl = " << Gl;
-            cout << "\nGs = " << Gs;
-            cout << "\nsuml = " << suml;
-            cout << "\nsums = " << sums << endl;
-            cin >> stop;*/
+            }
+
+            else
+            {
+            suml = suml + exp(-Gl/K);
+            sums = sums + exp(-Gs/K);
+            }
         }
 
-        OMEGAl = h*(f0+2*suml+fl)/2;
-        OMEGAs = h*(f0+2*suml+fs)/2;
+            fl_plus = helmholtz_recursion_long(EdE, f_old, rho, am);
+            fl = helmholtz_recursion_long(EdE, f_old, rho, am);
+            fl_minus = helmholtz_recursion_long(EdE, f_old, rho, am);
+
+            fs_plus = helmholtz_recursion_short(EdE, f_old, rho, am, i, L);
+            fs = helmholtz_recursion_short(EdE, f_old, rho, am, i, L);
+            fs_minus = helmholtz_recursion_short(EdE, f_old, rho, am, i, L);
+
+            Gl0 = (fl_plus-2*fl+fl_minus)/2;
+            Gs0 = (fs_plus-2*fs+fs_minus)/2;
+
+            var = n*width;
+
+            fl_plus = helmholtz_recursion_long(EdE, f_old, rho+var, am);
+            fl = helmholtz_recursion_long(EdE, f_old, rho, am);
+            fl_minus = helmholtz_recursion_long(EdE, f_old, rho-var, am);
+
+            fs_plus = helmholtz_recursion_short(EdE, f_old, rho+var, am, i, L);
+            fs = helmholtz_recursion_short(EdE, f_old, rho, am, i, L);
+            fs_minus = helmholtz_recursion_short(EdE, f_old, rho-var, am, i, L);
+
+            Gln = (fl_plus-2*fl+fl_minus)/2;
+            Gsn = (fs_plus-2*fs+fs_minus)/2;
+
+            eGl0 = exp(-Gl0/K);
+            eGs0 = exp(-Gs0/K);
+            eGln = exp(-Gln/K);
+            eGsn = exp(-Gsn/K);
+
+        OMEGAl = width*(eGl0+2*suml+eGln)/2;
+        OMEGAs = width*(eGs0+2*suml+eGsn)/2;
+
+        cout << "OMEGAl = " << OMEGAl << endl;
 
         delta_f = -K*log(OMEGAs/OMEGAl);
 
         f = f_old + delta_f;
 
         f_old = f;
-        //f_plus_old = 0;
-        //f_minus_old = 0;
-        //cout << "\nOMEGAl = " << OMEGAl;
-        //cout << "\nOMEGAs = " << OMEGAs;
-        //cout << "\ndelta_f = " << delta_f << "  // f = " << f << " // rho = " << rho << endl;
     }
+
     cout << "rho = " << rho << "  //  f = " << f << endl;
     //cin >> stop;
     Renorm << rho << ";" << f << endl;
+
+     rho=rho+rho_max/400;
 }
 
 }
