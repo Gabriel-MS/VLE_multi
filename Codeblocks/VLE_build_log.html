@@ -4,8 +4,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /></head>
 <body>
 <tt>
-Build started on: <u>26-06-2016 at 21:06.53</u><br />
-Build ended on: <u>26-06-2016 at 21:07.33</u><p />
+Build started on: <u>02-09-2016 at 01:10.18</u><br />
+Build ended on: <u>02-09-2016 at 01:10.54</u><p />
 <b>-------------- Build: Debug in VLE (compiler: GNU GCC Compiler)---------------</b><br />
 mingw32-g++.exe -Wall -fexceptions -g -IC:\UFRJ\ATOMS\Eigen\eigen-eigen-07105f7124f9 -IC:\UFRJ\ATOMS\alglib\cpp\src -IC:\UFRJ\ATOMS\alglib\cpp\tests -c "C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp" -o "obj\Debug\Código Fonte\VLE_multicomponente_phi_phi.o"<br />
 In file included from C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\Association.h:10:0,<br />
@@ -308,161 +308,196 @@ C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\EdE.h: In function 'Eigen::VectorXd u_CP
 <font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\EdE.h:1542:89: warning: variable 'g' set but not used [-Wunused-but-set-variable]</font><br />
      double Z_assoc, Z_SRK, Z_CPA, n_t, p_dlng_dp, h, Fn, f, fV, D_T, FB, FD, Bcpa, eta, g, u_assoc_3, u_assoc_4;<br />
                                                                                          ^<br />
+In file included from C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:22:0:<br />
+C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\Renormalization.h: In function 'double helmholtz_recursion_short(int, double, double, double, int, double)':<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\Renormalization.h:51:20: warning: variable 'n2L' set but not used [-Wunused-but-set-variable]</font><br />
+     double fr, n2, n2L, c;<br />
+                    ^<br />
 C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp: In function 'int main()':<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:152:1: warning: name lookup of 'row' changed</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:162:1: warning: name lookup of 'row' changed</font><br />
  row = cp[n] - 1;<br />
  ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:49:15: warning:   matches this 'row' under ISO standard rules</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:59:15: warning:   matches this 'row' under ISO standard rules</font><br />
  int nc, i, n, row, col, phase;<br />
                ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:121:13: warning:   matches this 'row' under old rules</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:131:13: warning:   matches this 'row' under old rules</font><br />
      for(int row = 0; row &lt; 150; ++row)<br />
              ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:417:5: warning: variable 'nc4' set but not used [-Wunused-but-set-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:427:5: warning: variable 'nc4' set but not used [-Wunused-but-set-variable]</font><br />
  int nc4, i, j;<br />
      ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:417:10: warning: unused variable 'i' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:427:10: warning: unused variable 'i' [-Wunused-variable]</font><br />
  int nc4, i, j;<br />
           ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:513:19: warning: unused variable 'L3' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:535:19: warning: unused variable 'L3' [-Wunused-variable]</font><br />
      double kB, L, L3, fi, K, rho, rho_plus, rho_minus, fl_plus, fl, fl_minus, fs_plus, fs, fs_minus;<br />
                    ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:513:23: warning: unused variable 'fi' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:535:23: warning: unused variable 'fi' [-Wunused-variable]</font><br />
      double kB, L, L3, fi, K, rho, rho_plus, rho_minus, fl_plus, fl, fl_minus, fs_plus, fs, fs_minus;<br />
                        ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:513:35: warning: unused variable 'rho_plus' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:535:35: warning: unused variable 'rho_plus' [-Wunused-variable]</font><br />
      double kB, L, L3, fi, K, rho, rho_plus, rho_minus, fl_plus, fl, fl_minus, fs_plus, fs, fs_minus;<br />
                                    ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:513:45: warning: unused variable 'rho_minus' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:535:45: warning: unused variable 'rho_minus' [-Wunused-variable]</font><br />
      double kB, L, L3, fi, K, rho, rho_plus, rho_minus, fl_plus, fl, fl_minus, fs_plus, fs, fs_minus;<br />
                                              ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:514:20: warning: unused variable 'OMEGA' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:536:20: warning: unused variable 'OMEGA' [-Wunused-variable]</font><br />
      double Gl, Gs, OMEGA, delta_f, f, f0, fl_old_plus, fl_old_minus, fs_old_plus, fs_old_minus, fl_old, fs_old;<br />
                     ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:514:43: warning: unused variable 'fl_old_plus' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:536:43: warning: unused variable 'fl_old_plus' [-Wunused-variable]</font><br />
      double Gl, Gs, OMEGA, delta_f, f, f0, fl_old_plus, fl_old_minus, fs_old_plus, fs_old_minus, fl_old, fs_old;<br />
                                            ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:514:56: warning: unused variable 'fl_old_minus' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:536:56: warning: unused variable 'fl_old_minus' [-Wunused-variable]</font><br />
      double Gl, Gs, OMEGA, delta_f, f, f0, fl_old_plus, fl_old_minus, fs_old_plus, fs_old_minus, fl_old, fs_old;<br />
                                                         ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:514:70: warning: unused variable 'fs_old_plus' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:536:70: warning: unused variable 'fs_old_plus' [-Wunused-variable]</font><br />
      double Gl, Gs, OMEGA, delta_f, f, f0, fl_old_plus, fl_old_minus, fs_old_plus, fs_old_minus, fl_old, fs_old;<br />
                                                                       ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:514:83: warning: unused variable 'fs_old_minus' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:536:83: warning: unused variable 'fs_old_minus' [-Wunused-variable]</font><br />
      double Gl, Gs, OMEGA, delta_f, f, f0, fl_old_plus, fl_old_minus, fs_old_plus, fs_old_minus, fl_old, fs_old;<br />
                                                                                    ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:514:97: warning: unused variable 'fl_old' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:536:97: warning: variable 'fl_old' set but not used [-Wunused-but-set-variable]</font><br />
      double Gl, Gs, OMEGA, delta_f, f, f0, fl_old_plus, fl_old_minus, fs_old_plus, fs_old_minus, fl_old, fs_old;<br />
                                                                                                  ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:514:105: warning: unused variable 'fs_old' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:536:105: warning: variable 'fs_old' set but not used [-Wunused-but-set-variable]</font><br />
      double Gl, Gs, OMEGA, delta_f, f, f0, fl_old_plus, fl_old_minus, fs_old_plus, fs_old_minus, fl_old, fs_old;<br />
                                                                                                          ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:515:35: warning: variable 'alfa_r' set but not used [-Wunused-but-set-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:537:35: warning: variable 'alfa_r' set but not used [-Wunused-but-set-variable]</font><br />
      double OMEGAs, OMEGAl, f_old, alfa_r, am, rho_max, bm, tolZ, Q_func, rho2, var, f0_plus, f0_minus;<br />
                                    ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:515:60: warning: unused variable 'tolZ' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:537:60: warning: unused variable 'tolZ' [-Wunused-variable]</font><br />
      double OMEGAs, OMEGAl, f_old, alfa_r, am, rho_max, bm, tolZ, Q_func, rho2, var, f0_plus, f0_minus;<br />
                                                             ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:515:66: warning: unused variable 'Q_func' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:537:66: warning: unused variable 'Q_func' [-Wunused-variable]</font><br />
      double OMEGAs, OMEGAl, f_old, alfa_r, am, rho_max, bm, tolZ, Q_func, rho2, var, f0_plus, f0_minus;<br />
                                                                   ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:515:85: warning: unused variable 'f0_plus' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:537:85: warning: unused variable 'f0_plus' [-Wunused-variable]</font><br />
      double OMEGAs, OMEGAl, f_old, alfa_r, am, rho_max, bm, tolZ, Q_func, rho2, var, f0_plus, f0_minus;<br />
                                                                                      ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:515:94: warning: unused variable 'f0_minus' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:537:94: warning: unused variable 'f0_minus' [-Wunused-variable]</font><br />
      double OMEGAs, OMEGAl, f_old, alfa_r, am, rho_max, bm, tolZ, Q_func, rho2, var, f0_plus, f0_minus;<br />
                                                                                               ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:516:37: warning: unused variable 'fl_plus_old' [-Wunused-variable]</font><br />
-     double width, suml, sums, m, j, fl_plus_old, fl_minus_old, fs_plus_old, fs_minus_old;<br />
-                                     ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:516:50: warning: unused variable 'fl_minus_old' [-Wunused-variable]</font><br />
-     double width, suml, sums, m, j, fl_plus_old, fl_minus_old, fs_plus_old, fs_minus_old;<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:538:31: warning: variable 'm' set but not used [-Wunused-but-set-variable]</font><br />
+     double width, suml, sums, m, fl_plus_old, fl_minus_old, fs_plus_old, fs_minus_old;<br />
+                               ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:538:34: warning: unused variable 'fl_plus_old' [-Wunused-variable]</font><br />
+     double width, suml, sums, m, fl_plus_old, fl_minus_old, fs_plus_old, fs_minus_old;<br />
+                                  ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:538:47: warning: unused variable 'fl_minus_old' [-Wunused-variable]</font><br />
+     double width, suml, sums, m, fl_plus_old, fl_minus_old, fs_plus_old, fs_minus_old;<br />
+                                               ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:538:61: warning: unused variable 'fs_plus_old' [-Wunused-variable]</font><br />
+     double width, suml, sums, m, fl_plus_old, fl_minus_old, fs_plus_old, fs_minus_old;<br />
+                                                             ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:538:74: warning: unused variable 'fs_minus_old' [-Wunused-variable]</font><br />
+     double width, suml, sums, m, fl_plus_old, fl_minus_old, fs_plus_old, fs_minus_old;<br />
+                                                                          ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:539:12: warning: unused variable 'Gl0' [-Wunused-variable]</font><br />
+     double Gl0, Gs0, Gln, Gsn, eGl0, eGs0, eGln, eGsn;<br />
+            ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:539:17: warning: unused variable 'Gs0' [-Wunused-variable]</font><br />
+     double Gl0, Gs0, Gln, Gsn, eGl0, eGs0, eGln, eGsn;<br />
+                 ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:539:22: warning: unused variable 'Gln' [-Wunused-variable]</font><br />
+     double Gl0, Gs0, Gln, Gsn, eGl0, eGs0, eGln, eGsn;<br />
+                      ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:539:27: warning: unused variable 'Gsn' [-Wunused-variable]</font><br />
+     double Gl0, Gs0, Gln, Gsn, eGl0, eGs0, eGln, eGsn;<br />
+                           ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:539:32: warning: unused variable 'eGl0' [-Wunused-variable]</font><br />
+     double Gl0, Gs0, Gln, Gsn, eGl0, eGs0, eGln, eGsn;<br />
+                                ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:539:38: warning: unused variable 'eGs0' [-Wunused-variable]</font><br />
+     double Gl0, Gs0, Gln, Gsn, eGl0, eGs0, eGln, eGsn;<br />
+                                      ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:539:44: warning: unused variable 'eGln' [-Wunused-variable]</font><br />
+     double Gl0, Gs0, Gln, Gsn, eGl0, eGs0, eGln, eGsn;<br />
+                                            ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:539:50: warning: unused variable 'eGsn' [-Wunused-variable]</font><br />
+     double Gl0, Gs0, Gln, Gsn, eGl0, eGs0, eGln, eGsn;<br />
                                                   ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:516:64: warning: unused variable 'fs_plus_old' [-Wunused-variable]</font><br />
-     double width, suml, sums, m, j, fl_plus_old, fl_minus_old, fs_plus_old, fs_minus_old;<br />
-                                                                ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:516:77: warning: unused variable 'fs_minus_old' [-Wunused-variable]</font><br />
-     double width, suml, sums, m, j, fl_plus_old, fl_minus_old, fs_plus_old, fs_minus_old;<br />
-                                                                             ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:858:8: warning: variable 'Bcpa' set but not used [-Wunused-but-set-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:579:9: warning: variable 'q' set but not used [-Wunused-but-set-variable]</font><br />
+     int q;<br />
+         ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:922:8: warning: variable 'Bcpa' set but not used [-Wunused-but-set-variable]</font><br />
  double Bcpa;<br />
         ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:989:8: warning: unused variable 'errorKxnew' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:1053:8: warning: unused variable 'errorKxnew' [-Wunused-variable]</font><br />
  double errorKxnew;<br />
         ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:1026:8: warning: unused variable 'trivial' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:1090:8: warning: unused variable 'trivial' [-Wunused-variable]</font><br />
  double trivial, V_check;<br />
         ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:1026:17: warning: unused variable 'V_check' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:1090:17: warning: unused variable 'V_check' [-Wunused-variable]</font><br />
  double trivial, V_check;<br />
                  ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:1316:8: warning: variable 'Bcpa' set but not used [-Wunused-but-set-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:1380:8: warning: variable 'Bcpa' set but not used [-Wunused-but-set-variable]</font><br />
  double Bcpa;<br />
         ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:1447:8: warning: unused variable 'errorKxnew' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:1511:8: warning: unused variable 'errorKxnew' [-Wunused-variable]</font><br />
  double errorKxnew;<br />
         ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:1484:8: warning: unused variable 'trivial' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:1548:8: warning: unused variable 'trivial' [-Wunused-variable]</font><br />
  double trivial, V_check;<br />
         ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:1484:17: warning: unused variable 'V_check' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:1548:17: warning: unused variable 'V_check' [-Wunused-variable]</font><br />
  double trivial, V_check;<br />
                  ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:1777:8: warning: variable 'Bcpa' set but not used [-Wunused-but-set-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:1841:8: warning: variable 'Bcpa' set but not used [-Wunused-but-set-variable]</font><br />
  double Bcpa;<br />
         ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:1907:8: warning: unused variable 'errorKxnew' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:1971:8: warning: unused variable 'errorKxnew' [-Wunused-variable]</font><br />
  double errorKxnew;<br />
         ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:1943:8: warning: unused variable 'trivial' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:2007:8: warning: unused variable 'trivial' [-Wunused-variable]</font><br />
  double trivial, V_check;<br />
         ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:1943:17: warning: unused variable 'V_check' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:2007:17: warning: unused variable 'V_check' [-Wunused-variable]</font><br />
  double trivial, V_check;<br />
                  ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:89:8: warning: variable 'tol_u' set but not used [-Wunused-but-set-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:99:8: warning: variable 'tol_u' set but not used [-Wunused-but-set-variable]</font><br />
  double tol_u, max_cond_u, u_liquid1, u_vapor1;<br />
         ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:89:15: warning: unused variable 'max_cond_u' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:99:15: warning: unused variable 'max_cond_u' [-Wunused-variable]</font><br />
  double tol_u, max_cond_u, u_liquid1, u_vapor1;<br />
                ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:90:21: warning: unused variable 'assoc_scheme' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:100:21: warning: unused variable 'assoc_scheme' [-Wunused-variable]</font><br />
  int combining_rule, assoc_scheme;<br />
                      ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:94:17: warning: unused variable 'Pnew' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:104:17: warning: unused variable 'Pnew' [-Wunused-variable]</font><br />
  double P, T, R, Pnew, sumKx, al, bl, av, bv, Ey;<br />
                  ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:96:8: warning: unused variable 'errorZv' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:106:8: warning: unused variable 'errorZv' [-Wunused-variable]</font><br />
  double errorZv, errorZl, errorSUMKx, errorKx, k12, V, dP_dV, rho_l, X1, Vl, Vv, Vt, deltaV;<br />
         ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:96:17: warning: unused variable 'errorZl' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:106:17: warning: unused variable 'errorZl' [-Wunused-variable]</font><br />
  double errorZv, errorZl, errorSUMKx, errorKx, k12, V, dP_dV, rho_l, X1, Vl, Vv, Vt, deltaV;<br />
                  ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:96:52: warning: variable 'V' set but not used [-Wunused-but-set-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:106:52: warning: variable 'V' set but not used [-Wunused-but-set-variable]</font><br />
  double errorZv, errorZl, errorSUMKx, errorKx, k12, V, dP_dV, rho_l, X1, Vl, Vv, Vt, deltaV;<br />
                                                     ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:96:55: warning: unused variable 'dP_dV' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:106:55: warning: unused variable 'dP_dV' [-Wunused-variable]</font><br />
  double errorZv, errorZl, errorSUMKx, errorKx, k12, V, dP_dV, rho_l, X1, Vl, Vv, Vt, deltaV;<br />
                                                        ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:96:62: warning: unused variable 'rho_l' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:106:62: warning: unused variable 'rho_l' [-Wunused-variable]</font><br />
  double errorZv, errorZl, errorSUMKx, errorKx, k12, V, dP_dV, rho_l, X1, Vl, Vv, Vt, deltaV;<br />
                                                               ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:96:69: warning: unused variable 'X1' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:106:69: warning: unused variable 'X1' [-Wunused-variable]</font><br />
  double errorZv, errorZl, errorSUMKx, errorKx, k12, V, dP_dV, rho_l, X1, Vl, Vv, Vt, deltaV;<br />
                                                                      ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:96:81: warning: unused variable 'Vt' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:106:81: warning: unused variable 'Vt' [-Wunused-variable]</font><br />
  double errorZv, errorZl, errorSUMKx, errorKx, k12, V, dP_dV, rho_l, X1, Vl, Vv, Vt, deltaV;<br />
                                                                                  ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:96:85: warning: variable 'deltaV' set but not used [-Wunused-but-set-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:106:85: warning: variable 'deltaV' set but not used [-Wunused-but-set-variable]</font><br />
  double errorZv, errorZl, errorSUMKx, errorKx, k12, V, dP_dV, rho_l, X1, Vl, Vv, Vt, deltaV;<br />
                                                                                      ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:103:55: warning: variable 'Pold' set but not used [-Wunused-but-set-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:113:55: warning: variable 'Pold' set but not used [-Wunused-but-set-variable]</font><br />
  double init_T, final_T, step, BETCR, init_P, final_P, Pold;<br />
                                                        ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:104:28: warning: unused variable 'stop' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:114:28: warning: unused variable 'stop' [-Wunused-variable]</font><br />
  int max_num_iter, counter, stop, Renormalization;<br />
                             ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:49:20: warning: unused variable 'col' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:59:20: warning: unused variable 'col' [-Wunused-variable]</font><br />
  int nc, i, n, row, col, phase;<br />
                     ^<br />
 In file included from C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:18:0:<br />
@@ -471,13 +506,13 @@ C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\mixingrules.h: In function 'double b_mix
      VectorXd xb(nc_nc);<br />
                       ^<br />
 C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp: In function 'int main()':<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:534:104: warning: 'bl' may be used uninitialized in this function [-Wmaybe-uninitialized]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:562:104: warning: 'bl' may be used uninitialized in this function [-Wmaybe-uninitialized]</font><br />
      am = a_mixing_rules_function(nc, MR, a, x, k12, bl, b, T, q, r, Aij, R, alfa_NRTL, EdE, G_ex_model);<br />
                                                                                                         ^<br />
 mingw32-g++.exe -LC:\UFRJ\ATOMS\Eigen\eigen-eigen-07105f7124f9 -LC:\UFRJ\ATOMS\alglib\cpp\src -o bin\Debug\VLE.exe "obj\Debug\Código Fonte\VLE_multicomponente_phi_phi.o"<br />
-Output file is bin\Debug\VLE.exe with size 25.28 MB<br />
-<font color="#0000ff">Process terminated with status 0 (0 minute(s), 40 second(s))</font><br />
-<font color="#0000ff">0 error(s), 147 warning(s) (0 minute(s), 40 second(s))</font><br />
+Output file is bin\Debug\VLE.exe with size 25.42 MB<br />
+<font color="#0000ff">Process terminated with status 0 (0 minute(s), 35 second(s))</font><br />
+<font color="#0000ff">0 error(s), 158 warning(s) (0 minute(s), 35 second(s))</font><br />
 </tt>
 </body>
 </html>

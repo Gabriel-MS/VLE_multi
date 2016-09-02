@@ -24,9 +24,7 @@ double helmholtz_repulsive(int EdE, double R, double T, double rho, double a, do
     switch(EdE)
     {
         case 1: //SRK
-            f = rho*R*T*log(1-rho*b)+rho*a/b*log(1+rho*b)+0.5*a*rho*rho;
-            cout << "b = " << b << endl;
-            cout << "log(1-rho*b) = " << log(1-rho*b) << endl;
+            f = rho*R*T*(log(rho/(1-rho*b))-1)-rho*a/b*log(1+rho*b);
             break;
     }
 
@@ -41,7 +39,7 @@ double helmholtz_recursion_long(int EdE, double f, double rho, double a)
     switch(EdE)
     {
         case 1: //SRK
-            fr = f + a*rho*rho;
+            fr = f + 0.5*a*rho*rho;
             break;
     }
 
@@ -52,14 +50,14 @@ double helmholtz_recursion_short(int EdE, double f, double rho, double a, int n,
 {
     double fr, n2, n2L, c;
 
-    n2 = pow(2,-n);
+    n2 = pow(2,n);
     n2L = pow(n2*L,3);
     c = 0.5;
 
     switch(EdE)
     {
         case 1: //SRK
-            fr = f + c*a*rho*rho/n2L; //0.5 is for alkanes
+            fr = f + 0.5*c*a*rho*rho/n2; //0.5 is for alkanes
             break;
     }
 
