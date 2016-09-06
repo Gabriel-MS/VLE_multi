@@ -572,9 +572,9 @@ if(Renormalization==1)
 
     //fi = x.transpose()*fi_v; //Second crossover parameter phi
 
-    rho_max = 0.99999/bm;
+    rho_max = 0.999999/bm;
 
-    rho = 0.000001;
+    rho = 0.001;
 
     int q;
     q = 0;
@@ -596,7 +596,7 @@ while(rho<=rho_max)
     //cout << "rho = " << rho << " // f0 = " << f0 << endl;
     //cin >> stop;
 
-    for(i=1;i<9;i=i+1)
+    for(i=1;i<10;i=i+1)
     {
         K = kB*T/((pow(2,3*i))*pow(L,3));
 
@@ -651,8 +651,6 @@ while(rho<=rho_max)
             fs_oldv(j) = fs;
             fs_old_m(j) = fs_minus;
             //}
-
-
 /*
             fl_plus = helmholtz_recursion_long(EdE, fl_old, rho+var, am);
             fl = helmholtz_recursion_long(EdE, fl_old, rho, am);
@@ -680,16 +678,10 @@ while(rho<=rho_max)
             //cout << "j = " << j << " // fl_plus = " << fl_plus << " // fl = " << fl << " // fs_plus = "
             //<< fs_plus << " // Gl = " << Gl
             //<< " // Gs = " << Gs << endl;
-
-
-            //cout << "j = " << j << endl;
-            //cout << "fl_old_p = " << fl_old_p.transpose() << endl;
-            //cout << "fl_oldv = " << fl_oldv.transpose() << endl;
-            //cout << "suml = " << suml << endl << endl;
         }
 
-            //fl_old = fl;
-            //fs_old = fs;
+            fl_old = fl;
+            fs_old = fs;
 
         OMEGAl = width*suml;
         OMEGAs = width*sums;
@@ -713,7 +705,7 @@ while(rho<=rho_max)
     f = f - 0.5*am*rho*rho;
 
     cout << "rho = " << rho << "  //  f = " << f << endl;
-    Renorm << rho << ";" << f << ";" << f0 << endl;
+    Renorm << rho << ";" << f << ";" << f0-0.5*am*rho*rho << endl;
 
      rho=rho+rho_max/500;
 }
