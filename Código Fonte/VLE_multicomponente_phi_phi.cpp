@@ -707,7 +707,7 @@ while(rho<=rho_max)
     cout << "rho = " << rho << "  //  f = " << f << endl;
     Renorm << rho << ";" << f << ";" << f0-0.5*am*rho*rho << endl;
 
-     rho=rho+rho_max/400;
+     rho=rho+rho_max/1000;
 }
 
 }
