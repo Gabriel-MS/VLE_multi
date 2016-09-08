@@ -77,12 +77,14 @@
 	"Gibbs.h"
 	"EdE.h"
 
-1473138675 source:c:\ufrj\atoms\projeto-vle\código fonte\vle_multicomponente_phi_phi.cpp
+1473309326 source:c:\ufrj\atoms\projeto-vle\código fonte\vle_multicomponente_phi_phi.cpp
 	<cmath>
 	<cstdio>
 	<stdio.h>
 	<iostream>
 	<fstream>
+	<limits>
+	<iomanip>
 	"mixingrules.h"
 	"EdE.h"
 	"Gibbs.h"
@@ -103,7 +105,7 @@
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 
-1466049405 c:\ufrj\atoms\projeto-vle\código fonte\ede.h
+1473269072 c:\ufrj\atoms\projeto-vle\código fonte\ede.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
@@ -157,7 +159,10 @@
 	"Gibbs.h"
 	"EdE.h"
 
-1473138354 c:\ufrj\atoms\projeto-vle\código fonte\renormalization.h
+1473307729 c:\ufrj\atoms\projeto-vle\código fonte\renormalization.h
+	<Eigen/Dense>
+	<unsupported/Eigen/MatrixFunctions>
+	<unsupported/Eigen/KroneckerProduct>
 
 1469344718 c:\ufrj\atoms\projeto-vle\código fonte\spline.h
 	<cstdio>

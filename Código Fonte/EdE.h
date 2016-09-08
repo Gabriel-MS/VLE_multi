@@ -23,7 +23,7 @@ VectorXd alfa_function(int EdE, int nc, VectorXd Tr, VectorXd omega, VectorXd a0
 switch(EdE)
 	{
     case 1: //SRK
-        pre_Tr = -Tr.array().pow(0.5)+1;
+        pre_Tr = (-Tr.array().pow(0.5))+1;
         omega2 = omega.array().pow(2);
         alfa_termo1 = 0.48 + omega.array()*1.574 - 0.176*omega2.array();
         pre_alfa = (alfa_termo1 * pre_Tr.transpose());
@@ -108,16 +108,18 @@ switch(EdE)
     PSI = EdE_parameters[3];
 
     pre_a = PSI*R*R*alfa.array();
-    Tc2 = Tc.array().pow(2)/1000; //sem essa divisão, o valor extrapola o limite superior
-    pre_a2 = pre_a.transpose()*Tc2.asDiagonal();
-    a = pre_a2.transpose()*Pc.asDiagonal().inverse();
-    a = a.array()*1000;
-
-    pre_a = PSI*R*R*alfa.array();
-    Tc2 = Tc.array().pow(2)/1000; //sem essa divisão, o valor extrapola o limite superior
+    Tc2 = (Tc.array().pow(2))/1000; //sem essa divisão, o valor extrapola o limite superior
     pre_a2 = (Tc2.asDiagonal())*pre_a;
     a = (Pc.asDiagonal().inverse())*pre_a2;
     a = a.array()*1000;
+
+    pre_a = (PSI*R*R*alfa.array());
+    Tc2 = (Tc.array().pow(2))/1000; //sem essa divisão, o valor extrapola o limite superior
+    //pre_a2 = ;
+    a = 1000*((Pc.asDiagonal().inverse())*((Tc2.asDiagonal()*pre_a))).array();
+    //a = a.array()*1000;
+    //cin>> sigma;
+
     break;
 
     case 2: //PR
