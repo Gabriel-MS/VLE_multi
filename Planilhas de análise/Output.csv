@@ -1,2 +1,18 @@
 Dados da simulação 
  -------------------------------------------------------------------------------------
+Number of Components = 2
+Component 1 = 51
+Component 2 = 51
+Equation of state = 3
+Renormalization = 1
+Mixing Rule = 1
+Defined Temperature = 562.9 K
+kij = 0
+Combining Rule = 1
+Association model component 1 =3
+Association model component 2 =3
+-------------------------------------------------------------------------------------------------------------
+
+Cálculos 
+ ----------------------------------------------------------------------------------------------------------
+x1 ;y1 ;T ;P;Vl;Vv;sumKx;counter;u_liquid1;u_vapor1;X1l;X1v;Zl;Zv;phi_liquid_1;phi_liquid_2;phi_vapor_1;phi_vapor_2;Vl_obj;Vv_obj;dP/dVl;dP/dVv;G_excess

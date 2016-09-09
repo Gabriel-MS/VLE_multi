@@ -25,7 +25,8 @@ typedef std::numeric_limits< double > dbl;
 #include "Gibbs.h"
 #include "Association.h"
 #include "Renormalization.h"
-#include "spline.h"
+#include "interpolation_util.h"
+#include "numerical.h"
 
 template<class Function>
 double deriv1(const Function& f, double x)
@@ -535,7 +536,7 @@ if(Renormalization==1)
 
     ofstream Renorm("../Planilhas de análise/Renormalization.csv");
     //Renorm << "rho" << ";" << "f" << ";" << "f0" << endl;
-    Renorm << "Density" << ";" << "f" << ";" << "f0" << ";" << "T" << endl;
+    Renorm << "Density" << ";" << "f" << ";" << "f0" << ";" << "Chem. Pot." << ";" << "P" << ";" << "T" << endl;
 
     int i, j, n;
     long double kB, L, L3, fi, K, rho, rho_plus, rho_minus, fl_plus, fl, fl_minus, fs_plus, fs, fs_minus;
@@ -543,6 +544,7 @@ if(Renormalization==1)
     long double OMEGAs, OMEGAl, f_old, alfa_r, am, rho_max, bm, tolZ, rho2, var, f0_plus, f0_minus;
     long double width, suml, sums, m, fl_plus_old, fl_minus_old, fs_plus_old, fs_minus_old, f_original;
     long double Gl0, Gs0, Gln, Gsn, eGl0, eGs0, eGln, eGsn, phi_r;
+    std::vector<double> rho_vec(1000), f_vec(1000), u_vec(1000), P_vec(1000), f0_vec(1000);
 
     double Q_func;
 
@@ -615,14 +617,16 @@ if(Renormalization==1)
 
 
 
-    int q, k;
+    int q, k, w;
     q = 0;
     k = 0;
+
 
 while(T<(Tc[0]+10))
 {
 
     rho = 0.0001;
+    w = 0;
 
 while(rho<=rho_max)
 {
@@ -785,10 +789,27 @@ while(rho<=rho_max)
     }
     f = f - 0.5*am*rho*rho;
 
-    cout << "rho = " << rho << "  //  f = " << f << endl;
-    Renorm << std::fixed << std::setprecision(15) << rho << ";" << f << ";" << f_original << ";" << T << endl;
+    rho_vec[w] = rho;
+    f_vec[w] = f;
+    f0_vec[w] = f0;
 
-     rho=rho+rho_max/1000;
+    cout << "rho = " << rho << "  //  f = " << f << endl;
+    //Renorm << std::fixed << std::setprecision(15) << rho << ";" << f << ";" << f_original << ";" << T << endl;
+
+    rho = rho+rho_max/1000;
+
+    w++;
+}
+
+u_vec = cspline_deriv1_vec(rho_vec, f_vec, rho_vec);
+
+for(i=0; i<1000; i++)
+{
+    P_vec[i] = -f_vec[i] + rho_vec[i]*u_vec[i];
+    cout << P_vec[i];
+
+    Renorm << std::fixed << std::setprecision(15) << rho_vec[i] << ";" << f_vec[i] << ";"
+           << f0_vec[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << T << endl;
 }
 
 
