@@ -12,7 +12,7 @@
 //Finite difference method to calculate approximate first derivative
 //x and y vectors must have the same size
 //Outputs first derivatives in vector
-vector<double> fin_diff_1_vec(const vector<double>& x, const vector<double>& y)
+vector<double> fin_diff_1_vec(vector<double>& x, vector<double>& y)
 {
   int SIZE, i;
 

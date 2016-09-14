@@ -506,21 +506,34 @@ counter = 0;
 
 output     << "-------------------------------------------------------------------------------------------------------------" << endl << endl;
 output     << "Cálculos \n ----------------------------------------------------------------------------------------------------------" << endl;
-output     << "x1 " << ";" << "y1 " << ";" << "T " << ";" << "P" << ";" << "Vl" << ";"
+output     << "x1 " << ";" << "y1 " << ";" << "T " << ";" << "P(kPa)" << ";" << "Vl" << ";"
            << "Vv" << ";" << "sumKx" << ";" << "counter" << ";" << "u_liquid1" << ";" << "u_vapor1" << ";"
            << "X1l" << ";" << "X1v" << ";" << "Zl" << ";" << "Zv" << ";" << "phi_liquid_1"
            << ";" << "phi_liquid_2" << ";" << "phi_vapor_1" << ";" << "phi_vapor_2" << ";"
-           << "Vl_obj" << ";" << "Vv_obj" << ";" << "dP/dVl" << ";" << "dP/dVv" << ";" <<
-              "G_excess" << endl;
+           << "Vl_obj" << ";" << "Vv_obj" << ";" << "dP/dVl" << ";" << "dP/dVv" << ";"
+           << "G_excess" << ";" << "P(bar)" << ";" << "density_l" << ";" << "density_v" << endl;
 
 if(Renormalization==1)
 {
     if(EdE==1)
     {
-    Tr = T*Tc_virtual.asDiagonal().inverse().diagonal(); //Vetor com temperaturas reduzidas virtuais
-    alfa = alfa_function(EdE, nc, Tr, omega_virtual, a0, c1);
-    a = a_function(nc, R, EdE_parameters, omega_virtual, Tc_virtual, Pc_virtual, alfa, EdE, a0);
-    b = b_function(nc, R, EdE_parameters, omega_virtual, Tc_virtual, Pc_virtual, alfa, bCPA, EdE);
+        if(Tc_virtual[0] != 0)
+        {
+
+        Tr = T*Tc_virtual.asDiagonal().inverse().diagonal(); //Vetor com temperaturas reduzidas virtuais
+        alfa = alfa_function(EdE, nc, Tr, omega_virtual, a0, c1);
+        a = a_function(nc, R, EdE_parameters, omega_virtual, Tc_virtual, Pc_virtual, alfa, EdE, a0);
+        b = b_function(nc, R, EdE_parameters, omega_virtual, Tc_virtual, Pc_virtual, alfa, bCPA, EdE);
+        }
+
+        else
+        {
+        Tr = T*(Tc.asDiagonal().inverse().diagonal()); //Vetor com temperaturas reduzidas virtuais
+        alfa = alfa_function(EdE, nc, Tr, omega, a0, c1);
+        a = a_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, EdE, a0);
+        b = b_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, bCPA, EdE);
+        }
+
     }
 
     else
@@ -530,9 +543,6 @@ if(Renormalization==1)
     a = a_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, EdE, a0);
     b = b_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, bCPA, EdE);
     }
-    cout << "Pc_virtual = " << Pc_virtual << endl;
-    cout << "Tc_virtual = " << Tc_virtual << endl;
-    cout << "omega_virtual = " << omega_virtual << endl;
 
     ofstream Renorm("../Planilhas de análise/Renormalization.csv");
     //Renorm << "rho" << ";" << "f" << ";" << "f0" << endl;
@@ -543,8 +553,9 @@ if(Renormalization==1)
     long double Gl, Gs, OMEGA, delta_f, f, f0, fl_old_plus, fl_old_minus, fs_old_plus, fs_old_minus, fl_old, fs_old;
     long double OMEGAs, OMEGAl, f_old, alfa_r, am, rho_max, bm, tolZ, rho2, var, f0_plus, f0_minus;
     long double width, suml, sums, m, fl_plus_old, fl_minus_old, fs_plus_old, fs_minus_old, f_original;
-    long double Gl0, Gs0, Gln, Gsn, eGl0, eGs0, eGln, eGsn, phi_r;
-    std::vector<double> rho_vec(1000), f_vec(1000), u_vec(1000), P_vec(1000), f0_vec(1000);
+    long double Gl0, Gs0, Gln, Gsn, eGl0, eGs0, eGln, eGsn, phi_r, P_test_old, P_average_0;
+    long double pmax_cond, P_max, P_min, P_average, P_test, test, P_l, u_l, P_v, u_v, pmin_cond, rho_v;
+    std::vector<double> rho_vec(1000), f_vec(1000), u_vec(1000), P_vec(1000), f0_vec(1000), dP_dV(1000);
 
     double Q_func;
 
@@ -566,6 +577,7 @@ if(Renormalization==1)
               0, 1;
 
     x << 0.999999, 0.000001;
+    y << 0.999999, 0.000001;
     L_v << 7.40e10, 7.50e10;
     fi_v << 8.39, 8.98;
 
@@ -597,10 +609,10 @@ if(Renormalization==1)
 
     if(EdE==3)
     {
-    if(cp[0]==51)
+    if(cp[0]==47)
     {
-        L = 5.96e-09;
-        phi_r = 8.49;
+        L = 5.51e-09;
+        phi_r = 8.39;
     }
 
     else
@@ -616,14 +628,28 @@ if(Renormalization==1)
     rho_max = 0.99999/bm;
 
 
-
-    int q, k, w;
-    q = 0;
+    int t, k, w;
+    t = 0;
     k = 0;
 
+    cout << "\nDefine final Temperature: ";
+    cin >> final_T;
 
-while(T<(Tc[0]+10))
+    cout << "\nDefine steps: ";
+    cin >> step;
+
+    init_T = T;
+    Told = T;
+
+//while(T<(Tc[0]+10))
+for(T=init_T; T<=final_T; T=T+step)
 {
+
+    E_row = ((E_row.array().log())*Told/T).exp();
+    E_col = ((E_col.array().log())*Told/T).exp();
+    E_auto = ((E_auto.array().log())*Told/T).exp();
+
+    Told = T;
 
     rho = 0.0001;
     w = 0;
@@ -632,35 +658,19 @@ while(rho<=rho_max)
 {
     V = 1/rho;
 
+    if(EdE==3)
+    {
     X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
                      tolX, x, EdE, EdE_parameters, b, tolZ, V, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
+    }
 
     rho2 = min(rho, rho_max-rho);
 
     f0 = helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x);
     f_original = f0;
 
-/*
-    cout << "bm = " << bm << endl;
-    cout << "am = " << am << endl;
-
-    if(rho>1.46)
-    {
-      cout << "rho = " << rho << " // f0 = " << f_original << endl;
-      cout << "1st = " << -rho*R*T*log(1-rho*bm) << endl;
-      cout << "2nd = " << -rho*am/bm*log(1+rho*bm) << endl;
-      cout << "3rd = " << +rho*R*T*(log(rho)-1) << endl;
-      cin>>stop;
-    }
-*/
-
     f0 = f0 + 0.5*am*rho*rho;
     f_old = f0;
-
-    //cout << "\n\n";
-    //
-
-    //cin >> stop;
 
     for(i=1;i<11;i=i+1)
     {
@@ -684,17 +694,17 @@ while(rho<=rho_max)
             var = 0+j*width;
             rho_plus = rho+var;
             rho_minus = rho-var;
-
+/*
             if(rho_minus <= 0)
             {
                 rho_minus = 0;
             }
 
-            if(rho_plus >= rho_max)
+            if(rho_plus >= rho2)
             {
-                rho_plus = rho_max;
+                rho_plus = rho2;
             }
-
+*/
             if(i==1)
             {
             fl_old_p(j) = 0.5*am*(rho_plus)*(rho_plus)+helmholtz_repulsive(EdE, R, T, rho_plus, am, bm, X, x);
@@ -709,13 +719,13 @@ while(rho<=rho_max)
 /*
             if(i==1)
             {
-            fl_old_p(j) = helmholtz_repulsive(EdE, R, T, rho+var, am, bm);
-            fl_oldv(j) = helmholtz_repulsive(EdE, R, T, rho, am, bm);
-            fl_old_m(j) = helmholtz_repulsive(EdE, R, T, rho-var, am, bm);
+            fl_old_p(j) = helmholtz_repulsive(EdE, R, T, rho_plus, am, bm, X, x);
+            fl_oldv(j) = helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x);
+            fl_old_m(j) = helmholtz_repulsive(EdE, R, T, rho_minus, am, bm, X, x);
 
-            fs_old_p(j) = helmholtz_repulsive(EdE, R, T, rho+var, am, bm, phi_r);
-            fs_oldv(j) = helmholtz_repulsive(EdE, R, T, rho, am, bm, phi_r);
-            fs_old_m(j) = helmholtz_repulsive(EdE, R, T, rho-var, am, bm, phi_r);
+            fs_old_p(j) = helmholtz_repulsive(EdE, R, T, rho_plus, am, bm, X, x);
+            fs_oldv(j) = helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x);
+            fs_old_m(j) = helmholtz_repulsive(EdE, R, T, rho_minus, am, bm, X, x);
             }
 */
 
@@ -763,8 +773,10 @@ while(rho<=rho_max)
 
             //cout << "j = " << j << " // fl_plus = " << fl_plus << " // fl = " << fl << " // fs_plus = "
             //<< fs_plus << " // Gl = " << Gl << " // Gs = " << Gs << endl;
-        }
 
+            //cout << "j = " << j << "// rho_minus = " << rho_minus << "// rho_max = " << rho_plus << endl;
+
+        }
             //fl_old = fl;
             //fs_old = fs;
 
@@ -772,12 +784,12 @@ while(rho<=rho_max)
         OMEGAs = width*sums;
 
         delta_f = -K*log(OMEGAs/OMEGAl);
-/*
+
         if(rho>=(rho_max/2))
         {
             delta_f = 0;
         }
-*/
+
         f = f_old + delta_f;
 
         f_old = f;
@@ -794,7 +806,7 @@ while(rho<=rho_max)
     f0_vec[w] = f0;
 
     cout << "rho = " << rho << "  //  f = " << f << endl;
-    //Renorm << std::fixed << std::setprecision(15) << rho << ";" << f << ";" << f_original << ";" << T << endl;
+    Renorm << std::fixed << std::setprecision(15) << rho << ";" << f << ";" << f_original << ";" << T << endl;
 
     rho = rho+rho_max/1000;
 
@@ -806,22 +818,233 @@ u_vec = cspline_deriv1_vec(rho_vec, f_vec, rho_vec);
 for(i=0; i<1000; i++)
 {
     P_vec[i] = -f_vec[i] + rho_vec[i]*u_vec[i];
-    cout << P_vec[i];
+    //cout << P_vec[i];
 
-    Renorm << std::fixed << std::setprecision(15) << rho_vec[i] << ";" << f_vec[i] << ";"
-           << f0_vec[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << T << endl;
+    //Renorm << std::fixed << std::setprecision(15) << rho_vec[i] << ";" << f_vec[i] << ";"
+    //       << f0_vec[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << T << endl;
 }
 
 
-if(k==0) T = Tc[0]/10;
+//Search Max and Min Pressures from isotherm
+//
+
+dP_dV[0] = P_vec[0]/rho_vec[0]; //Wrong, fix
+
+  for(i=1; i<1000; i++)
+  {
+    dP_dV[i] = (P_vec[i]-P_vec[i-1])/(rho_vec[i]-rho_vec[i-1]);
+  }
+
+//Maximum pressure at dP/dV=0
+i=0;
+do
+{
+ pmax_cond = dP_dV[i];
+ i++;
+}while(pmax_cond>0);
+P_max = P_vec[i-2];
+cout << "dP/dV at max = " << dP_dV[i-2] << endl;
+
+//Minimum pressure at dP/dV=0
+j=999;
+do
+{
+ pmin_cond = dP_dV[j];
+ j--;
+//cout << "dP/dV = " << dP_dV[j] << endl;
+}while(pmin_cond>0);
+P_min = P_vec[j+2];
+cout << "dP/dV at max = " << dP_dV[i+2] << endl;
+
+cout << "max pressure at = " << P_max << endl;
+cout << "min pressure at = " << P_min << endl;
+//
+//------------------------------------------
+
+errorKx = 1e10; //Forces to enter loop (could use "do" command, but i don't want)
+j=0;
+counter = 0;
+
+int tl, tv, c;
+c = 1;
+
+//THIS SHOULD BE INSIDE ERRORKX ITERATION
+double tol_P = 1e-3;
+
+if(counter==0)
+{
+P_average = (P_max+P_min)/2;
+P_average_0 = P_average;
+cout << "P_average = " << P_average << endl;
+}
+
+cout << "Pressure_average = " << P_average << endl;
+
+
+//Liquid phase
+i=0;
+P_test_old = 1e10;
+do
+{
+    P_test = fabs(P_average-P_vec[i]);
+    i++;
+    //cout << "P_test_l = " << P_test << endl;
+
+    if(P_test>P_test_old) P_test = 1e-4; // Guarantees getting the nearest value
+
+    P_test_old = P_test;
+}while(P_test > tol_P);
+P_v = P_vec[i-1];
+u_v = u_vec[i-1];
+rho_v = rho_vec[i-1];
+Vv = 1/rho_v;
+tv = i-1;
+
+//Vapor phase
+j=999;
+P_test_old = 1e10;
+do
+{
+    P_test = fabs(P_average-P_vec[j]);
+    j--;
+    //cout << "P_test_v = " << P_test << endl;
+
+    if(P_test>P_test_old) P_test = 1e-4; // Guarantees getting the nearest value
+
+    P_test_old = P_test;
+}while(P_test > tol_P);
+P_l = P_vec[j+1];
+u_l = u_vec[j+1];
+rho_l = rho_vec[j+1];
+Vl = 1/rho_l;
+tl = j+1;
+//END ERRORKX ITERATION PART
+
+cout << "P_l = " << P_l << endl;
+cout << "P_v = " << P_v << endl;
+cout << "rho_l = " << rho_l << endl;
+cout << "rho_v = " << rho_v << endl;
+
+
+/*
+while(errorKx > tolKx)
+{
+//Choose medium value of Pressure, get nearest P in P_vec and select rho_L and rho_V accordingly with chemical potentials
+//
+double tol_P = 1e-3;
+
+if(counter==0)
+{
+P_average = (P_max+P_min)/2;
+P_average_0 = P_average;
+cout << "P_average = " << P_average << endl;
+}
+
+cout << "Pressure_average = " << P_average << endl;
+
+//Liquid phase
+i=0;
+P_test_old = 1e10;
+do
+{
+    P_test = fabs(P_average-P_vec[i]);
+    i++;
+    //cout << "P_test_l = " << P_test << endl;
+
+    if(P_test>P_test_old) P_test = 1e-4; // Guarantees getting the nearest value
+
+    P_test_old = P_test;
+}while(P_test > tol_P);
+P_l = P_vec[i-1];
+u_l = u_vec[i-1];
+rho_l = rho_vec[i-1];
+Vl = 1/rho_l;
+tl = i-1;
+
+//Vapor phase
+j=999;
+P_test_old = 1e10;
+do
+{
+    P_test = fabs(P_average-P_vec[j]);
+    j--;
+    //cout << "P_test_v = " << P_test << endl;
+
+    if(P_test>P_test_old) P_test = 1e-4; // Guarantees getting the nearest value
+
+    P_test_old = P_test;
+}while(P_test > tol_P);
+P_v = P_vec[j+1];
+u_v = u_vec[j+1];
+rho_v = rho_vec[j+1];
+Vv = 1/rho_v;
+tv = j+1;
+
+cout << "P_l = " << P_l << endl;
+cout << "P_v = " << P_v << endl;
+cout << "rho_l = " << rho_l << endl;
+cout << "rho_v = " << rho_v << endl;
+//
+//------------------------------------------
+
+//Calculate phi_liquid_phase and vapor_phase
+//
+    phase = 1; //1 for liquid, 2 for vapor
+    bl = b_mixing_rules_function(nc, b, x, MR);
+    al = a_mixing_rules_function(nc, MR, a, x, k12, bl, b, T, q, r, Aij, R, alfa_NRTL, EdE, G_ex_model);
+
+    phase = 2;
+    bv = b_mixing_rules_function(nc, b, y, MR);
+    av = a_mixing_rules_function(nc, MR, a, y, k12, bv, b, T, q, r, Aij, R, alfa_NRTL, EdE, G_ex_model);
+
+    if(EdE==3)
+    {
+    deltaV = 0;
+
+    phase = 1;
+    Xl = fraction_nbs(nc, combining_rule, phase, R, T, P_l, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
+                     tolX, x, EdE, EdE_parameters, b, tolZ, Vl, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
+    phase = 2;
+    Xv = fraction_nbs(nc, combining_rule, phase, R, T, P_v, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
+                     tolX, y, EdE, EdE_parameters, b, tolZ, Vv, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
+    }
+
+    phi_liquid_phase[0] = (u_l-R*T*log(P_l))/R/T-P_l/(R*T*rho_l);
+    phi_vapor_phase[0] = (u_v-R*T*log(P_v))/R/T-P_v/(R*T*rho_v);
+//
+//------------------------------------------
+
+errorKx = fabs(phi_liquid_phase[0]/phi_vapor_phase[0]-1);
+cout << "errorKx = " << errorKx << endl;
+
+//Next value of pressure, or get out the loop
+//
+
+if(c%2==0)
+{
+P_average = P_average_0*(1+c/100);
+}
 
 else
 {
-    T = T+0.1*Tc[0];
+P_average = P_average_0-(1-c/100);
 }
+counter++;
+j++;
+c++;
+cout << "c = " << c << endl;
+//
+//------------------------------------------
+}
+*/
+
 cout << "T = " << T << endl;
 
 k++;
+
+//Renorm << std::fixed << std::setprecision(15) << T << ";" << rho_l << ";"
+//           << rho_v << ";" << P_l << ";" << P_v << ";" << endl;
+
 }
 
 
@@ -872,8 +1095,16 @@ for (T = init_T ; T<=final_T ; T=T+step)
  x(0) = 0.999999;
  x(1) = 1-x(0);
 
+Tr = T*Tc.asDiagonal().inverse().diagonal();
+alfa = alfa_function(EdE, nc, Tr, omega, a0, c1);
+a = a_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, EdE, a0);
+b = b_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, bCPA, EdE);
+
 E_row = ((E_row.array().log())*Told/T).exp();
 E_col = ((E_col.array().log())*Told/T).exp();
+E_auto = ((E_auto.array().log())*Told/T).exp();
+
+Told = T;
 
  if(iter_choice==1)
  {
@@ -928,6 +1159,14 @@ switch(process)
 {
 case 1: //Isothermic
 P = Pinit;
+
+CT = C.array()+T;
+//logPsat = A - (B*(CT.asDiagonal().inverse().diagonal().transpose())).diagonal();
+logPsat = A - (CT.asDiagonal().inverse()*B);
+ln10.fill(log(10));
+lnPsat = (logPsat*ln10.transpose()).diagonal();
+Psat = lnPsat.array().exp();
+P = Psat.transpose()*x;
 break;
 
 case 2: //Isobaric
@@ -971,7 +1210,15 @@ if(counter != max_num_iter)
     switch(process)
     {
     case 1: //Isothermic
-    P = Pinit;
+    //P = Pinit;
+
+    CT = C.array()+T;
+//logPsat = A - (B*(CT.asDiagonal().inverse().diagonal().transpose())).diagonal();
+logPsat = A - (CT.asDiagonal().inverse()*B);
+ln10.fill(log(10));
+lnPsat = (logPsat*ln10.transpose()).diagonal();
+Psat = lnPsat.array().exp();
+P = Psat.transpose()*x;
 
         if(isnan(y(0))==1 || isinf(y(0))==1)
         {
@@ -1021,7 +1268,7 @@ tol_u = 0.00001;
 
 while(errorKx>tolKx)
 {
-Tr = T*Tc.asDiagonal().inverse().diagonal();
+Tr = T*(Tc.asDiagonal().inverse().diagonal());
 alfa = alfa_function(EdE, nc, Tr, omega, a0, c1);
 a = a_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, EdE, a0);
 b = b_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, bCPA, EdE);
@@ -1063,8 +1310,6 @@ for(i=0;i<(4*nc);i++)
     }
 
 
-    if(EdE==3)
-    {
     deltaV = 0;
     phase = 1;
     Xl = volume_function(nc, EdE, phase, x, Xl, EdE_parameters, bl, al, R, T, P, tolV, tolZl, b, combining_rule, beta_row,
@@ -1073,7 +1318,7 @@ for(i=0;i<(4*nc);i++)
     phase = 2;
     Xv = volume_function(nc, EdE, phase, y, Xv, EdE_parameters, bv, av, R, T, P, tolV, tolZv, b, combining_rule, beta_row,
                         beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv, BETCR, E_auto, beta_auto);
-    }
+
     X1l = Xl(0)*Xl(1)*Xl(2)*Xl(3);
     X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3);
 
@@ -1123,14 +1368,13 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
     av = a_mixing_rules_function(nc, MR, a, y, k12, bv, b, T, q, r, Aij, R, alfa_NRTL, EdE, G_ex_model);
     phase = 2; //1 for liquid, 2 for vapor
 
-    if(EdE==3)
-    {
+
     phase = 2;
     deltaV = 0;
     Xv = volume_function(nc, EdE, phase, y, Xv, EdE_parameters, bv, av, R, T, P, tolV, tolZv, b, combining_rule, beta_row,
                         beta_col, E_row, E_col, alfa, tolX, n_v, &Vv, Vvinit, a, &Vv_obj, &Qv, &dP_dVv, BETCR, E_auto, beta_auto);
     X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3);
-    }
+
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
@@ -1174,13 +1418,14 @@ break;
 
 case 2: //Isobaric
 
-    Told = T;
-
     T = 0.1*T/sumKx+0.9*T; //AQUI DIVIDE
 
     E_row = ((E_row.array().log())*Told/T).exp();
     E_col = ((E_col.array().log())*Told/T).exp();
     E_auto = ((E_auto.array().log())*Told/T).exp();
+
+    Told = T;
+
 break;
 }
 
@@ -1295,7 +1540,8 @@ cout <<"--------- counter = " << counter << " ---------" << endl;
            << sumKx << ";" << counter << ";" << u_liquid1 << ";" << u_vapor1 << ";"
            << X1l << ";" << X1v << ";" << Zl << ";" << Zv << ";" << phi_liquid_phase(0)
            << ";" << phi_liquid_phase(1) << ";" << phi_vapor_phase(0) << ";" << phi_vapor_phase(1)
-           << ";" << Vl_obj << ";" << Vv_obj << ";" << dP_dVl << ";" << dP_dVv << ";" << G_ex << endl;
+           << ";" << Vl_obj << ";" << Vv_obj << ";" << dP_dVl << ";" << dP_dVv << ";" << G_ex
+           << ";" << P << ";" << 1/Vl << ";" << 1/Vv << endl;
     }
 
     if(process==2)
@@ -1313,11 +1559,6 @@ if(iter_choice==1)
  cout << "End of calculation \n \n";
  counter = 0;
  }
-
-
-Told = T;
-
-
 
 }
 

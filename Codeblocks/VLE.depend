@@ -77,7 +77,7 @@
 	"Gibbs.h"
 	"EdE.h"
 
-1473392095 source:c:\ufrj\atoms\projeto-vle\código fonte\vle_multicomponente_phi_phi.cpp
+1473822484 source:c:\ufrj\atoms\projeto-vle\código fonte\vle_multicomponente_phi_phi.cpp
 	<cmath>
 	<cstdio>
 	<stdio.h>
@@ -106,7 +106,7 @@
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 
-1473269072 c:\ufrj\atoms\projeto-vle\código fonte\ede.h
+1473565310 c:\ufrj\atoms\projeto-vle\código fonte\ede.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
@@ -160,7 +160,7 @@
 	"Gibbs.h"
 	"EdE.h"
 
-1473307729 c:\ufrj\atoms\projeto-vle\código fonte\renormalization.h
+1473821246 c:\ufrj\atoms\projeto-vle\código fonte\renormalization.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
@@ -177,7 +177,7 @@
 	<vector>
 	<algorithm>
 
-1473392418 c:\ufrj\atoms\projeto-vle\código fonte\numerical.h
+1473482320 c:\ufrj\atoms\projeto-vle\código fonte\numerical.h
 	<cstdio>
 	<cstdlib>
 	<cmath>

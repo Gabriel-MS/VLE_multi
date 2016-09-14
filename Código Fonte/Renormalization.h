@@ -8,22 +8,6 @@
 
 using namespace Eigen;
 
-double helmholtz_density(int EdE, double R, double T, double rho, double a, double b)
-{
-    double f;
-
-    switch(EdE)
-    {
-        case 1: //SRK
-            f = -rho*R*T*log(1-rho*b)-rho*a/b*log(1+rho*b);
-            break;
-    }
-
-   return f;
-}
-
-
-
 double helmholtz_repulsive(int EdE, double R, double T, long double rho, long double a, long double b, VectorXd X, VectorXd x)
 {
     double f, f_CPA;
@@ -37,8 +21,7 @@ double helmholtz_repulsive(int EdE, double R, double T, long double rho, long do
             //f = -rho*R*T*log(1-rho*b)-rho*a/b*log(1+rho*b);
             break;
 
-        case 3: //SRK
-
+        case 3: //CPA
             one_4c << 1, 0,
                       1, 0,
                       1, 0,
@@ -62,7 +45,7 @@ double helmholtz_repulsive(int EdE, double R, double T, long double rho, long do
 
 double helmholtz_recursion_long(int EdE, long double f, long double rho, long double a)
 {
-    double fr;
+    long double fr;
 
     switch(EdE)
     {
@@ -80,7 +63,7 @@ double helmholtz_recursion_long(int EdE, long double f, long double rho, long do
 
 double helmholtz_recursion_short(int EdE, long double f, long double rho, double a, int n, double L, long double phi)
 {
-    double fr, n2, n2L, c, n2SRK, n2CPA;
+    long double fr, n2, n2L, c, n2SRK, n2CPA;
 
     n2SRK = pow(2,2*n+1);
     n2CPA = pow(2,2*n+1);
