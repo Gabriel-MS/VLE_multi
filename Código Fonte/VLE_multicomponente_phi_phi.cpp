@@ -805,8 +805,8 @@ while(rho<=rho_max)
     f_vec[w] = f;
     f0_vec[w] = f0;
 
-    cout << "rho = " << rho << "  //  f = " << f << endl;
-    Renorm << std::fixed << std::setprecision(15) << rho << ";" << f << ";" << f_original << ";" << T << endl;
+    //cout << "rho = " << rho << "  //  f = " << f << endl;
+    //Renorm << std::fixed << std::setprecision(15) << rho << ";" << f << ";" << f_original << ";" << T << endl;
 
     rho = rho+rho_max/1000;
 
@@ -1042,8 +1042,8 @@ cout << "T = " << T << endl;
 
 k++;
 
-//Renorm << std::fixed << std::setprecision(15) << T << ";" << rho_l << ";"
-//           << rho_v << ";" << P_l << ";" << P_v << ";" << endl;
+Renorm << std::fixed << std::setprecision(15) << T << ";" << rho_l << ";"
+           << rho_v << ";" << P_l << ";" << P_v << ";" << endl;
 
 }
 
