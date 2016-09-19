@@ -65,7 +65,7 @@ double helmholtz_recursion_short(int EdE, long double f, long double rho, double
 {
     long double fr, n2, n2L, c, n2SRK, n2CPA;
 
-    n2SRK = pow(2,2*n+1);
+    n2SRK = pow(2,2*n-1);
     n2CPA = pow(2,2*n+1);
     n2L = pow(n2*L,3);
     c = 0.5;

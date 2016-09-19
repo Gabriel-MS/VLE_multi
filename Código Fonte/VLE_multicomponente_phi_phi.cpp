@@ -561,7 +561,7 @@ if(Renormalization==1)
 
     VectorXd L3_v(nc), L_v(nc), fi_v(nc), lnXX2(4*nc), f_assoc(nc), one_4c(4*nc, 2);
 
-    VectorXd rhov(500), fv(500), x_(500), fv_(500);
+    VectorXd rhov(500), fv(500), x_(500), fv_(500), X_plus(4*nc), X_minus(4*nc);
 
     n = 100;
 
@@ -635,7 +635,7 @@ if(Renormalization==1)
     cout << "\nDefine final Temperature: ";
     cin >> final_T;
 
-    cout << "\nDefine steps: ";
+    cout << "\nDefine step size: ";
     cin >> step;
 
     init_T = T;
@@ -675,13 +675,13 @@ while(rho<=rho_max)
     for(i=1;i<11;i=i+1)
     {
         K = kB*T/((pow(2,3*i))*pow(L,3));
-
+/*
             if(i==1)
             {
             fl_old = f_old;
             fs_old = f_old;
             }
-
+*/
         width = (rho2-0)/n;
         suml = 0;
         sums = 0;
@@ -694,38 +694,50 @@ while(rho<=rho_max)
             var = 0+j*width;
             rho_plus = rho+var;
             rho_minus = rho-var;
-/*
+
+            if(EdE==3 && i==1)
+            {
+            X_plus = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
+                     tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho_plus, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
+
+            X_minus = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
+                     tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho_minus, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
+            }
+
             if(rho_minus <= 0)
             {
-                rho_minus = 0;
+                cout << "lower limit" << endl;
+                cin>> stop;
             }
 
-            if(rho_plus >= rho2)
+            if(rho_plus >= rho_max)
             {
-                rho_plus = rho2;
+                cout << "upper limit" << endl;
+                cin>> stop;
             }
-*/
+
+
             if(i==1)
             {
-            fl_old_p(j) = 0.5*am*(rho_plus)*(rho_plus)+helmholtz_repulsive(EdE, R, T, rho_plus, am, bm, X, x);
+            fl_old_p(j) = 0.5*am*(rho_plus)*(rho_plus)+helmholtz_repulsive(EdE, R, T, rho_plus, am, bm, X_plus, x);
             fl_oldv(j) = 0.5*am*(rho)*(rho)+helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x);
-            fl_old_m(j) = 0.5*am*(rho_minus)*(rho_minus)+helmholtz_repulsive(EdE, R, T, rho_minus, am, bm, X, x);
+            fl_old_m(j) = 0.5*am*(rho_minus)*(rho_minus)+helmholtz_repulsive(EdE, R, T, rho_minus, am, bm, X_minus, x);
 
-            fs_old_p(j) = 0.5*am*(rho_plus)*(rho_plus)+helmholtz_repulsive(EdE, R, T, rho_plus, am, bm, X, x);
+            fs_old_p(j) = 0.5*am*(rho_plus)*(rho_plus)+helmholtz_repulsive(EdE, R, T, rho_plus, am, bm, X_plus, x);
             fs_oldv(j) = 0.5*am*(rho)*(rho)+helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x);
-            fs_old_m(j) = 0.5*am*(rho_minus)*(rho_minus)+helmholtz_repulsive(EdE, R, T, rho_minus, am, bm, X, x);
+            fs_old_m(j) = 0.5*am*(rho_minus)*(rho_minus)+helmholtz_repulsive(EdE, R, T, rho_minus, am, bm, X_minus, x);
             }
 
 /*
             if(i==1)
             {
-            fl_old_p(j) = helmholtz_repulsive(EdE, R, T, rho_plus, am, bm, X, x);
+            fl_old_p(j) = helmholtz_repulsive(EdE, R, T, rho_plus, am, bm, X_plus, x);
             fl_oldv(j) = helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x);
-            fl_old_m(j) = helmholtz_repulsive(EdE, R, T, rho_minus, am, bm, X, x);
+            fl_old_m(j) = helmholtz_repulsive(EdE, R, T, rho_minus, am, bm, X_minus, x);
 
-            fs_old_p(j) = helmholtz_repulsive(EdE, R, T, rho_plus, am, bm, X, x);
+            fs_old_p(j) = helmholtz_repulsive(EdE, R, T, rho_plus, am, bm, X_plus, x);
             fs_oldv(j) = helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x);
-            fs_old_m(j) = helmholtz_repulsive(EdE, R, T, rho_minus, am, bm, X, x);
+            fs_old_m(j) = helmholtz_repulsive(EdE, R, T, rho_minus, am, bm, X_minus, x);
             }
 */
 
@@ -747,6 +759,7 @@ while(rho<=rho_max)
             fs_oldv(j) = fs;
             fs_old_m(j) = fs_minus;
             //}
+
 /*
             fl_plus = helmholtz_recursion_long(EdE, fl_old, rho+var, am);
             fl = helmholtz_recursion_long(EdE, fl_old, rho, am);
@@ -793,8 +806,8 @@ while(rho<=rho_max)
         f = f_old + delta_f;
 
         f_old = f;
-        //fl_old = f_old;
-        //fs_old = f_old;
+        fl_old = f_old;
+        fs_old = f_old;
 
         //cout << "i = " << i << " // f = " << f << " // delta_f = " << delta_f <<
         //" // Is = " << OMEGAs << " // Il = " << OMEGAl << endl;
@@ -805,8 +818,8 @@ while(rho<=rho_max)
     f_vec[w] = f;
     f0_vec[w] = f0;
 
-    //cout << "rho = " << rho << "  //  f = " << f << endl;
-    //Renorm << std::fixed << std::setprecision(15) << rho << ";" << f << ";" << f_original << ";" << T << endl;
+    cout << "rho = " << rho << "  //  f = " << f << endl;
+    Renorm << std::fixed << std::setprecision(15) << rho << ";" << f << ";" << f_original << ";" << T << endl;
 
     rho = rho+rho_max/1000;
 
@@ -1042,8 +1055,8 @@ cout << "T = " << T << endl;
 
 k++;
 
-Renorm << std::fixed << std::setprecision(15) << T << ";" << rho_l << ";"
-           << rho_v << ";" << P_l << ";" << P_v << ";" << endl;
+//Renorm << std::fixed << std::setprecision(15) << T << ";" << rho_l << ";"
+//           << rho_v << ";" << P_l << ";" << P_v << ";" << endl;
 
 }
 
