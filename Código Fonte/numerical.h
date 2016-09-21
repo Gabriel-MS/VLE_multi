@@ -53,6 +53,31 @@ vector<double> fin_diff_2_vec(const vector<double>& x, const vector<double>& y)
 return y2;
 }
 
+//Interval method to find root between interval, outputs x value of root
+//Using discrete data points
+double bisection_root(vector<double>& x, vector<double>& y, int sup, int inf, double tol)
+{
+    //inf and sup are inferior and superior positions of x vector to contain initial interval
+    //tol is the tolerance for the method
+    int cen;
+    double c;
+    c = tol+1;
+
+    while(c>tol)
+    {
+        cen = (sup+inf)/2;
+
+        c = x[cen];
+
+        if(y[cen]*y[inf] < 0) sup = cen;
+        else inf = cen;
+
+        inf = cen;
+    }
+
+    return x[cen];
+}
+
 
 //Cubic spline, outputs 2nd derivative to use in interpolation function
 //end1 and endn are the specified first derivatives boundaries
@@ -116,14 +141,14 @@ return y1;
 
 
 //Cubic spline interpolation, interpolates vectors in cubic splines
-vector<double> cspline_vec(const vector<double>& X, const vector<double>& Y, vector<double>& x)
+vector<double> cspline_vec(vector<double>& X, vector<double>& Y, vector<double>& x)
 {
   int SIZE, i;
 
   tk::spline s;
   s.set_points(X,Y);
 
-  SIZE = X.size();
+  SIZE = x.size();
 
   std::vector<double> y1(SIZE); //Vector to output first derivatives
 
@@ -162,7 +187,7 @@ vector<double> cspline_deriv1_vec(vector<double>& X, vector<double>& Y, vector<d
   tk::spline s;
   s.set_points(X,Y);
 
-  SIZE = X.size();
+  SIZE = x.size();
 
   std::vector<double> y1(SIZE); //Vector to output first derivatives
 

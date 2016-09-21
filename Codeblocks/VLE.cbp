@@ -38,7 +38,9 @@
 		<Unit filename="../Código Fonte/Numeric.h" />
 		<Unit filename="../Código Fonte/Renormalization.h" />
 		<Unit filename="../Código Fonte/VLE_multicomponente_phi_phi.cpp" />
+		<Unit filename="../Código Fonte/interpolation_util.h" />
 		<Unit filename="../Código Fonte/mixingrules.h" />
+		<Unit filename="../Código Fonte/numerical.h" />
 		<Extensions>
 			<code_completion>
 				<search_path add="..\..\Eigen" />
