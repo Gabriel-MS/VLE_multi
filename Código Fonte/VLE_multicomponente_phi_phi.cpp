@@ -562,7 +562,7 @@ if(Renormalization==1)
     long double width, suml, sums, m, fl_plus_old, fl_minus_old, fs_plus_old, fs_minus_old, f_original;
     long double Gl0, Gs0, Gln, Gsn, eGl0, eGs0, eGln, eGsn, phi_r, P_test_old, P_average_0;
     long double pmax_cond, P_max, P_min, P_average, P_test, test, P_l, u_l, P_v, u_v, pmin_cond, rho_v;
-    std::vector<double> rho_vec(1000), f_vec(1000), u_vec(10000), P_vec(10000), f0_vec(1000), dP_dV(10000);
+    std::vector<double> rho_vec(1000), f_vec(1000), u_vec(10000), P_vec(10000), f0_vec(1000), dP_dV(10000), dP2dV2(10000);
     std::vector<double> rho_vec_out(10000), u_vec_0(10000), P_vec_0(10000), f_vec_out(10000), f0_vec_out(10000);
 
     double Q_func, Kn, Ins, Inl;
@@ -623,7 +623,7 @@ if(Renormalization==1)
     {
         L = 5.51e-09;
         phi_r = 8.39;
-    }
+    }//Initial shortest wavelength
 
     else
     {
@@ -664,7 +664,7 @@ for(T=init_T; T<=final_T; T=T+step)
     w = 0;
 
     //====================================================================
-/*
+
     //Calcular vetor de f em f0 com um cálculo
     rho = 1e-4;
 
@@ -672,16 +672,20 @@ for(T=init_T; T<=final_T; T=T+step)
     {
     rho_vec[k] = rho;
 
-    fv(k) = helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x);
-    f_originalv(k) = fv(k);
+    if(EdE==3) X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
+                     tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
+
+    fv(k) = helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x) + 0.5*am*rho*rho;
+    f_originalv(k) = fv(k) - 0.5*am*rho*rho;
     rho_vector(k) = rho;
     rho = rho + rho_max/1000;
 
-    f0_vec[k] = fv(k);
+    f0_vec[k] = f_originalv(k);
+    //cout << "rho = " << rho << " / f0 = " << f_originalv(k) << endl;
     }
 
     //Iteração principal - o n
-    for(i=1; i<6; i++) //i começando em 1
+    for(i=1; i<9; i++) //i começando em 1
     {
         //Calcular K
         Kn = kB*T/((pow(2,3*i))*pow(L,3));
@@ -689,16 +693,23 @@ for(T=init_T; T<=final_T; T=T+step)
         //Preparar vetores f_l e f_s
         rho = 1e-4;
 
+        X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
+                     tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
+
 
         for(w=0; w<1000; w++)
         {
         flv(w) = fv(w) + 0.5*am*rho*rho;
         fsv(w) = fv(w) + 0.5*am*rho*rho*0.5/(pow(2,i));
         rho = rho + rho_max/1000;
+        //cout << "flv 0 = " << flv(w) << " \ fv = " << fv(w) << endl;
         }
 
         flv(0) = helmholtz_repulsive(EdE, R, T, 1e-4, am, bm, X, x) + 0.5*am*(1e-4)*(1e-4);
         fsv(0) = helmholtz_repulsive(EdE, R, T, 1e-4, am, bm, X, x) + 0.5*am*(1e-4)*(1e-4)*0.5/(pow(2,i));
+
+        X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
+                     tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho_max, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
 
         flv(999) = helmholtz_repulsive(EdE, R, T, rho_max, am, bm, X, x) + 0.5*am*(rho_max)*(rho_max);
         fsv(999) = helmholtz_repulsive(EdE, R, T, rho_max, am, bm, X, x) + 0.5*am*(rho_max)*(rho_max)*0.5/(pow(2,i));
@@ -706,39 +717,47 @@ for(T=init_T; T<=final_T; T=T+step)
             //Iteração 2 - calcular os valores para f no i atual
             rho = 1e-4;
             w = 0;
-            for(w=1; w<1000; w++)
+            for(w=1; w<999; w++)
             {
                 rho2 = min(rho,(rho_max-rho));
+
+                //width = rho2/min(w,1000-w);
+                width = rho_max/1000;
 
                 suml = 0;
                 sums = 0;
 
                 //Iteração 3 - regra do trapézio para cálculo de I
                 t=0;
-                for(t=0; t<(w+1); t++)
+                for(t=0; t<min((w+1),(999-w+1)); t++)
+                //for(t=0; t<(w+1); t++)
+                //while(rho_vector[w-t]>=1e-4 && rho_vector[w+t]<=rho_max)
                 {
                 Glv(w) = (flv(w+t) - 2*flv(w) + flv(w-t))/2;
                 Gsv(w) = (fsv(w+t) - 2*fsv(w) + fsv(w-t))/2;
 
-                    if(t==0 || t==w)
+
+                    if(t==0 || t==min((w),(999-w)))
                     {
                     suml = suml + 0.5*(exp(-Glv(w)/Kn));
                     sums = sums + 0.5*(exp(-Gsv(w)/Kn));
                     }
+
 
                     else
                     {
                     suml = suml + exp(-Glv(w)/Kn);
                     sums = sums + exp(-Gsv(w)/Kn);
                     }
+
 /*
-                    if(w==125)
+                    if(w==588)
                     {
                     cout << "rho = " << rho << " / t = " << t << " / w = " << w
                          << " / fl+ = " << flv(w+t) << " / fl- = " << flv(w-t) << endl;
                     }
 */
-/*
+
                     if(isnan(suml)==1 || isinf(suml)==1)
                     {
                     //cout << "rho = " << rho << " // flv- = " << flv(w-t) << " // Glv = " << Glv(w)
@@ -747,9 +766,13 @@ for(T=init_T; T<=final_T; T=T+step)
                     //cin >> stop;
                     }
 
+                //if(w+t > 999) t=w;
+                //if(w>495) cout << "w = " << w << " | t = " << t << " | + = " << flv(w+t) << " | - = " << flv(w-t) << endl;
                 }
 
-            width = rho2/w;
+                //cout << "rho = " << rho << " / w = " << w << " / t = " << t << endl;
+                //if(w>495) cin>>stop;
+
 
             Inl = width*suml;
             Ins = width*sums;
@@ -757,10 +780,16 @@ for(T=init_T; T<=final_T; T=T+step)
             //Calcular o delta_f para rho atual
             delta_fv(w) = -Kn*log(Ins/Inl);
 
+            if(isnan(delta_fv(w))==1) delta_fv(w) = 0;
+
+/*
             if(w>499)
             {
                 delta_fv(w) = 0;
             }
+*/
+
+            if(isnan(delta_fv(w)) == 1) delta_fv(w) = 1e-15;
 
             //cout << "rho = " << rho << " || delta = " << delta_fv(w) << endl;
 
@@ -770,23 +799,28 @@ for(T=init_T; T<=final_T; T=T+step)
         //Calcular o novo vetor de f, ajustando com o vetor de delta_f
         fv.array() = fv.array() + delta_fv.array();
 
-        //cout << "i = " << i << " / delta_f = " << delta_fv(100) << " / 125 -->" << delta_fv(125) << endl;
+        cout << "i = " << i << " / f 300 = " << fv(300) << " / delta 300 -->" << delta_fv(300) << endl;
+
     }
 
     fv(0) = helmholtz_repulsive(EdE, R, T, 1e-4, am, bm, X, x);
 
+
+    rho = 1e-4;
     for(w=0; w<1000; w++)
     {
+    fv(w) = fv(w) - 0.5*am*rho*rho;
     f_vec[w] = fv(w);
 
     //cout << "rho = " << rho_vector(w) << "  //  f = " << fv(w) << endl;
-    //Renorm << std::fixed << std::setprecision(15) << rho_vector(w) << ";" << fv(w) << ";" << f_originalv(w) << ";" << T << endl;
+    Not_splined << std::fixed << std::setprecision(15) << rho_vector(w) << ";" << fv(w) << ";" << f_originalv(w) << ";" << T << endl;
+    rho = rho + rho_max/1000;
     }
 
     //====================================================================
-*/
 
 
+/*
 while(rho<=rho_max)
 {
 
@@ -896,7 +930,7 @@ while(rho<=rho_max)
             //}
 */
 
-
+/*
             fl_plus = helmholtz_recursion_long(EdE, fl_old, rho+var, am);
             fl = helmholtz_recursion_long(EdE, fl_old, rho, am);
             fl_minus = helmholtz_recursion_long(EdE, fl_old, rho-var, am);
@@ -933,12 +967,12 @@ while(rho<=rho_max)
         OMEGAs = width*sums;
 
         delta_f = -K*log(OMEGAs/OMEGAl);
-/*
+
         if(rho>=(rho_max/2))
         {
             delta_f = 0;
         }
-*/
+
         f = f_old + delta_f;
 
         f_old = f;
@@ -960,7 +994,7 @@ while(rho<=rho_max)
     rho = rho+rho_max/1000;
 
     w++;
-}
+}*/
 
 rho = 1e-4;
 w=0;
@@ -990,11 +1024,44 @@ for(i=0; i<10000; i++)
            << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T << endl;
 }
 
+k = 0;
+double u_dif;
+double P_dif;
+double rho_inflexion, dP2dV2_old;
+
+for(i=100; i<9900; i++)
+{
+  dP2dV2[i] = (P_vec[i+1] - 2*P_vec[i] + P_vec[i-1])/pow((rho_vec_out[i]-rho_vec_out[i-1]),2);
+
+  if(dP2dV2[i] < dP2dV2_old)
+  {
+        dP2dV2_old = dP2dV2[i];
+        rho_inflexion = rho_vec_out[i];
+  }
+}
+
+cout << "rho_inflexion = " << rho_inflexion << endl;
+
+
+/*
+for(i=0; i<9999; i++)
+{
+    u_dif = u_veck[k] - u_vec[i];
+
+    if(u_dif < 5e-2)
+    {
+        for(j=0; j<9999; j++)
+        {
+
+        }
+    }
+}
+*/
 
 //Search Max and Min Pressures from isotherm
 //
 
-dP_dV[0] = P_vec[0]/rho_vec_out[0]; //Wrong, fix
+dP_dV[0] = (P_vec[1]-P_vec[0])/(rho_vec_out[1] - rho_vec_out[0]); //Wrong, fix
 
   for(i=1; i<10000; i++)
   {
@@ -1002,31 +1069,33 @@ dP_dV[0] = P_vec[0]/rho_vec_out[0]; //Wrong, fix
   }
 
 //Maximum pressure at dP/dV=0
-i=10;
+i=100;
 do
 {
  pmax_cond = dP_dV[i];
  i++;
- cout << "i = " << i << " / pmax = " << pmax_cond << " / rho = " << rho_vec_out[i] << endl;
+ //cout << "i = " << i << " / pmax = " << pmax_cond << " / rho = " << rho_vec_out[i] << endl;
 }while(pmax_cond>0);
+pmax_cond = 1;
 P_max = P_vec[i-2];
 cout << "dP/dV at max = " << dP_dV[i-2] << endl;
-cin >> stop;
+//cin >> stop;
 
 //Minimum pressure at dP/dV=0
-j=9980;
+j=9900;
 do
 {
  pmin_cond = dP_dV[j];
  j--;
-cout << "j = " << j << " / pmin = " << pmin_cond << " / rho = " << rho_vec_out[j] << endl;
+//cout << "j = " << j << " / pmin = " << pmin_cond << " / rho = " << rho_vec_out[j] << endl;
 }while(pmin_cond>0);
+pmin_cond = 1;
 P_min = P_vec[j+2];
 cout << "dP/dV at in = " << dP_dV[i+2] << endl;
 
 cout << "max pressure = " << P_max << endl;
 cout << "min pressure = " << P_min << endl;
-cin>>stop;
+//cin>>stop;
 //------------------------------------------
 
 errorKx = 1e10; //Forces to enter loop (could use "do" command, but i don't want)
@@ -1050,48 +1119,50 @@ cout << "Pressure_average = " << P_average << endl;
 
 
 //Liquid phase
-i=10;
+i=100;
 P_test_old = 1e10;
 tol_P = 1e-2;
 do
 {
     P_test = fabs(P_average-P_vec[i]);
     i++;
-    cout << "i = " << i << " / P_test_l = " << P_test << " / rho = " << rho_vec_out[i] << endl;
+    //cout << "i = " << i << " / P_test_l = " << P_test << " / rho = " << rho_vec_out[i] << endl;
 
     if(P_test>P_test_old) P_test = 1e-4; // Guarantees getting the nearest value
 
     P_test_old = P_test;
 }while(P_test > tol_P);
+P_test = 1e10;
 P_v = P_vec[i-1];
 u_v = u_vec[i-1];
 rho_v = rho_vec_out[i-1];
 Vv = 1/rho_v;
 tv = i-1;
 
-cin >> stop;
+//cin >> stop;
 
 //Vapor phase
 j=9980;
 P_test_old = 1e10;
-tol_P = 1e-2;
+tol_P = 5e-2;
 do
 {
     P_test = fabs(P_average-P_vec[j]);
     j--;
-    cout << "j = " << j << " / P_test_v = " << P_test << " / rho = " << rho_vec_out[j] << endl;
+    //cout << "j = " << j << " / P_test_v = " << P_test << " / rho = " << rho_vec_out[j] << endl;
 
     if(P_test>P_test_old) P_test = 1e-4; // Guarantees getting the nearest value
 
     P_test_old = P_test;
 }while(P_test > tol_P);
+P_test = 1e10;
 P_l = P_vec[j+1];
 u_l = u_vec[j+1];
 rho_l = rho_vec_out[j+1];
 Vl = 1/rho_l;
 tl = j+1;
 
-cin >> stop;
+//cin >> stop;
 //END ERRORKX ITERATION PART
 
 cout << "P_l = " << P_l << endl;
@@ -1217,7 +1288,7 @@ cout << "T = " << T << endl;
 k++;
 
 Envelope << std::fixed << std::setprecision(15) << T << ";" << rho_l << ";"
-           << rho_v << ";" << P_l << ";" << P_v << ";" << endl;
+           << rho_v << ";" << P_l << ";" << P_v << ";" << ";" << P_average << endl;
 
 }
 
