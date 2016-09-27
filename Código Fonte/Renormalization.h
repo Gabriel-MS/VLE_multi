@@ -61,23 +61,36 @@ double helmholtz_recursion_long(int EdE, long double f, long double rho, long do
    return fr;
 }
 
-double helmholtz_recursion_short(int EdE, long double f, long double rho, double a, int n, double L, long double phi)
+double helmholtz_recursion_short(int EdE, long double f, long double rho, double a, int n, double L, long double phi, int sr_type)
 {
     long double fr, n2, n2L, c, n2SRK, n2CPA;
 
     n2SRK = pow(2,n);
     n2CPA = pow(2,2*n+1);
-    n2L = pow(n2*L,3);
-    c = 0.5;
 
     switch(EdE)
     {
         case 1: //SRK
-            fr = f + 0.5*c*a*rho*rho/n2SRK; //0.5 is for alkanes
+
+            switch(sr_type)
+            {
+                case 1: fr = f + 0.5*phi*a*rho*rho/(pow(2,n)); break;
+                case 2: fr = f + 0.5*phi*a*rho*rho/(pow(2,2*n+1)); break;
+                case 3: fr = f + 0.5*phi*a*rho*rho/(pow(2,2*n-1)); break;
+                case 4: fr = f + 0.5*phi*a*rho*rho/((pow(2,2*n+1))*pow(L,2)); break;
+            }
             break;
 
         case 3: //CPA
-            fr = f + 0.5*a*rho*rho*phi/n2CPA;
+            //fr = f + 0.5*a*rho*rho*phi/n2CPA;
+
+            switch(sr_type)
+            {
+                case 1: fr = f + 0.5*phi*a*rho*rho/(pow(2,n)); break;
+                case 2: fr = f + 0.5*phi*a*rho*rho/(pow(2,2*n+1)); break;
+                case 3: fr = f + 0.5*phi*a*rho*rho/(pow(2,2*n-1)); break;
+                case 4: fr = f + 0.5*phi*a*rho*rho/((pow(2,2*n+1))*pow(L,2)); break;
+            }
             break;
     }
 

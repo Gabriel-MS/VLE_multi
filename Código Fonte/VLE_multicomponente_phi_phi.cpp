@@ -118,7 +118,7 @@ double log10P, Tb, Tinit, Told;
 double G_ex;
 VectorXd Tsat(nc), Alog10P(nc), gama(nc), ln_gama(nc);
 double init_T, final_T, step, BETCR, init_P, final_P, Pold;
-int max_num_iter, counter, stop, Renormalization;
+int max_num_iter, counter, stop, Renormalization, sr_type;
 //--------------------------------------------------------------------------------
 max_num_iter = 500;
 
@@ -161,6 +161,13 @@ output << "Equation of state = " << EdE << endl;
 
 cout << "\nConsider Renormalization? \n 1.Yes \n 2.No " << endl;
 cin >> Renormalization;
+
+if(Renormalization==1)
+{
+    cout << "short-range type: \n 1. n \n 2. 2n+1 \n 3. 2n-1 \n 4. phi/L^2" << endl;
+    cin >> sr_type;
+}
+
 output << "Renormalization = " << Renormalization << endl;
 
 //Transferring values from 'prop' matrix to vectors
@@ -601,19 +608,16 @@ if(Renormalization==1)
     //L3_v = L_v.array().pow(3);
     //L3 = x.transpose()*L3_v;
     //L = pow(L3,(1/3)); //Cut-off Length
-
+/*
     if(EdE==1)
     {
-    if(cp[0]==12)
-    {
-        L = 7.80e-9;
-    }
-
-    else
-    {
-        cout << "L = " << endl;
+        cout << "L (dm) = ";
         cin >> L;
-    }
+        cout << endl;
+
+        cout << "phi = ";
+        cin >> phi_r;
+        cout << endl;
     }
 
 
@@ -633,6 +637,15 @@ if(Renormalization==1)
         cin >> phi_r;
     }
     }
+    */
+
+        cout << "L (dm) = ";
+        cin >> L;
+        cout << endl;
+
+        cout << "phi = ";
+        cin >> phi_r;
+        cout << endl;
     //fi = x.transpose()*fi_v; //Second crossover parameter phi
 
     rho_max = 0.99999/bm;
@@ -693,26 +706,30 @@ for(T=init_T; T<=final_T; T=T+step)
         //Preparar vetores f_l e f_s
         rho = 1e-4;
 
-        X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
+        if(EdE==3) X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
                      tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
 
 
         for(w=0; w<1000; w++)
         {
         flv(w) = fv(w) + 0.5*am*rho*rho;
-        fsv(w) = fv(w) + 0.5*am*rho*rho*0.5/(pow(2,i));
+        fsv(w) = helmholtz_recursion_short(EdE, fv(w), rho, am, i, L, phi_r, sr_type);
         rho = rho + rho_max/1000;
         //cout << "flv 0 = " << flv(w) << " \ fv = " << fv(w) << endl;
         }
 
-        flv(0) = helmholtz_repulsive(EdE, R, T, 1e-4, am, bm, X, x) + 0.5*am*(1e-4)*(1e-4);
-        fsv(0) = helmholtz_repulsive(EdE, R, T, 1e-4, am, bm, X, x) + 0.5*am*(1e-4)*(1e-4)*0.5/(pow(2,i));
+        fv(0) = helmholtz_repulsive(EdE, R, T, 1e-4, am, bm, X, x);
 
-        X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
+        flv(0) = helmholtz_repulsive(EdE, R, T, 1e-4, am, bm, X, x) + 0.5*am*(1e-4)*(1e-4);
+        fsv(0) = helmholtz_recursion_short(EdE, fv(0), 1e-4, am, i, L, phi_r, sr_type);
+
+        if(EdE==3) X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
                      tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho_max, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
 
+        fv(999) = helmholtz_repulsive(EdE, R, T, rho_max, am, bm, X, x);
+
         flv(999) = helmholtz_repulsive(EdE, R, T, rho_max, am, bm, X, x) + 0.5*am*(rho_max)*(rho_max);
-        fsv(999) = helmholtz_repulsive(EdE, R, T, rho_max, am, bm, X, x) + 0.5*am*(rho_max)*(rho_max)*0.5/(pow(2,i));
+        fsv(999) = helmholtz_recursion_short(EdE, fv(999), rho_max, am, i, L, phi_r, sr_type);
 
             //Iteração 2 - calcular os valores para f no i atual
             rho = 1e-4;
@@ -726,7 +743,15 @@ for(T=init_T; T<=final_T; T=T+step)
 
                 suml = 0;
                 sums = 0;
-
+/*
+                flv(0) = 0;
+                for(w=1; w<100; w++)
+                {
+                    flv(w) = w*10/100;
+                    cout << "w = " << w << " / rho_vector = " << flv(w) << " / w*10/100 = " << w*10/100 << endl;
+                }
+                w=100;
+*/
                 //Iteração 3 - regra do trapézio para cálculo de I
                 t=0;
                 for(t=0; t<min((w+1),(999-w+1)); t++)
@@ -735,8 +760,20 @@ for(T=init_T; T<=final_T; T=T+step)
                 {
                 Glv(w) = (flv(w+t) - 2*flv(w) + flv(w-t))/2;
                 Gsv(w) = (fsv(w+t) - 2*fsv(w) + fsv(w-t))/2;
+/*
+                Glv(t) = pow(flv(t),3) + 2* pow(flv(t),2) + 5*flv(t);
 
+                if(t==0 || t==100)
+                {
+                    suml = suml+Glv(t)/2;
+                }
 
+                else
+                {
+                    suml = suml+Glv(t);
+                }
+                cout << "t = " << t << " / rho = " << rho_vector(t) << " / suml = " << suml << endl;
+*/
                     if(t==0 || t==min((w),(999-w)))
                     {
                     suml = suml + 0.5*(exp(-Glv(w)/Kn));
@@ -758,18 +795,19 @@ for(T=init_T; T<=final_T; T=T+step)
                     }
 */
 
-                    if(isnan(suml)==1 || isinf(suml)==1)
-                    {
+                    //if(isnan(suml)==1 || isinf(suml)==1)
+                    //{
                     //cout << "rho = " << rho << " // flv- = " << flv(w-t) << " // Glv = " << Glv(w)
                     //     << " // flv = " << flv(w) << " / t = " << t << " / w = " << w << endl;
                     //cout << "fl+ = " << flv(w+t) << " / fl- = " << flv(w-t) << " / fl = " << flv(w) << endl;
                     //cin >> stop;
-                    }
+                    //}
 
                 //if(w+t > 999) t=w;
                 //if(w>495) cout << "w = " << w << " | t = " << t << " | + = " << flv(w+t) << " | - = " << flv(w-t) << endl;
                 }
-
+//cout << "suml = " << suml << endl;
+//cin >> stop;
                 //cout << "rho = " << rho << " / w = " << w << " / t = " << t << endl;
                 //if(w>495) cin>>stop;
 
@@ -789,7 +827,7 @@ for(T=init_T; T<=final_T; T=T+step)
             }
 */
 
-            if(isnan(delta_fv(w)) == 1) delta_fv(w) = 1e-15;
+            if(isnan(delta_fv(w)) == 1 || isinf(delta_fv(w)) == 1) delta_fv(w) = 1e-15;
 
             //cout << "rho = " << rho << " || delta = " << delta_fv(w) << endl;
 
