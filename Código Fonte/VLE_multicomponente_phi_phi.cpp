@@ -19,6 +19,7 @@
 #include <iomanip>2
 
 typedef std::numeric_limits< double > dbl;
+typedef std::numeric_limits< long double > ldbl;
 
 #include "mixingrules.h"
 #include "EdE.h"
@@ -743,15 +744,7 @@ for(T=init_T; T<=final_T; T=T+step)
 
                 suml = 0;
                 sums = 0;
-/*
-                flv(0) = 0;
-                for(w=1; w<100; w++)
-                {
-                    flv(w) = w*10/100;
-                    cout << "w = " << w << " / rho_vector = " << flv(w) << " / w*10/100 = " << w*10/100 << endl;
-                }
-                w=100;
-*/
+
                 //Iteração 3 - regra do trapézio para cálculo de I
                 t=0;
                 for(t=0; t<min((w+1),(999-w+1)); t++)
@@ -760,20 +753,8 @@ for(T=init_T; T<=final_T; T=T+step)
                 {
                 Glv(w) = (flv(w+t) - 2*flv(w) + flv(w-t))/2;
                 Gsv(w) = (fsv(w+t) - 2*fsv(w) + fsv(w-t))/2;
-/*
-                Glv(t) = pow(flv(t),3) + 2* pow(flv(t),2) + 5*flv(t);
 
-                if(t==0 || t==100)
-                {
-                    suml = suml+Glv(t)/2;
-                }
 
-                else
-                {
-                    suml = suml+Glv(t);
-                }
-                cout << "t = " << t << " / rho = " << rho_vector(t) << " / suml = " << suml << endl;
-*/
                     if(t==0 || t==min((w),(999-w)))
                     {
                     suml = suml + 0.5*(exp(-Glv(w)/Kn));
@@ -806,8 +787,6 @@ for(T=init_T; T<=final_T; T=T+step)
                 //if(w+t > 999) t=w;
                 //if(w>495) cout << "w = " << w << " | t = " << t << " | + = " << flv(w+t) << " | - = " << flv(w-t) << endl;
                 }
-//cout << "suml = " << suml << endl;
-//cin >> stop;
                 //cout << "rho = " << rho << " / w = " << w << " / t = " << t << endl;
                 //if(w>495) cin>>stop;
 

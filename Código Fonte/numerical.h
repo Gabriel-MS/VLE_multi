@@ -9,6 +9,14 @@
 #include "interpolation_util.h"
 #include <math.h>
 
+//Trapezoidal method to calculate area of integral
+//Outputs area under function and given interval
+double trapezoidal_rule_short_helmholtz(double (*function)(int, long double, long double, double, int, double, long double, int))
+{
+
+}
+
+
 //Finite difference method to calculate approximate first derivative
 //x and y vectors must have the same size
 //Outputs first derivatives in vector
