@@ -9,13 +9,46 @@
 #include "interpolation_util.h"
 #include <math.h>
 
-//Trapezoidal method to calculate area of integral
+//Trapezoidal method to calculate area of integral, , uses discrete data points
 //Outputs area under function and given interval
-double trapezoidal_rule_short_helmholtz(double (*function)(int, long double, long double, double, int, double, long double, int))
+double trapezoidal_rule(vector<double>& x, vector<double>& y)
 {
-
+  int i = 0;
+  int SIZE = x.size();
+  double sum = 0;
+  double h = (x[0]-x[SIZE])/SIZE;
+  
+  for(i=1; i<SIZE-1; i++)
+  {
+    sum = sum + y[i]/2;    
+  }
+  
+  sum = sum + y[0] + y[SIZE];
+  sum = sum * h/2;
+  
+  return sum;
 }
 
+//Simpson method to calculate area of integral, uses discrete data points
+//Outputs area under function and given interval
+double simpson_rule(vector<double>& x, vector<double>& y)
+{
+  int i = 0;
+  int SIZE = x.size();
+  double sum = 0;
+  double h = (x[0]-x[SIZE])/SIZE;
+  
+  for(i=1; i<SIZE-1; i++)
+  {
+    if(i%2 > 0) sum = sum + 4*y[i];
+    else sum = sum + 2*y[i];    
+  }
+  
+  sum = sum + y[0] + y[SIZE];
+  sum = sum * h/3;
+  
+  return sum;
+}
 
 //Finite difference method to calculate approximate first derivative
 //x and y vectors must have the same size
@@ -62,7 +95,7 @@ return y2;
 }
 
 //Interval method to find root between interval, outputs x value of root
-//Using discrete data points
+//Using discrete data points, outputs x value at root
 double bisection_root(vector<double>& x, vector<double>& y, int sup, int inf, double tol)
 {
     //inf and sup are inferior and superior positions of x vector to contain initial interval
