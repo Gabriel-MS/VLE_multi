@@ -77,16 +77,21 @@
 	"Gibbs.h"
 	"EdE.h"
 
-1465957991 source:c:\ufrj\atoms\projeto-vle\código fonte\vle_multicomponente_phi_phi.cpp
+1475030907 source:c:\ufrj\atoms\projeto-vle\código fonte\vle_multicomponente_phi_phi.cpp
 	<cmath>
 	<cstdio>
 	<stdio.h>
 	<iostream>
 	<fstream>
+	<limits>
+	<iomanip>
 	"mixingrules.h"
 	"EdE.h"
 	"Gibbs.h"
 	"Association.h"
+	"Renormalization.h"
+	"interpolation_util.h"
+	"numerical.h"
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
@@ -101,7 +106,7 @@
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 
-1465965134 c:\ufrj\atoms\projeto-vle\código fonte\ede.h
+1473565310 c:\ufrj\atoms\projeto-vle\código fonte\ede.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
@@ -154,4 +159,29 @@
 	<unsupported/Eigen/KroneckerProduct>
 	"Gibbs.h"
 	"EdE.h"
+
+1474949545 c:\ufrj\atoms\projeto-vle\código fonte\renormalization.h
+	<Eigen/Dense>
+	<unsupported/Eigen/MatrixFunctions>
+	<unsupported/Eigen/KroneckerProduct>
+
+1469344718 c:\ufrj\atoms\projeto-vle\código fonte\spline.h
+	<cstdio>
+	<cassert>
+	<vector>
+	<algorithm>
+
+1469344718 c:\ufrj\atoms\projeto-vle\código fonte\interpolation_util.h
+	<cstdio>
+	<cassert>
+	<vector>
+	<algorithm>
+
+1474421407 c:\ufrj\atoms\projeto-vle\código fonte\numerical.h
+	<cstdio>
+	<cstdlib>
+	<cmath>
+	<vector>
+	"interpolation_util.h"
+	<math.h>
 

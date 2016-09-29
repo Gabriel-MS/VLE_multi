@@ -13,97 +13,7 @@
 
 using namespace Eigen;
 using namespace std;
-/*
-VectorXd Renormalization(double T, VectorXd L_v, VectorXd fi_v, VectorXd x, double V, double am, int nc)
-{
-    int i;
-    double kB, L, L3, fi, K, rho, rho_plus, rho_minus, alfa, fl_plus, fl, fl_minus, fs_plus, fs, fs_minus;
-    double Gl, Gs, OMEGA, delta_f, f, f0, fl_old_plus, fl_old_minus, fs_old_plus, fs_old_minus, fl_old, fs_old;
-    double OMEGAs, OMEGAl, f_old;
-    VectorXd L3_v(nc);
 
-    kB = 0; //Boltzmann constant
-    alfa = 0.5*am; //0.5 para 2B, 0.8 para 4C
-
-    L3_v = L_v.array().pow(3);
-    L3 = x.transpose()*L3_v;
-    L = pow(L3,(1/3)); //Cut-off Length
-
-    rho = 1/V;
-    rho_plus = rho+0.001;
-    rho_minus = rho-0.001;
-
-    fi = x.transpose()*fi_v; //Second crossover parameter phi
-
-    for(i=0;i=8;i++)
-    {
-        K = kB*T/((pow(2,3*i))*pow(L,3));
-
-        fl_plus = fl_old_plus + alfa*rho_plus*rho_plus;
-        fl = fl_old + alfa*rho*rho;
-        fl_minus = fl_old_minus + alfa*rho_minus*rho_minus;
-
-        fs_plus = fs_old_plus + alfa*fi*rho_plus*rho_plus/(pow(2,2*i+1));
-        fs = fs_old + alfa*fi*rho*rho/(pow(2,2*i+1));
-        fs_minus = fs_old_minus + alfa*fi*rho_minus*rho_minus/(pow(2,2*i+1));
-
-        Gl = (fl_plus-2*fl+fl_minus)/2;
-        Gs = (fs_plus-2*fs+fs_minus)/2;
-
-        OMEGA = 0;
-        delta_f = -K*log(OMEGAs/OMEGAl);
-
-        f = f_old - delta_f;
-    }
-
-    return f;
-}
-
-VectorXd Renormalization_u(double T, VectorXd L_v, VectorXd fi_v, VectorXd x, double V, double am, int nc)
-{
-    int i;
-    double kB, L, L3, fi, K, rho, rho_plus, rho_minus, alfa, fl_plus, fl, fl_minus, fs_plus, fs, fs_minus;
-    double Gl, Gs, OMEGA, delta_f, f, f0, fl_old_plus, fl_old_minus, fs_old_plus, fs_old_minus, fl_old, fs_old;
-    double OMEGAs, OMEGAl, f_old;
-    VectorXd L3_v(nc);
-
-    kB = 0; //Boltzmann constant
-    alfa = 0.5*am; //0.5 para 2B, 0.8 para 4C
-
-    L3_v = L_v.array().pow(3);
-    L3 = x.transpose()*L3_v;
-    L = pow(L3,(1/3)); //Cut-off Length
-
-    rho = 1/V;
-    rho_plus = rho+0.001;
-    rho_minus = rho-0.001;
-
-    fi = x.transpose()*fi_v; //Second crossover parameter phi
-
-    for(i=0;i=8;i++)
-    {
-        K = kB*T/((pow(2,3*i))*pow(L,3));
-
-        fl_plus = fl_old_plus + alfa*rho_plus*rho_plus;
-        fl = fl_old + alfa*rho*rho;
-        fl_minus = fl_old_minus + alfa*rho_minus*rho_minus;
-
-        fs_plus = fs_old_plus + alfa*fi*rho_plus*rho_plus/(pow(2,2*i+1));
-        fs = fs_old + alfa*fi*rho*rho/(pow(2,2*i+1));
-        fs_minus = fs_old_minus + alfa*fi*rho_minus*rho_minus/(pow(2,2*i+1));
-
-        Gl = (fl_plus-2*fl+fl_minus)/2;
-        Gs = (fs_plus-2*fs+fs_minus)/2;
-
-        OMEGA = 0;
-        delta_f = -K*log(OMEGAs/OMEGAl);
-
-        f = f_old - delta_f;
-    }
-
-    return f;
-}
-*/
 //Function to calculate alfa
 VectorXd alfa_function(int EdE, int nc, VectorXd Tr, VectorXd omega, VectorXd a0, VectorXd c1)
 {
@@ -113,7 +23,7 @@ VectorXd alfa_function(int EdE, int nc, VectorXd Tr, VectorXd omega, VectorXd a0
 switch(EdE)
 	{
     case 1: //SRK
-        pre_Tr = -Tr.array().pow(0.5)+1;
+        pre_Tr = (-Tr.array().pow(0.5))+1;
         omega2 = omega.array().pow(2);
         alfa_termo1 = 0.48 + omega.array()*1.574 - 0.176*omega2.array();
         pre_alfa = (alfa_termo1 * pre_Tr.transpose());
@@ -198,16 +108,18 @@ switch(EdE)
     PSI = EdE_parameters[3];
 
     pre_a = PSI*R*R*alfa.array();
-    Tc2 = Tc.array().pow(2)/1000; //sem essa divisão, o valor extrapola o limite superior
-    pre_a2 = pre_a.transpose()*Tc2.asDiagonal();
-    a = pre_a2.transpose()*Pc.asDiagonal().inverse();
-    a = a.array()*1000;
-
-    pre_a = PSI*R*R*alfa.array();
-    Tc2 = Tc.array().pow(2)/1000; //sem essa divisão, o valor extrapola o limite superior
+    Tc2 = (Tc.array().pow(2))/1000; //sem essa divisão, o valor extrapola o limite superior
     pre_a2 = (Tc2.asDiagonal())*pre_a;
     a = (Pc.asDiagonal().inverse())*pre_a2;
     a = a.array()*1000;
+
+    pre_a = (PSI*R*R*alfa.array());
+    Tc2 = (Tc.array().pow(2))/1000; //sem essa divisão, o valor extrapola o limite superior
+    //pre_a2 = ;
+    a = 1000*((Pc.asDiagonal().inverse())*((Tc2.asDiagonal()*pre_a))).array();
+    //a = a.array()*1000;
+    //cin>> sigma;
+
     break;
 
     case 2: //PR
@@ -1278,6 +1190,7 @@ d = 0;
 
     //if(isnan(Z)==1)
     //{
+
        switch(phase) //Calculating compressibility factor
     {
     case 1: //Liquid phase - PR - SRK -------
@@ -1796,310 +1709,5 @@ PSI = EdE_parameters[3];
 
 return u_CPA;
     }
-
-/*
-//Função com função objetiva para cálculo de V para CPA
-double CPA_volume_obj_function(int nc, double V, double R, double P, double am, double bm, double T, VectorXd x, VectorXd X, double B)
-{
-    VectorXd one_four(4), one_nc(nc);
-    double F;
-    int i;
-
-    one_four << 1,
-                1,
-                1,
-                1;
-
-    for(i=0; i<nc; i++)
-    {
-         one_nc(i) = 1;
-    }
-
-    F = R*T/(V-bm) - am/(V*(V+bm)) - 0.5*R*T/V * (1+0.475*B/(V-0.475*B)) * (((x*one_four.transpose()).transpose()).asDiagonal()*one_nc).transpose() * X - P;
-    return F;
-}
-
-//Função para calcular o volume
-double volume_function(int nc, int EdE, int phase, VectorXd x, VectorXd X, VectorXd EdE_parameters, double bm,
-                       double am, double R, double T, double P, double tolV, double tolZ, VectorXd b)
-{
-    int i;
-    double B, sigma, epsilon, OMEGA, PSI, Vi, errorV, V, errorZ, condV, Vnew, F_obj, F_obj_plus, F_obj_minus;
-    double Zi, Z, qe;
-
-    tolZ = tolV;
-
-B = bm*P/(R*T);
-qe = (am/(bm*R*T));
-
-
-
-sigma = EdE_parameters[0];
-epsilon = EdE_parameters[1];
-OMEGA = EdE_parameters[2];
-PSI = EdE_parameters[3];
-
-    switch(EdE)
-    {
-    case 1: //SRK
-        switch(phase)
-        {
-        case 1: //FASE LÍQUIDA --------------------------------------------------------------------------------------
-        Zi = B; //Chute inicial pra fase líquida
-        errorZ = tolZ + 1;
-        while(errorZ>tolZ)
-        {
-            Z = B + (Zi+epsilon*B) * (Zi+sigma*B) * ((1+B-Zi)/(qe*B));
-            errorZ = fabs(Z-Zi);
-            Zi = Z;
-        }
-        V = R*T*Z/P;
-        break;
-
-
-        case 2: //FASE VAPOR ----------------------------------------------------------------------------------------
-        Zi = 1; //Chute inicial pra fase vapor
-        errorZ = tolZ + 1;
-        while(errorZ>tolZ)
-        {
-            Z = 1+ B - (qe*B)*((Zi-B)/((Zi+epsilon*B)*(Zi+sigma*B)));
-            errorZ = fabs(Z-Zi);
-            Zi = Z;
-        }
-        V = R*T*Z/P;
-        break;
-        }
-
-    case 2: //PR
-    switch(phase)
-        {
-        case 1: //FASE LÍQUIDA --------------------------------------------------------------------------------------
-        Zi = B; //Chute inicial pra fase líquida
-        errorZ = tolZ + 1;
-        while(errorZ>tolZ)
-        {
-            Z = B + (Zi+epsilon*B) * (Zi+sigma*B) * ((1+B-Zi)/(qe*B));
-            errorZ = fabs(Z-Zi);
-            Zi = Z;
-        }
-        V = R*T*Z/P;
-        break;
-
-
-        case 2: //FASE VAPOR ----------------------------------------------------------------------------------------
-        Zi = 1; //Chute inicial pra fase vapor
-        errorZ = tolZ + 1;
-        while(errorZ>tolZ)
-        {
-            Z = 1+ B - (qe*B)*((Zi-B)/((Zi+epsilon*B)*(Zi+sigma*B)));
-            errorZ = fabs(Z-Zi);
-            Zi = Z;
-        }
-        V = R*T*Z/P;
-        break;
-        }
-
-    case 3: //CPA
-    //Chute inicial de V parte de SRK
-    switch(phase)
-        {
-        case 1: //FASE LÍQUIDA --------------------------------------------------------------------------------------
-        Zi = B; //Chute inicial pra fase líquida
-        errorZ = tolZ + 1;
-        while(errorZ>tolZ)
-        {
-            Z = B + (Zi+epsilon*B) * (Zi+sigma*B) * ((1+B-Zi)/(qe*B));
-            errorZ = fabs(Z-Zi);
-            Zi = Z;
-        }
-        V = R*T*Z/P;
-        break;
-
-        case 2: //FASE VAPOR ----------------------------------------------------------------------------------------
-        Zi = 1; //Chute inicial pra fase vapor
-        errorZ = tolZ + 1;
-        while(errorZ>tolZ)
-        {
-            Z = 1+ B - (qe*B)*((Zi-B)/((Zi+epsilon*B)*(Zi+sigma*B)));
-            errorZ = fabs(Z-Zi);
-            Zi = Z;
-        }
-        V = R*T*Z/P;
-        break;
-        }
-
-    //Cálculo usando V de SRK como chute inicial---------
-    double F_obj, F_obj_minus, F_obj_plus, F_obj_derivate, Bcpa;
-    int i;
-    VectorXd one(nc), n_v(nc);
-    MatrixXd bij(nc,nc);
-
-    //***********************************************************
-    n_v = x; //NESTE CASO!!!!!!!!!!
-    //***********************************************************
-
-    for(i=0;i<nc;i++)
-    {
-        one(i) = 0;
-    }
-
-    bij = ((b*one.transpose())+((b*one.transpose()).transpose()))/2;
-    Bcpa = n_v.transpose()*(bij.diagonal());
-
-    condV = tolV+1;
-    while(condV>tolV)
-    {
-    F_obj = CPA_volume_obj_function(nc, V, R, P, am, bm, T, x, X, Bcpa);
-    cout << "F_obj = " << F_obj << endl;
-    double e;
-    e = 0.001;
-    F_obj_plus = CPA_volume_obj_function(nc, V+e, R, P, am, bm, T, x, X, Bcpa);
-    F_obj_minus = CPA_volume_obj_function(nc, V-e, R, P, am, bm, T, x, X, Bcpa);
-
-    F_obj_derivate = (F_obj_plus-F_obj_minus)/(2*e);
-
-    condV = fabs(F_obj/F_obj_derivate);
-
-    Vnew = V - F_obj/F_obj_derivate;
-    V = Vnew;
-    }
-    break;
-
-    }
-
-return V;
-}
-
-
-//**************************************************
-
-
-/* Função desativada, a função ativa para calcular o volume calcula primeiro o fator de compressibilidade e depois converte para V por V = RTZ/P
-//Função para calcular o volume
-double volume_function(int nc, int EdE, int phase, VectorXd x, VectorXd X, VectorXd EdE_parameters, double bm,
-                       double am, double R, double T, double P, double tolV, double alfa)
-{
-    int i;
-    double B, sigma, epsilon, OMEGA, PSI, Vi, errorV, V, errorZ, condV, Vnew, F_obj, F_obj_plus, F_obj_minus;
-
-B = bm*P/(R*T);
-
-sigma = EdE_parameters[0];
-epsilon = EdE_parameters[1];
-OMEGA = EdE_parameters[2];
-PSI = EdE_parameters[3];
-
-    switch(EdE)
-    {
-    case 1: //SRK
-        switch(phase)
-        {
-        case 1: //FASE LÍQUIDA --------------------------------------------------------------------------------------
-        Vi = bm; //Chute inicial pra fase líquida
-        errorV = tolV + 1;
-            while(errorV>tolV)
-            {
-            V = bm + (Vi+epsilon*bm)*(Vi+sigma*bm)*(R*T+bm*P-Vi*P)/alfa;
-            errorV = fabs(V-Vi);
-            Vi = V;
-            }
-        break;
-
-
-        case 2: //FASE VAPOR ----------------------------------------------------------------------------------------
-        Vi = R*T/P; //Chute inicial pra fase vapor
-        errorV = tolV + 1;
-            while(errorV>tolV)
-            {
-            V = R*T/P + bm - (am/P)*(Vi-bm)/((Vi+epsilon*bm)*(Vi+sigma*bm));
-            errorZ = fabs(V-Vi);
-            Vi = V;
-            }
-        break;
-        }
-    break;
-
-    case 2: //PR
-    switch(phase)
-        {
-        case 1: //FASE LÍQUIDA --------------------------------------------------------------------------------------
-        Vi = bm; //Chute inicial pra fase líquida
-        errorV = tolV + 1;
-            while(errorV>tolV)
-            {
-            V = bm + (Vi+epsilon*bm)*(Vi+sigma*bm)*(R*T+bm*P-Vi*P)/alfa;
-            errorV = fabs(V-Vi);
-            Vi = V;
-            }
-        break;
-
-
-        case 2: //FASE VAPOR ----------------------------------------------------------------------------------------
-        Vi = R*T/P; //Chute inicial pra fase vapor
-        errorV = tolV + 1;
-            while(errorV>tolV)
-            {
-            V = R*T/P + bm - (am/P)*(Vi-bm)/((Vi+epsilon*bm)*(Vi+sigma*bm));
-            errorZ = fabs(V-Vi);
-            Vi = V;
-            }
-        break;
-        }
-    break;
-
-    case 3: //CPA
-    //Chute inicial de V parte de SRK
-    switch(phase)
-        {
-        case 1: //FASE LÍQUIDA --------------------------------------------------------------------------------------
-        Vi = bm; //Chute inicial pra fase líquida
-        errorV = tolV + 1;
-            while(errorV>tolV)
-            {
-            V = bm + (Vi)*(Vi+bm)*(R*T+bm*P-Vi*P)/alfa;
-            errorV = fabs(V-Vi);
-            Vi = V;
-            }
-        break;
-
-        case 2: //FASE VAPOR ----------------------------------------------------------------------------------------
-        Vi = R*T/P; //Chute inicial pra fase vapor
-        errorV = tolV + 1;
-            while(errorV>tolV)
-            {
-            V = R*T/P + bm - (am/P)*(Vi-bm)/(Vi*(Vi+bm));
-            errorZ = fabs(V-Vi);
-            Vi = V;
-            }
-        break;
-        }
-
-    //Cálculo usando V de SRK como chute inicial---------
-    double F_obj, F_obj_minus, F_obj_plus, F_obj_derivate;
-
-    condV = tolV+1;
-    while(condV>tolV)
-    {
-    F_obj = CPA_volume_obj_function(nc, V, R, P, am, bm, T, x, X, B);
-
-    double e;
-    e = 0.001;
-    F_obj_plus = CPA_volume_obj_function(nc, V+e, R, P, am, bm, T, x, X, B);
-    F_obj_minus = CPA_volume_obj_function(nc, V-e, R, P, am, bm, T, x, X, B);
-
-    F_obj_derivate = (F_obj_plus-F_obj_minus)/(2*e);
-
-    condV = F_obj/F_obj_derivate;
-
-    Vnew = V - F_obj/F_obj_derivate;
-    }
-    V = Vnew;
-    break;
-
-    }
-
-return V;
-}
-*/
 
 #endif // EDE_H_INCLUDED
