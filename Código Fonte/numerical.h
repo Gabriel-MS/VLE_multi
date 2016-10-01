@@ -9,11 +9,91 @@
 #include "interpolation_util.h"
 #include <math.h>
 
-//Trapezoidal method to calculate area of integral
+//Trapezoidal method to calculate area of integral, , uses discrete data points
 //Outputs area under function and given interval
-double trapezoidal_rule_short_helmholtz(double (*function)(int, long double, long double, double, int, double, long double, int))
+double trapezoidal_rule(vector<double>& x, vector<double>& y)
 {
+  int i = 0;
+  int SIZE = x.size();
+  double sum = 0;
+  double h = (x[SIZE]-x[0])/SIZE;
 
+  for(i=1; i<SIZE-1; i++)
+  {
+    sum = sum + y[i]/2;
+  }
+
+  sum = sum + y[0] + y[SIZE];
+  sum = sum * h/2;
+
+  return sum;
+}
+
+//Simpson method to calculate area of integral, uses discrete data points
+//Outputs area under function and given interval
+double simpson_rule(vector<double>& x, vector<double>& y)
+{
+  int i = 0;
+  int SIZE = x.size();
+  double sum = 0;
+  double h = (x[SIZE]-x[0])/SIZE;
+
+  for(i=1; i<SIZE-1; i++)
+  {
+    if(i%2 > 0) sum = sum + 4*y[i];
+    else sum = sum + 2*y[i];
+  }
+
+  sum = sum + y[0] + y[SIZE];
+  sum = sum * h/3;
+
+  return sum;
+}
+
+//Calculates enclosed area using integral area method, and trapezoidal method
+//Enclosed area between two x points and curve, area under curve calculated with trapezoidal method
+double enclosed_area_trap(double trap_area, int a, int b)
+{
+  //std::vector <double> x_subv(b-a+1), y_subv(b-a+1); //Cutting subvectors
+  int i=0;
+  double Area; //trap_area;
+/*
+    for(i=0; i<b; i++)
+    {
+      y_subv[i] = y[a];
+      x_subv[i] = x[a];
+      a++;
+    }
+*/
+  //Area under curve
+  //trap_area = trapezoidal_rule(x_subv,y_subv);
+
+  //Area = trap_area - (y[b]+y[a])/2*(x[b]-x[a]);
+
+  return Area;
+}
+
+//Calculates enclosed area using integral area method, and trapezoidal method
+//Enclosed area between two x points and curve, area under curve calculated with simpson method
+double enclosed_area_simp(vector<double>& x, vector<double>& y, int a, int b)
+{
+  std::vector <double> x_subv(b-a), y_subv(b-a); //Cutting subvectors
+  int i=0;
+  double Area, trap_area;
+
+    for(i=0; i<b; i++)
+    {
+      y_subv[i] = y[a];
+      x_subv[i] = x[a];
+      a++;
+    }
+
+  //Area under curve
+  trap_area = simpson_rule(x_subv,y_subv);
+
+  Area = trap_area - (y[b]+y[a])/2*(x[b]-x[a]);
+
+  return Area;
 }
 
 
@@ -32,12 +112,11 @@ vector<double> fin_diff_1_vec(vector<double>& x, vector<double>& y)
 
   for(i=1; i<SIZE; i++)
   {
-    y1[i] = (y[i]-y[i-1])/(x[i]-x[i-1]);
+    y1[i] = (y[i+1]-y[i-1])/(x[i+1]-x[i-1]);
   }
 
 return y1;
 }
-
 
 //Finite difference method to calculate approximate first derivative
 //x and y vectors must have the same size
@@ -62,28 +141,45 @@ return y2;
 }
 
 //Interval method to find root between interval, outputs x value of root
-//Using discrete data points
+//Using discrete data points, outputs x vector position at root
 double bisection_root(vector<double>& x, vector<double>& y, int sup, int inf, double tol)
 {
     //inf and sup are inferior and superior positions of x vector to contain initial interval
     //tol is the tolerance for the method
-    int cen;
+    int cen, counter;
     double c;
     c = tol+1;
+    counter = 0;
 
-    while(c>tol)
+    cout << "sup initial = " << x[sup] << " | inf initial = " << x[inf] << endl;
+
+    while(fabs(c)>tol || counter == 100)
     {
         cen = (sup+inf)/2;
 
-        c = x[cen];
+        c = y[cen];
 
-        if(y[cen]*y[inf] < 0) sup = cen;
-        else inf = cen;
+        if(y[cen]*y[inf] < 0)
+        {
+            sup = cen;
+        }
 
-        inf = cen;
+        else
+        {
+            inf = cen;
+        }
+
+        if(abs(inf-sup)<2)
+        {
+            c = 1e-10;
+            cout << "inf-sup = " << inf-sup << endl;
+        }
+
+        cout <<"cen = " << cen << " | c = " << c << " | sup = " << x[sup] << " | inf = " << x[inf] << endl;
+        counter++;
     }
 
-    return x[cen];
+    return cen;
 }
 
 
@@ -95,7 +191,6 @@ double cubic_spline(double x[], double y[], int n, double end1, double endn, dou
 {
   int i,k;
   double p,qn,sig,un,*u;
-
   u=vector(1,n-1);
   if (yp1 > 0.99e30) y2[1]=u[1]=0.0;
     else
@@ -103,8 +198,6 @@ double cubic_spline(double x[], double y[], int n, double end1, double endn, dou
     y2[1] = -0.5;
     u[1]=(3.0/(x[2]-x[1]))*((y[2]-y[1])/(x[2]-x[1])-yp1);
     }
-
-
   for (i=2;i<=n-1;i++)
   {
   sig=(x[i]-x[i-1])/(x[i+1]-x[i-1]);
@@ -113,25 +206,21 @@ double cubic_spline(double x[], double y[], int n, double end1, double endn, dou
   u[i]=(y[i+1]-y[i])/(x[i+1]-x[i]) - (y[i]-y[i-1])/(x[i]-x[i-1]);
   u[i]=(6.0*u[i]/(x[i+1]-x[i-1])-sig*u[i-1])/p;
   }
-
   if (ypn > 0.99e30) qn=un=0.0;
     else
     {
     qn=0.5;
     un=(3.0/(x[n]-x[n-1]))*(ypn-(y[n]-y[n-1])/(x[n]-x[n-1]));
     }
-
   y2[n]=(un-qn*u[n-1])/(qn*y2[n-1]+1.0);
-
   for (k=n-1;k>=1;k--)  y2[k]=y2[k]*y2[k+1]+u[k];
-
   free_vector(u,1,n-1);
 }
 */
 
 
 //Cubic spline interpolation, interpolates single values in cubic splines
-double cspline(const vector<double>& X, const vector<double>& Y, double x)
+double cspline(vector<double>& X, vector<double>& Y, double x)
 {
   int SIZE, i;
 
@@ -170,7 +259,7 @@ return y1;
 
 
 //Cubic spline derivative, outputs values of 1st derivatives in cubic splines
-double cspline_deriv1(const vector<double>& X, const vector<double>& Y, double x)
+double cspline_deriv1(vector<double>& X, vector<double>& Y, double x)
 {
   int SIZE, i;
 
@@ -207,4 +296,42 @@ vector<double> cspline_deriv1_vec(vector<double>& X, vector<double>& Y, vector<d
 return y1;
 }
 
+
+//Cubic spline derivative, outputs values of 1st derivatives in cubic splines
+double cspline_deriv2(vector<double>& X, vector<double>& Y, double x)
+{
+  int SIZE, i;
+
+  tk::spline s;
+  s.set_points(X,Y);
+
+  SIZE = X.size();
+
+  double y1; //Vector to output first derivatives
+
+    y1 = s.deriv(2,x);
+
+return y1;
+}
+
+
+//Cubic spline derivative, outputs vectors of 1st derivatives in cubic splines
+vector<double> cspline_deriv2_vec(vector<double>& X, vector<double>& Y, vector<double>& x)
+{
+  int SIZE, i;
+
+  tk::spline s;
+  s.set_points(X,Y);
+
+  SIZE = x.size();
+
+  std::vector<double> y1(SIZE); //Vector to output first derivatives
+
+  for(i=1; i<SIZE; i++)
+  {
+    y1[i] = s.deriv(2,x[i]);
+  }
+
+return y1;
+}
 #endif // NUMERICAL_H_INCLUDED

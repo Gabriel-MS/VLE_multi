@@ -561,7 +561,7 @@ if(Renormalization==1)
 
     Not_splined << "Density" << ";" << "f" << ";" << "f0" << ";" << "u" << ";" << "P" << ";" << "T" << endl;
     Renorm << "Density" << ";" << "f" << ";" << "f0" << ";" << "u" << ";" << "P" << ";" << "u_0" << ";" << "P_0" << ";" << "T" << endl;
-    Envelope << "rho" << ";" << "rho_l" << ";" << "rho_v" << ";" << "P_l" << ";" << "P_v" << endl;
+    Envelope << "rho" << ";" << "rho_l" << ";" << "P_l" << ";" << "rho_v" << ";" << "P_v" << endl;
 
     int i, j, n, k, w, t;
     long double kB, L, L3, fi, K, rho, rho_plus, rho_minus, fl_plus, fl, fl_minus, fs_plus, fs, fs_minus;
@@ -570,10 +570,13 @@ if(Renormalization==1)
     long double width, suml, sums, m, fl_plus_old, fl_minus_old, fs_plus_old, fs_minus_old, f_original;
     long double Gl0, Gs0, Gln, Gsn, eGl0, eGs0, eGln, eGsn, phi_r, P_test_old, P_average_0;
     long double pmax_cond, P_max, P_min, P_average, P_test, test, P_l, u_l, P_v, u_v, pmin_cond, rho_v;
-    std::vector<double> rho_vec(1000), f_vec(1000), u_vec(10000), P_vec(10000), f0_vec(1000), dP_dV(10000), dP2dV2(10000);
-    std::vector<double> rho_vec_out(10000), u_vec_0(10000), P_vec_0(10000), f_vec_out(10000), f0_vec_out(10000);
+    std::vector<double> rho_vec(1000), f_vec(1000), u_vec(10000), u_vec1(1000), P_vec(10000), f0_vec(1000), dP_dV(10000), dP2dV2(10000);
+    std::vector<double> rho_vec_out(10000), u_vec_0(10000), P_vec_0(10000), f_vec_out(10000), f0_vec_out(10000), P_vec1(1000);
+
+    //MatrixXd Area(1000,1000);
 
     double Q_func, Kn, Ins, Inl;
+    double Area;
 
     VectorXd L3_v(nc), L_v(nc), fi_v(nc), lnXX2(4*nc), f_assoc(nc), one_4c(4*nc, 2);
 
@@ -1041,6 +1044,25 @@ for(i=0; i<10000; i++)
            << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T << endl;
 }
 
+/*
+u_vec1 = cspline_deriv1_vec(rho_vec, f_vec, rho_vec);
+cout << "before P1" << endl;
+
+double dFdV1, dFdV2, dF2dV22, dF2dV21;
+std::vector<double> dAdV(1000), A_vec(1000), V_vec(1000);
+
+for(i=0; i<1000; i++)
+{
+ P_vec1[i] = -f_vec[i] + rho_vec[i]*u_vec[i];
+ A_vec[i] = f_vec[i]/rho_vec[i];
+ V_vec[i] = 1/rho_vec[i];
+}
+
+dFdV1 = -((V[j]-V1[i])/2)*dAdV[i] + ((A[j]-A[i])/2);
+dFdV2 = -((V[j]-V1[i])/2)*dAdV[j] + ((A[j]-A[i])/2);-*/
+
+
+/*
 k = 0;
 double u_dif;
 double P_dif;
@@ -1057,8 +1079,7 @@ for(i=100; i<9900; i++)
   }
 }
 
-cout << "rho_inflexion = " << rho_inflexion << endl;
-
+cout << "rho_inflexion = " << rho_inflexion << endl;*/
 
 /*
 for(i=0; i<9999; i++)
@@ -1078,22 +1099,26 @@ for(i=0; i<9999; i++)
 //Search Max and Min Pressures from isotherm
 //
 
-dP_dV[0] = (P_vec[1]-P_vec[0])/(rho_vec_out[1] - rho_vec_out[0]); //Wrong, fix
+
+    dP_dV[0] = (P_vec[1]-P_vec[0])/(rho_vec_out[1] - rho_vec_out[0]);
 
   for(i=1; i<10000; i++)
   {
-    dP_dV[i] = (P_vec[i]-P_vec[i-1])/(rho_vec_out[i]-rho_vec_out[i-1]);
+    dP_dV[i] = (P_vec[i+1]-P_vec[i-1])/(rho_vec_out[i+1]-rho_vec_out[i-1]);
   }
 
+  dP_dV[10000] = (P_vec[10000]-P_vec[9999])/(rho_vec_out[10000] - rho_vec_out[9999]);
+
 //Maximum pressure at dP/dV=0
-i=100;
+double tol_dpdv = 1e-1;
+i=10;
 do
 {
  pmax_cond = dP_dV[i];
  i++;
  //cout << "i = " << i << " / pmax = " << pmax_cond << " / rho = " << rho_vec_out[i] << endl;
-}while(pmax_cond>0);
-pmax_cond = 1;
+}while(pmax_cond>tol_dpdv);
+pmax_cond = -1;
 P_max = P_vec[i-2];
 cout << "dP/dV at max = " << dP_dV[i-2] << endl;
 //cin >> stop;
@@ -1105,18 +1130,139 @@ do
  pmin_cond = dP_dV[j];
  j--;
 //cout << "j = " << j << " / pmin = " << pmin_cond << " / rho = " << rho_vec_out[j] << endl;
-}while(pmin_cond>0);
-pmin_cond = 1;
+}while(pmin_cond>tol_dpdv);
+pmin_cond = -1;
 P_min = P_vec[j+2];
-cout << "dP/dV at in = " << dP_dV[i+2] << endl;
+cout << "dP/dV at min = " << dP_dV[j+2] << endl;
 
 cout << "max pressure = " << P_max << endl;
 cout << "min pressure = " << P_min << endl;
-//cin>>stop;
+
+double F1, F2, dF1drho1, dF2drho2, u1, u2, du1, du2, rho1_new, rho2_new, rho1_test, rho2_test;
+double f1, f2, rho1, rho2, f1p, f1m, f2p, f2m, u1p, u1m, u2p, u2m, P1, P2;
+double tol_rho = 1e-4;
+rho1_test = tol_rho+1;
+rho2_test = tol_rho+1;
+
+rho1 = rho_vec_out[i-5];
+rho2 = rho_vec_out[j+5];
+
+cout << "rho1 = " << rho1 << " / rho2 = " << rho2 << endl;
+counter = 0;
+while(rho1_test > tol_rho || rho2_test > tol_rho || counter<=500)
+{
+f1 = cspline(rho_vec_out, f_vec_out, rho1);
+f2 = cspline(rho_vec_out, f_vec_out, rho2);
+u1 = cspline_deriv1(rho_vec_out, f_vec_out, rho1);
+u2 = cspline_deriv1(rho_vec_out, f_vec_out, rho2);
+
+f1p = cspline(rho_vec_out, f_vec_out, rho1+1e-2);
+f2p = cspline(rho_vec_out, f_vec_out, rho2+1e-2);
+u1p = cspline_deriv1(rho_vec_out, f_vec_out, rho1+1e-2);
+u2p = cspline_deriv1(rho_vec_out, f_vec_out, rho2+1e-2);
+
+f1m = cspline(rho_vec_out, f_vec_out, rho1-1e-2);
+f2m = cspline(rho_vec_out, f_vec_out, rho2-1e-2);
+u1m = cspline_deriv1(rho_vec_out, f_vec_out, rho1-1e-2);
+u2m = cspline_deriv1(rho_vec_out, f_vec_out, rho2-1e-2);
+
+//cout << "f1 = " << rho1 << " / rho2 = " << rho2 << endl;
+//cout << "u1 = " << rho1 << " / rho2 = " << rho2 << endl;
+//cout << "du1 = " << rho1 << " / rho2 = " << rho2 << endl;
+
+F1 = (f2 - f1) + u1*(rho1-rho2);
+F2 = (f2 - f1) + u2*(rho1-rho2);
+
+dF1drho1 = (((f2p - f1p) + u1p*(rho1+1e-2-rho2)) - ((f2m - f1m) + u1m*(rho1-1e-2-rho2)))/(2e-2);
+dF2drho2 = (((f2p - f1p) + u2p*(rho1+1e-2-rho2)) - ((f2m - f1m) + u2m*(rho1-1e-2-rho2)))/(2e-2);
+
+rho1_new = rho1 - F1/dF1drho1;
+rho2_new = rho2 - F2/dF2drho2;
+
+rho1_test = rho1_new - rho1;
+rho2_test = rho2_new - rho2;
+
+rho1 = rho1_new;
+rho2 = rho2_new;
+
+//cout << "rho1 = " << rho1 << " / rho2 = " << rho2 << endl;
+}
+
+cout << "rho1 = " << rho1 << " / rho2 = " << rho2 << endl;
+f1 = cspline(rho_vec_out, f_vec_out, rho1);
+f2 = cspline(rho_vec_out, f_vec_out, rho2);
+u1 = cspline_deriv1(rho_vec_out, f_vec_out, rho1);
+u2 = cspline_deriv1(rho_vec_out, f_vec_out, rho2);
+P1 = -f1+u1*rho1;
+P2 = -f2+u2*rho2;
+cout << "u1 - u2 = " << u1 - u2 << endl;
+cout << "P1 - P2 = " << P1 - P2 << endl;
+
+//cin>>stop;*/
 //------------------------------------------
+//double A, A_old, trap_area;
+//int pos1, pos2;
+//std::vector <double> x_subv, y_subv;
+
+//A_old = 1;
+/*
+std::vector <double> x_subv(16-10), y_subv(16-10);
+for(i=0; i<b; i++)
+    {
+      y_subv[i] = y[a];
+      x_subv[i] = x[a];
+      a++;
+    }
+
+
+    trap_area = trapezoidal_rule(x_subv, y_subv);
+*/
+/*
+for(i=5; i<1000; i++)
+{
+    cout << "i = " << i << endl;
+
+    for(j=i+4; j<1000; j++)
+    {
+
+    for(k=0; k<j; k++)
+    {
+      y_subv[i] = P_vec1[j];
+      x_subv[i] = rho_vec[j];
+      k++;
+    }
+
+    trap_area = trapezoidal_rule(x_subv, y_subv);
+    A = trap_area - (P_vec1[j]+P_vec1[i])/2*(rho_vec[j]-rho_vec[i]);
+
+     cout << "i = " << i << " / j = " << j << endl;
+     //A = enclosed_area_trap(trap_area, i, j);
+
+     if(A > A_old)
+     {
+      A_old = A;
+      pos1 = i;
+      pos2 = j;
+     }
+
+    }
+}*/
+/*
+for(i=0; i<10000; i++)
+{
+cout << "Area " << i << " = " << Area(1,i) << endl;
+}
+*/
+
+
+//cout << "A = " << A_old << " / pos1 = " << rho_vec[pos1] << " / pos2 = " << rho_vec[pos2] << endl;
+//cin >> stop;
+
+//Bisection search of vapor pressure
+/*
 
 errorKx = 1e10; //Forces to enter loop (could use "do" command, but i don't want)
-j=0;
+//j=0;
 counter = 0;
 
 int tl, tv, c;
@@ -1124,21 +1270,88 @@ c = 1;
 
 //THIS SHOULD BE INSIDE ERRORKX ITERATION
 double tol_P = 1e-3;
+double u_test, tol_u;
 
-if(counter==0)
-{
+tol_P = 0.1;
+tol_u = 0.1;
+
+//if(counter==0)
+//{
 P_average = (P_max+P_min)/2;
 P_average_0 = P_average;
 cout << "P_average = " << P_average << endl;
-}
 
+if(P_average < 0)
+{
+    cout << "P nicht OK" << endl;
+    P_average = 0.1;
+    P_average_0 = P_average;
+}
+//}
 cout << "Pressure_average = " << P_average << endl;
 
+for(k=0; k<10000; k++)
+{
+ P_vec1[k] = P_vec[k] - P_average;
+ //cout << "k = " << k << " | rho = " << rho_vec_out[k] << " | P = " << P_vec[k] << endl;
+}
 
+k=1;
+
+do
+{
+tv = bisection_root(rho_vec_out, P_vec1, i, 2, 1e-2);
+tl = bisection_root(rho_vec_out, P_vec1, 9900, j, 1e-2);
+
+rho_l = rho_vec_out[tl];
+rho_v = rho_vec_out[tv];
+
+P_l = P_vec[tl];
+P_v = P_vec[tv];
+
+u_l = u_vec[tl];
+u_v = u_vec[tv];
+
+if(k%2>0)
+{
+    P_average = P_average + k*P_average_0/100;
+}
+
+else
+{
+    P_average = P_average - k*P_average_0/100;
+}
+
+
+for(k=0; k<10000; k++)
+{
+ P_vec1[k] = P_vec[k] - P_average;
+}
+
+cout << "rho_v = " << rho_v << endl;
+cout << "rho_l = " << rho_l << endl;
+cout << "P_v = " << P_v << endl;
+cout << "P_l = " << P_l << endl;
+
+
+
+k++;
+
+u_test = fabs(u_l - u_v);
+P_test = fabs(P_l - P_v);
+
+cout << "u_test = " << u_test << " / P_test = " << P_test << endl;
+
+}while(u_test > tol_u && P_test > tol_P);
+
+*/
+
+/*
 //Liquid phase
 i=100;
 P_test_old = 1e10;
 tol_P = 1e-2;
+P_test = 1e-10;
 do
 {
     P_test = fabs(P_average-P_vec[i]);
@@ -1147,31 +1360,39 @@ do
 
     if(P_test>P_test_old) P_test = 1e-4; // Guarantees getting the nearest value
 
-    P_test_old = P_test;
+    //P_test_old = P_test;
+
 }while(P_test > tol_P);
-P_test = 1e10;
 P_v = P_vec[i-1];
 u_v = u_vec[i-1];
 rho_v = rho_vec_out[i-1];
 Vv = 1/rho_v;
 tv = i-1;
 
+
 //cin >> stop;
 
 //Vapor phase
 j=9980;
 P_test_old = 1e10;
+//P_test = 1e-10;
+
+u_test = 2;
 tol_P = 5e-2;
+tol_u = 1;
 do
 {
     P_test = fabs(P_average-P_vec[j]);
+    u_test = fabs(u_v - u_vec[j]);
     j--;
-    //cout << "j = " << j << " / P_test_v = " << P_test << " / rho = " << rho_vec_out[j] << endl;
+    cout << "j = " << j << " / P_test = " << P_test << " / u_test = " << u_test << " / rho = " << rho_vec_out[j] << endl;
 
     if(P_test>P_test_old) P_test = 1e-4; // Guarantees getting the nearest value
 
-    P_test_old = P_test;
-}while(P_test > tol_P);
+    //P_test_old = P_test;
+
+}while(P_test > tol_P || u_test > tol_u);
+
 P_test = 1e10;
 P_l = P_vec[j+1];
 u_l = u_vec[j+1];
@@ -1184,10 +1405,15 @@ tl = j+1;
 
 cout << "P_l = " << P_l << endl;
 cout << "P_v = " << P_v << endl;
+cout << "u_l = " << u_l << endl;
+cout << "u_v = " << u_v << endl;
 cout << "rho_l = " << rho_l << endl;
 cout << "rho_v = " << rho_v << endl;
 
 
+cout << "P delta = " << P_v-P_l << endl;
+cout << "u delta = " << u_v-u_l << endl;
+*/
 /*
 while(errorKx > tolKx)
 {
@@ -1304,8 +1530,8 @@ cout << "T = " << T << endl;
 
 k++;
 
-Envelope << std::fixed << std::setprecision(15) << T << ";" << rho_l << ";"
-           << rho_v << ";" << P_l << ";" << P_v << ";" << ";" << P_average << endl;
+Envelope << std::fixed << std::setprecision(15) << T << ";" << rho2 << ";"
+           << P2 << ";" << rho1 << ";" << P1 << ";" << P_average << endl;
 
 }
 
