@@ -1140,7 +1140,7 @@ cout << "min pressure = " << P_min << endl;
 
 double F1, F2, dF1drho1, dF2drho2, u1, u2, du1, du2, rho1_new, rho2_new, rho1_test, rho2_test;
 double f1, f2, rho1, rho2, f1p, f1m, f2p, f2m, u1p, u1m, u2p, u2m, P1, P2;
-double tol_rho = 1e-4;
+double tol_rho = 1e-3;
 rho1_test = tol_rho+1;
 rho2_test = tol_rho+1;
 

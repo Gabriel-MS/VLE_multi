@@ -2,29 +2,13 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Debug" />
-	<File name="..\Código Fonte\interpolation_util.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="..\Código Fonte\EdE.h" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="421" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="..\Código Fonte\Renormalization.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="647" topLine="59" />
-		</Cursor>
-	</File>
-	<File name="..\Código Fonte\numerical.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1397" topLine="11" />
+			<Cursor1 position="11479" topLine="123" />
 		</Cursor>
 		<Folding>
-			<Collapse line="15" />
-			<Collapse line="38" />
-			<Collapse line="58" />
-			<Collapse line="84" />
-			<Collapse line="126" />
-			<Collapse line="144" />
-			<Collapse line="165" />
-			<Collapse line="183" />
+			<Collapse line="59" />
+			<Collapse line="153" />
 		</Folding>
 	</File>
 	<File name="..\Código Fonte\Association.h" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -35,33 +19,66 @@
 			<Collapse line="424" />
 		</Folding>
 	</File>
-	<File name="..\Código Fonte\Gibbs.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="..\Código Fonte\VLE_multicomponente_phi_phi.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="5284" topLine="156" />
+			<Cursor1 position="34961" topLine="902" />
 		</Cursor>
+		<Folding>
+			<Collapse line="273" />
+			<Collapse line="842" />
+			<Collapse line="952" />
+			<Collapse line="1046" />
+			<Collapse line="1064" />
+			<Collapse line="1083" />
+			<Collapse line="1207" />
+			<Collapse line="1219" />
+			<Collapse line="1249" />
+			<Collapse line="1261" />
+			<Collapse line="1348" />
+			<Collapse line="1416" />
+			<Collapse line="1540" />
+		</Folding>
 	</File>
 	<File name="..\Código Fonte\mixingrules.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="4228" topLine="42" />
 		</Cursor>
 	</File>
-	<File name="..\Código Fonte\EdE.h" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="..\Código Fonte\Renormalization.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="11479" topLine="141" />
+			<Cursor1 position="1658" topLine="23" />
 		</Cursor>
 		<Folding>
-			<Collapse line="59" />
-			<Collapse line="153" />
+			<Collapse line="11" />
+			<Collapse line="46" />
 		</Folding>
 	</File>
-	<File name="..\Código Fonte\VLE_multicomponente_phi_phi.cpp" open="1" top="1" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="..\Código Fonte\numerical.h" open="1" top="1" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="23695" topLine="755" />
+			<Cursor1 position="5639" topLine="103" />
 		</Cursor>
 		<Folding>
-			<Collapse line="265" />
-			<Collapse line="792" />
-			<Collapse line="902" />
+			<Collapse line="14" />
+			<Collapse line="34" />
+			<Collapse line="55" />
+			<Collapse line="78" />
+			<Collapse line="125" />
+			<Collapse line="188" />
+			<Collapse line="241" />
+			<Collapse line="262" />
+			<Collapse line="280" />
+			<Collapse line="301" />
+			<Collapse line="319" />
 		</Folding>
+	</File>
+	<File name="..\Código Fonte\Gibbs.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5284" topLine="156" />
+		</Cursor>
+	</File>
+	<File name="..\Código Fonte\interpolation_util.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="421" topLine="0" />
+		</Cursor>
 	</File>
 </CodeBlocks_layout_file>
