@@ -670,6 +670,38 @@ if(Renormalization==1)
 //while(T<(Tc[0]+10))
 for(T=init_T; T<=final_T; T=T+step)
 {
+    //Recalculating Temperature-dependent parameters
+    if(EdE==1)
+    {
+        if(Tc_virtual[0] != 0)
+        {
+        Tr = T*Tc_virtual.asDiagonal().inverse().diagonal(); //Vetor com temperaturas reduzidas virtuais
+        alfa = alfa_function(EdE, nc, Tr, omega_virtual, a0, c1);
+        a = a_function(nc, R, EdE_parameters, omega_virtual, Tc_virtual, Pc_virtual, alfa, EdE, a0);
+        b = b_function(nc, R, EdE_parameters, omega_virtual, Tc_virtual, Pc_virtual, alfa, bCPA, EdE);
+        }
+
+        else
+        {
+        Tr = T*(Tc.asDiagonal().inverse().diagonal()); //Vetor com temperaturas reduzidas virtuais
+        alfa = alfa_function(EdE, nc, Tr, omega, a0, c1);
+        a = a_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, EdE, a0);
+        b = b_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, bCPA, EdE);
+        }
+
+    }
+
+    else
+    {
+    Tr = T*(Tc.asDiagonal().inverse().diagonal()); //Vetor com temperaturas reduzidas virtuais
+    alfa = alfa_function(EdE, nc, Tr, omega, a0, c1);
+    a = a_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, EdE, a0);
+    b = b_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, bCPA, EdE);
+    }
+
+
+    bm = b_mixing_rules_function(nc, b, x, MR);
+    am = a_mixing_rules_function(nc, MR, a, x, k12, bl, b, T, q, r, Aij, R, alfa_NRTL, EdE, G_ex_model);
 
     E_row = ((E_row.array().log())*Told/T).exp();
     E_col = ((E_col.array().log())*Told/T).exp();
@@ -1100,14 +1132,14 @@ for(i=0; i<9999; i++)
 //
 
 
-    dP_dV[0] = (P_vec[1]-P_vec[0])/(rho_vec_out[1] - rho_vec_out[0]);
+  dP_dV[0] = (P_vec_0[1]-P_vec_0[0])/(rho_vec_out[1] - rho_vec_out[0]);
 
   for(i=1; i<10000; i++)
   {
-    dP_dV[i] = (P_vec[i+1]-P_vec[i-1])/(rho_vec_out[i+1]-rho_vec_out[i-1]);
+    dP_dV[i] = (P_vec_0[i+1]-P_vec_0[i-1])/(rho_vec_out[i+1]-rho_vec_out[i-1]);
   }
 
-  dP_dV[10000] = (P_vec[10000]-P_vec[9999])/(rho_vec_out[10000] - rho_vec_out[9999]);
+  dP_dV[10000] = (P_vec_0[10000]-P_vec_0[9999])/(rho_vec_out[10000] - rho_vec_out[9999]);
 
 //Maximum pressure at dP/dV=0
 double tol_dpdv = 1e-1;
@@ -1119,7 +1151,7 @@ do
  //cout << "i = " << i << " / pmax = " << pmax_cond << " / rho = " << rho_vec_out[i] << endl;
 }while(pmax_cond>tol_dpdv);
 pmax_cond = -1;
-P_max = P_vec[i-2];
+P_max = P_vec_0[i-2];
 cout << "dP/dV at max = " << dP_dV[i-2] << endl;
 //cin >> stop;
 
@@ -1132,7 +1164,7 @@ do
 //cout << "j = " << j << " / pmin = " << pmin_cond << " / rho = " << rho_vec_out[j] << endl;
 }while(pmin_cond>tol_dpdv);
 pmin_cond = -1;
-P_min = P_vec[j+2];
+P_min = P_vec_0[j+2];
 cout << "dP/dV at min = " << dP_dV[j+2] << endl;
 
 cout << "max pressure = " << P_max << endl;
@@ -1140,7 +1172,7 @@ cout << "min pressure = " << P_min << endl;
 
 double F1, F2, dF1drho1, dF2drho2, u1, u2, du1, du2, rho1_new, rho2_new, rho1_test, rho2_test;
 double f1, f2, rho1, rho2, f1p, f1m, f2p, f2m, u1p, u1m, u2p, u2m, P1, P2;
-double tol_rho = 1e-3;
+double tol_rho = 1e-4;
 rho1_test = tol_rho+1;
 rho2_test = tol_rho+1;
 
@@ -1148,23 +1180,23 @@ rho1 = rho_vec_out[i-5];
 rho2 = rho_vec_out[j+5];
 
 cout << "rho1 = " << rho1 << " / rho2 = " << rho2 << endl;
-counter = 0;
-while(rho1_test > tol_rho || rho2_test > tol_rho || counter<=500)
+
+while(rho1_test > tol_rho || rho2_test > tol_rho)
 {
-f1 = cspline(rho_vec_out, f_vec_out, rho1);
-f2 = cspline(rho_vec_out, f_vec_out, rho2);
-u1 = cspline_deriv1(rho_vec_out, f_vec_out, rho1);
-u2 = cspline_deriv1(rho_vec_out, f_vec_out, rho2);
+f1 = cspline(rho_vec_out, f0_vec_out, rho1);
+f2 = cspline(rho_vec_out, f0_vec_out, rho2);
+u1 = cspline_deriv1(rho_vec_out, f0_vec_out, rho1);
+u2 = cspline_deriv1(rho_vec_out, f0_vec_out, rho2);
 
-f1p = cspline(rho_vec_out, f_vec_out, rho1+1e-2);
-f2p = cspline(rho_vec_out, f_vec_out, rho2+1e-2);
-u1p = cspline_deriv1(rho_vec_out, f_vec_out, rho1+1e-2);
-u2p = cspline_deriv1(rho_vec_out, f_vec_out, rho2+1e-2);
+f1p = cspline(rho_vec_out, f0_vec_out, rho1+1e-2);
+f2p = cspline(rho_vec_out, f0_vec_out, rho2+1e-2);
+u1p = cspline_deriv1(rho_vec_out, f0_vec_out, rho1+1e-2);
+u2p = cspline_deriv1(rho_vec_out, f0_vec_out, rho2+1e-2);
 
-f1m = cspline(rho_vec_out, f_vec_out, rho1-1e-2);
-f2m = cspline(rho_vec_out, f_vec_out, rho2-1e-2);
-u1m = cspline_deriv1(rho_vec_out, f_vec_out, rho1-1e-2);
-u2m = cspline_deriv1(rho_vec_out, f_vec_out, rho2-1e-2);
+f1m = cspline(rho_vec_out, f0_vec_out, rho1-1e-2);
+f2m = cspline(rho_vec_out, f0_vec_out, rho2-1e-2);
+u1m = cspline_deriv1(rho_vec_out, f0_vec_out, rho1-1e-2);
+u2m = cspline_deriv1(rho_vec_out, f0_vec_out, rho2-1e-2);
 
 //cout << "f1 = " << rho1 << " / rho2 = " << rho2 << endl;
 //cout << "u1 = " << rho1 << " / rho2 = " << rho2 << endl;
@@ -1189,10 +1221,10 @@ rho2 = rho2_new;
 }
 
 cout << "rho1 = " << rho1 << " / rho2 = " << rho2 << endl;
-f1 = cspline(rho_vec_out, f_vec_out, rho1);
-f2 = cspline(rho_vec_out, f_vec_out, rho2);
-u1 = cspline_deriv1(rho_vec_out, f_vec_out, rho1);
-u2 = cspline_deriv1(rho_vec_out, f_vec_out, rho2);
+f1 = cspline(rho_vec_out, f0_vec_out, rho1);
+f2 = cspline(rho_vec_out, f0_vec_out, rho2);
+u1 = cspline_deriv1(rho_vec_out, f0_vec_out, rho1);
+u2 = cspline_deriv1(rho_vec_out, f0_vec_out, rho2);
 P1 = -f1+u1*rho1;
 P2 = -f2+u2*rho2;
 cout << "u1 - u2 = " << u1 - u2 << endl;
