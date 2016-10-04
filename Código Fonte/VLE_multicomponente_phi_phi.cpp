@@ -1132,14 +1132,14 @@ for(i=0; i<9999; i++)
 //
 
 
-  dP_dV[0] = (P_vec_0[1]-P_vec_0[0])/(rho_vec_out[1] - rho_vec_out[0]);
+  dP_dV[0] = (P_vec[1]-P_vec[0])/(rho_vec_out[1] - rho_vec_out[0]);
 
   for(i=1; i<10000; i++)
   {
-    dP_dV[i] = (P_vec_0[i+1]-P_vec_0[i-1])/(rho_vec_out[i+1]-rho_vec_out[i-1]);
+    dP_dV[i] = (P_vec[i+1]-P_vec[i-1])/(rho_vec_out[i+1]-rho_vec_out[i-1]);
   }
 
-  dP_dV[10000] = (P_vec_0[10000]-P_vec_0[9999])/(rho_vec_out[10000] - rho_vec_out[9999]);
+  dP_dV[10000] = (P_vec[10000]-P_vec[9999])/(rho_vec_out[10000] - rho_vec_out[9999]);
 
 //Maximum pressure at dP/dV=0
 double tol_dpdv = 1e-1;
@@ -1151,7 +1151,7 @@ do
  //cout << "i = " << i << " / pmax = " << pmax_cond << " / rho = " << rho_vec_out[i] << endl;
 }while(pmax_cond>tol_dpdv);
 pmax_cond = -1;
-P_max = P_vec_0[i-2];
+P_max = P_vec[i-2];
 cout << "dP/dV at max = " << dP_dV[i-2] << endl;
 //cin >> stop;
 
@@ -1164,7 +1164,7 @@ do
 //cout << "j = " << j << " / pmin = " << pmin_cond << " / rho = " << rho_vec_out[j] << endl;
 }while(pmin_cond>tol_dpdv);
 pmin_cond = -1;
-P_min = P_vec_0[j+2];
+P_min = P_vec[j+2];
 cout << "dP/dV at min = " << dP_dV[j+2] << endl;
 
 cout << "max pressure = " << P_max << endl;
@@ -1172,31 +1172,107 @@ cout << "min pressure = " << P_min << endl;
 
 double F1, F2, dF1drho1, dF2drho2, u1, u2, du1, du2, rho1_new, rho2_new, rho1_test, rho2_test;
 double f1, f2, rho1, rho2, f1p, f1m, f2p, f2m, u1p, u1m, u2p, u2m, P1, P2;
-double tol_rho = 1e-4;
+double tol_rho = 1e-3;
 rho1_test = tol_rho+1;
 rho2_test = tol_rho+1;
 
 rho1 = rho_vec_out[i-5];
 rho2 = rho_vec_out[j+5];
 
+
+
+if(P_min < 0)
+{
+    //inf and sup are inferior and superior positions of x vector to contain initial interval
+    //tol is the tolerance for the method
+    double tol_Pmin = 1e-1;
+
+    std::vector <double> P_mintry(10000);
+
+    for(i=0; i<10000; i++)
+    {
+    P_mintry[i] = fabs(P_vec[i]);
+    }
+
+    int cen, counter;
+    cen = distance(P_mintry.begin(),min_element(P_mintry.begin()+j,P_mintry.end()));
+    int sup = cen+50;
+    if(sup>10000) sup = 9900;
+    int inf = cen-50;
+    double rho_sup, rho_inf, rho_cen, f_sup, f_inf, f_cen, P_cen, P_inf, P_sup;
+    double u_cen, u_inf, u_sup;
+    rho_sup = rho_vec_out[sup];
+    rho_inf = rho_vec_out[inf];
+
+    double c;
+    c = tol_Pmin+1;
+    counter = 0;
+
+    cout << "sup initial = " << rho_sup << " | inf initial = " << rho_inf << endl;
+
+    P_cen = tol_Pmin+1;
+    while(P_cen>tol_Pmin || counter == 200)
+    {
+        rho_cen = (rho_sup+rho_inf)/2;
+
+        f_cen = cspline(rho_vec_out, P_vec, rho_cen);
+        u_cen = cspline_deriv1(rho_vec_out, P_vec, rho_cen);
+        f_inf = cspline(rho_vec_out, P_vec, rho_inf);
+        u_inf = cspline_deriv1(rho_vec_out, P_vec, rho_inf);
+        f_sup = cspline(rho_vec_out, P_vec, rho_sup);
+        u_sup = cspline_deriv1(rho_vec_out, P_vec, rho_sup);
+
+        P_cen = -f_cen + u_cen*rho_cen;
+        P_inf = -f_inf + u_inf*rho_inf;
+        P_sup = -f_sup + u_sup*rho_sup;
+
+        cout << "P_cen*P_inf = " << P*cen*P_inf;
+
+        if(P_cen*P_inf < 0)
+        {
+            rho_sup = rho_cen;
+            cout << " / between inf and cen";
+        }
+
+        else
+        {
+            rho_inf = rho_cen;
+            cout << " / between sup and cen";
+        }
+
+        if(fabs(rho_inf-rho_sup)<1e-2)
+        {
+            P_cen = 1e-2;
+            rho_cen = (rho_inf + rho_sup)/2;
+        }
+        cout << " / rho_cen = " << rho_cen << endl;
+
+        counter++;
+    }
+
+P_min = P_cen;
+rho2 = rho_cen;
+counter = 0;
+}
+
 cout << "rho1 = " << rho1 << " / rho2 = " << rho2 << endl;
 
 while(rho1_test > tol_rho || rho2_test > tol_rho)
 {
-f1 = cspline(rho_vec_out, f0_vec_out, rho1);
-f2 = cspline(rho_vec_out, f0_vec_out, rho2);
-u1 = cspline_deriv1(rho_vec_out, f0_vec_out, rho1);
-u2 = cspline_deriv1(rho_vec_out, f0_vec_out, rho2);
+f1 = cspline(rho_vec_out, f_vec_out, rho1);
+f2 = cspline(rho_vec_out, f_vec_out, rho2);
+u1 = cspline_deriv1(rho_vec_out, f_vec_out, rho1);
+u2 = cspline_deriv1(rho_vec_out, f_vec_out, rho2);
 
-f1p = cspline(rho_vec_out, f0_vec_out, rho1+1e-2);
-f2p = cspline(rho_vec_out, f0_vec_out, rho2+1e-2);
-u1p = cspline_deriv1(rho_vec_out, f0_vec_out, rho1+1e-2);
-u2p = cspline_deriv1(rho_vec_out, f0_vec_out, rho2+1e-2);
+f1p = cspline(rho_vec_out, f_vec_out, rho1+1e-5);
+f2p = cspline(rho_vec_out, f_vec_out, rho2+1e-5);
+u1p = cspline_deriv1(rho_vec_out, f_vec_out, rho1+1e-5);
+u2p = cspline_deriv1(rho_vec_out, f_vec_out, rho2+1e-5);
 
-f1m = cspline(rho_vec_out, f0_vec_out, rho1-1e-2);
-f2m = cspline(rho_vec_out, f0_vec_out, rho2-1e-2);
-u1m = cspline_deriv1(rho_vec_out, f0_vec_out, rho1-1e-2);
-u2m = cspline_deriv1(rho_vec_out, f0_vec_out, rho2-1e-2);
+f1m = cspline(rho_vec_out, f_vec_out, rho1-1e-5);
+f2m = cspline(rho_vec_out, f_vec_out, rho2-1e-5);
+u1m = cspline_deriv1(rho_vec_out, f_vec_out, rho1-1e-5);
+u2m = cspline_deriv1(rho_vec_out, f_vec_out, rho2-1e-5);
 
 //cout << "f1 = " << rho1 << " / rho2 = " << rho2 << endl;
 //cout << "u1 = " << rho1 << " / rho2 = " << rho2 << endl;
@@ -1205,26 +1281,32 @@ u2m = cspline_deriv1(rho_vec_out, f0_vec_out, rho2-1e-2);
 F1 = (f2 - f1) + u1*(rho1-rho2);
 F2 = (f2 - f1) + u2*(rho1-rho2);
 
-dF1drho1 = (((f2p - f1p) + u1p*(rho1+1e-2-rho2)) - ((f2m - f1m) + u1m*(rho1-1e-2-rho2)))/(2e-2);
-dF2drho2 = (((f2p - f1p) + u2p*(rho1+1e-2-rho2)) - ((f2m - f1m) + u2m*(rho1-1e-2-rho2)))/(2e-2);
+dF1drho1 = (((f2p - f1p) + u1p*(rho1+1e-5-rho2)) - ((f2m - f1m) + u1m*(rho1-1e-5-rho2)))/(2e-5);
+dF2drho2 = (((f2p - f1p) + u2p*(rho1+1e-5-rho2)) - ((f2m - f1m) + u2m*(rho1-1e-5-rho2)))/(2e-5);
+
+
+cout << "main / " << "F1 = " << F1 << " / dF1 = " << dF1drho1 << endl;
+cout << "main / " << "F2 = " << F2 << " / dF2 = " << dF2drho2 << endl;
 
 rho1_new = rho1 - F1/dF1drho1;
 rho2_new = rho2 - F2/dF2drho2;
 
-rho1_test = rho1_new - rho1;
-rho2_test = rho2_new - rho2;
+rho1_test = fabs(rho1_new - rho1);
+rho2_test = fabs(rho2_new - rho2);
 
 rho1 = rho1_new;
 rho2 = rho2_new;
 
-//cout << "rho1 = " << rho1 << " / rho2 = " << rho2 << endl;
+cout << "main / " << "rho1 = " << rho1 << " / rho2 = " << rho2 << endl;
+
+if(rho1 < 0) rho1 = 0.01;
 }
 
 cout << "rho1 = " << rho1 << " / rho2 = " << rho2 << endl;
-f1 = cspline(rho_vec_out, f0_vec_out, rho1);
-f2 = cspline(rho_vec_out, f0_vec_out, rho2);
-u1 = cspline_deriv1(rho_vec_out, f0_vec_out, rho1);
-u2 = cspline_deriv1(rho_vec_out, f0_vec_out, rho2);
+f1 = cspline(rho_vec_out, f_vec_out, rho1);
+f2 = cspline(rho_vec_out, f_vec_out, rho2);
+u1 = cspline_deriv1(rho_vec_out, f_vec_out, rho1);
+u2 = cspline_deriv1(rho_vec_out, f_vec_out, rho2);
 P1 = -f1+u1*rho1;
 P2 = -f2+u2*rho2;
 cout << "u1 - u2 = " << u1 - u2 << endl;

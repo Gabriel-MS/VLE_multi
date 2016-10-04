@@ -1,13 +1,10 @@
 Dados da simulação 
  -------------------------------------------------------------------------------------
-Number of Components = 2
-Component 1 = 12
-Component 2 = 12
-Equation of state = 1
-Renormalization = 1
-Mixing Rule = 1
-Defined Temperature = 450 K
-kij = 0
+Number of Components = 0
+Equation of state = 0
+Renormalization = 0
+Mixing Rule = 0
+Excess Gibbs Energy Model = 0
 -------------------------------------------------------------------------------------------------------------
 
 Cálculos 
