@@ -11,16 +11,17 @@
 
 //Trapezoidal method to calculate area of integral, , uses discrete data points
 //Outputs area under function and given interval
-double trapezoidal_rule(vector<double>& x, vector<double>& y)
+double trapezoidal_rule(vector<double>& x, vector<double>& y, int SIZE)
 {
   int i = 0;
-  int SIZE = x.size();
+  //int SIZE = x.size();
   double sum = 0;
   double h = (x[SIZE]-x[0])/SIZE;
 
   for(i=1; i<SIZE-1; i++)
   {
     sum = sum + y[i]/2;
+    cout << "x = " << x[i] <<  " / y = " << y[i] << " / sum = " << sum << endl;
   }
 
   sum = sum + y[0] + y[SIZE];
@@ -31,10 +32,10 @@ double trapezoidal_rule(vector<double>& x, vector<double>& y)
 
 //Simpson method to calculate area of integral, uses discrete data points
 //Outputs area under function and given interval
-double simpson_rule(vector<double>& x, vector<double>& y)
+double simpson_rule(vector<double>& x, vector<double>& y, int SIZE)
 {
   int i = 0;
-  int SIZE = x.size();
+  //int SIZE = x.size();
   double sum = 0;
   double h = (x[SIZE]-x[0])/SIZE;
 
@@ -89,7 +90,7 @@ double enclosed_area_simp(vector<double>& x, vector<double>& y, int a, int b)
     }
 
   //Area under curve
-  trap_area = simpson_rule(x_subv,y_subv);
+  trap_area = simpson_rule(x_subv,y_subv, b-a);
 
   Area = trap_area - (y[b]+y[a])/2*(x[b]-x[a]);
 

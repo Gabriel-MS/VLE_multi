@@ -119,7 +119,7 @@ double log10P, Tb, Tinit, Told;
 double G_ex;
 VectorXd Tsat(nc), Alog10P(nc), gama(nc), ln_gama(nc);
 double init_T, final_T, step, BETCR, init_P, final_P, Pold;
-int max_num_iter, counter, stop, Renormalization, sr_type;
+int max_num_iter, counter, stop, Renormalization, sr_type, r_type, Iteration;
 //--------------------------------------------------------------------------------
 max_num_iter = 500;
 
@@ -167,6 +167,10 @@ if(Renormalization==1)
 {
     cout << "short-range type: \n 1. n \n 2. 2n+1 \n 3. 2n-1 \n 4. phi/L^2" << endl;
     cin >> sr_type;
+    cout << "Calculation type: \n 1. Vector \n 2. Point-wise+Vec \n 3. Point-wise" << endl;
+    cin >> r_type;
+    cout << "Iteration method: \n 1. Trapezoidal (no-function) \n 2. Trapezoidal \n 3. Simpson" << endl;
+    cin >> Iteration;
 }
 
 output << "Renormalization = " << Renormalization << endl;
@@ -570,8 +574,10 @@ if(Renormalization==1)
     long double width, suml, sums, m, fl_plus_old, fl_minus_old, fs_plus_old, fs_minus_old, f_original;
     long double Gl0, Gs0, Gln, Gsn, eGl0, eGs0, eGln, eGsn, phi_r, P_test_old, P_average_0;
     long double pmax_cond, P_max, P_min, P_average, P_test, test, P_l, u_l, P_v, u_v, pmin_cond, rho_v;
-    std::vector<double> rho_vec(1000), f_vec(1000), u_vec(10000), u_vec1(1000), P_vec(10000), f0_vec(1000), dP_dV(10000), dP2dV2(10000);
-    std::vector<double> rho_vec_out(10000), u_vec_0(10000), P_vec_0(10000), f_vec_out(10000), f0_vec_out(10000), P_vec1(1000);
+    std::vector<double> rho_vec(1000), f_vec(1000), u_vec1(1000), f0_vec(1000), P_vec1(1000), Glv2(1000), Gsv2(1000);
+
+    std::vector<double> rho_vec_out(1000), dP2dV2(1000), dP_dV(1000), P_vec(1000);
+    std::vector<double> u_vec(1000), u_vec_0(1000), P_vec_0(1000), f_vec_out(1000), f0_vec_out(1000);
 
     //MatrixXd Area(1000,1000);
 
@@ -586,7 +592,7 @@ if(Renormalization==1)
 
     VectorXd fl_old_p(n), fl_oldv(n), fl_old_m(n), fs_old_p(n), fs_oldv(n), fs_old_m(n), rho_vector2(n);
 
-    VectorXd flv(n), fsv(n), fv(n), rho_vector(n), delta_fv(n), Glv(n), Gsv(n), f_originalv(n);
+    VectorXd flv(n), fsv(n), fv(n), rho_vector(n), delta_fv(n), f_originalv(n), Glv(n), Gsv(n);
 
     one_4c << 1, 0,
               1, 0,
@@ -668,6 +674,7 @@ if(Renormalization==1)
     Told = T;
 
 //while(T<(Tc[0]+10))
+
 for(T=init_T; T<=final_T; T=T+step)
 {
     //Recalculating Temperature-dependent parameters
@@ -713,7 +720,8 @@ for(T=init_T; T<=final_T; T=T+step)
     w = 0;
 
     //====================================================================
-
+if(r_type==1)
+{
     //Calcular vetor de f em f0 com um cálculo
     rho = 1e-4;
 
@@ -789,6 +797,9 @@ for(T=init_T; T<=final_T; T=T+step)
                 Glv(w) = (flv(w+t) - 2*flv(w) + flv(w-t))/2;
                 Gsv(w) = (fsv(w+t) - 2*fsv(w) + fsv(w-t))/2;
 
+                Glv2[w] = (flv(w+t) - 2*flv(w) + flv(w-t))/2;
+                Gsv2[w] = (fsv(w+t) - 2*fsv(w) + fsv(w-t))/2;
+
 
                     if(t==0 || t==min((w),(999-w)))
                     {
@@ -803,32 +814,24 @@ for(T=init_T; T<=final_T; T=T+step)
                     sums = sums + exp(-Gsv(w)/Kn);
                     }
 
-/*
-                    if(w==588)
-                    {
-                    cout << "rho = " << rho << " / t = " << t << " / w = " << w
-                         << " / fl+ = " << flv(w+t) << " / fl- = " << flv(w-t) << endl;
-                    }
-*/
-
-                    //if(isnan(suml)==1 || isinf(suml)==1)
-                    //{
-                    //cout << "rho = " << rho << " // flv- = " << flv(w-t) << " // Glv = " << Glv(w)
-                    //     << " // flv = " << flv(w) << " / t = " << t << " / w = " << w << endl;
-                    //cout << "fl+ = " << flv(w+t) << " / fl- = " << flv(w-t) << " / fl = " << flv(w) << endl;
-                    //cin >> stop;
-                    //}
-
-                //if(w+t > 999) t=w;
-                //if(w>495) cout << "w = " << w << " | t = " << t << " | + = " << flv(w+t) << " | - = " << flv(w-t) << endl;
                 }
-                //cout << "rho = " << rho << " / w = " << w << " / t = " << t << endl;
-                //if(w>495) cin>>stop;
+
 
 
             Inl = width*suml;
             Ins = width*sums;
 
+            if(Iteration==2)
+            {
+                Inl = trapezoidal_rule(rho_vec, Glv2, w);
+                Ins = trapezoidal_rule(rho_vec, Glv2, w);
+            }
+
+            if(Iteration==3)
+            {
+                Inl = simpson_rule(rho_vec, Glv2, w);
+                Ins = simpson_rule(rho_vec, Glv2, w);
+            }
             //Calcular o delta_f para rho atual
             delta_fv(w) = -Kn*log(Ins/Inl);
 
@@ -851,7 +854,7 @@ for(T=init_T; T<=final_T; T=T+step)
         //Calcular o novo vetor de f, ajustando com o vetor de delta_f
         fv.array() = fv.array() + delta_fv.array();
 
-        cout << "i = " << i << " / f 300 = " << fv(300) << " / delta 300 -->" << delta_fv(300) << endl;
+        //cout << "i = " << i << " / f 300 = " << fv(300) << " / delta 300 -->" << delta_fv(300) << endl;
 
     }
 
@@ -868,11 +871,12 @@ for(T=init_T; T<=final_T; T=T+step)
     Not_splined << std::fixed << std::setprecision(15) << rho_vector(w) << ";" << fv(w) << ";" << f_originalv(w) << ";" << T << endl;
     rho = rho + rho_max/1000;
     }
-
+}
     //====================================================================
 
 
-/*
+if(r_type==2 || r_type==3)
+{
 while(rho<=rho_max)
 {
 
@@ -923,7 +927,7 @@ while(rho<=rho_max)
             X_minus = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
                      tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho_minus, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
             }
-/*
+
             if(rho_minus <= 0)
             {
                 cout << "lower limit" << endl;
@@ -948,7 +952,7 @@ while(rho<=rho_max)
             fs_old_m(j) = 0.5*am*(rho_minus)*(rho_minus)+helmholtz_repulsive(EdE, R, T, rho_minus, am, bm, X_minus, x);
             }
 
-
+/*
             if(i==1)
             {
             fl_old_p(j) = helmholtz_repulsive(EdE, R, T, rho_plus, am, bm, X_plus, x);
@@ -959,16 +963,18 @@ while(rho<=rho_max)
             fs_oldv(j) = helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x);
             fs_old_m(j) = helmholtz_repulsive(EdE, R, T, rho_minus, am, bm, X_minus, x);
             }
+*/
 
-
+if(r_type==3)
+{
             fl_plus = helmholtz_recursion_long(EdE, fl_old_p(j), rho_plus, am);
             fl = helmholtz_recursion_long(EdE, fl_oldv(j), rho, am);
             fl_minus = helmholtz_recursion_long(EdE, fl_old_m(j), rho_minus, am);
 
-            fs_plus = helmholtz_recursion_short(EdE, fs_old_p(j), rho_plus, am, i, L, phi_r);
-            fs = helmholtz_recursion_short(EdE, fs_oldv(j), rho, am, i, L, phi_r);
-            fs_minus = helmholtz_recursion_short(EdE, fs_old_m(j), rho_minus, am, i, L, phi_r);
-
+            fs_plus = helmholtz_recursion_short(EdE, fs_old_p(j), rho_plus, am, i, L, phi_r, sr_type);
+            fs = helmholtz_recursion_short(EdE, fs_oldv(j), rho, am, i, L, phi_r, sr_type);
+            fs_minus = helmholtz_recursion_short(EdE, fs_old_m(j), rho_minus, am, i, L, phi_r, sr_type);
+}
             //if(i!=1)
             //{
 
@@ -980,17 +986,18 @@ while(rho<=rho_max)
             fs_oldv(j) = fs;
             fs_old_m(j) = fs_minus;
             //}
-*/
 
-/*
+
+if(r_type==2)
+{
             fl_plus = helmholtz_recursion_long(EdE, fl_old, rho+var, am);
             fl = helmholtz_recursion_long(EdE, fl_old, rho, am);
             fl_minus = helmholtz_recursion_long(EdE, fl_old, rho-var, am);
 
-            fs_plus = helmholtz_recursion_short(EdE, fs_old, rho+var, am, i, L, phi_r);
-            fs = helmholtz_recursion_short(EdE, fs_old, rho, am, i, L, phi_r);
-            fs_minus = helmholtz_recursion_short(EdE, fs_old, rho-var, am, i, L, phi_r);
-
+            fs_plus = helmholtz_recursion_short(EdE, fs_old, rho+var, am, i, L, phi_r, sr_type);
+            fs = helmholtz_recursion_short(EdE, fs_old, rho, am, i, L, phi_r, sr_type);
+            fs_minus = helmholtz_recursion_short(EdE, fs_old, rho-var, am, i, L, phi_r, sr_type);
+}
             Gl = (fl_plus-2*fl+fl_minus)/2;
             Gs = (fs_plus-2*fs+fs_minus)/2;
 
@@ -1019,12 +1026,12 @@ while(rho<=rho_max)
         OMEGAs = width*sums;
 
         delta_f = -K*log(OMEGAs/OMEGAl);
-
+/*
         if(rho>=(rho_max/2))
         {
             delta_f = 0;
         }
-
+*/
         f = f_old + delta_f;
 
         f_old = f;
@@ -1046,14 +1053,15 @@ while(rho<=rho_max)
     rho = rho+rho_max/1000;
 
     w++;
-}*/
+}
+}
 
 rho = 1e-4;
 w=0;
 while(rho<=rho_max)
 {
     rho_vec_out[w] = rho;
-    rho = rho + rho_max/10000;
+    rho = rho + rho_max/1000;
     w++;
 }
 
@@ -1064,7 +1072,7 @@ u_vec = cspline_deriv1_vec(rho_vec, f_vec, rho_vec_out);
 u_vec_0 = cspline_deriv1_vec(rho_vec, f0_vec, rho_vec_out);
 
 
-for(i=0; i<10000; i++)
+for(i=0; i<1000; i++)
 {
     P_vec[i] = -f_vec_out[i] + rho_vec_out[i]*u_vec[i];
     P_vec_0[i] = -f0_vec_out[i] + rho_vec_out[i]*u_vec_0[i];
@@ -1134,12 +1142,12 @@ for(i=0; i<9999; i++)
 
   dP_dV[0] = (P_vec[1]-P_vec[0])/(rho_vec_out[1] - rho_vec_out[0]);
 
-  for(i=1; i<10000; i++)
+  for(i=1; i<1000; i++)
   {
     dP_dV[i] = (P_vec[i+1]-P_vec[i-1])/(rho_vec_out[i+1]-rho_vec_out[i-1]);
   }
 
-  dP_dV[10000] = (P_vec[10000]-P_vec[9999])/(rho_vec_out[10000] - rho_vec_out[9999]);
+  dP_dV[1000] = (P_vec[1000]-P_vec[999])/(rho_vec_out[10000] - rho_vec_out[999]);
 
 //Maximum pressure at dP/dV=0
 double tol_dpdv = 1e-1;
@@ -1156,7 +1164,7 @@ cout << "dP/dV at max = " << dP_dV[i-2] << endl;
 //cin >> stop;
 
 //Minimum pressure at dP/dV=0
-j=9900;
+j=995;
 do
 {
  pmin_cond = dP_dV[j];
@@ -1172,12 +1180,12 @@ cout << "min pressure = " << P_min << endl;
 
 double F1, F2, dF1drho1, dF2drho2, u1, u2, du1, du2, rho1_new, rho2_new, rho1_test, rho2_test;
 double f1, f2, rho1, rho2, f1p, f1m, f2p, f2m, u1p, u1m, u2p, u2m, P1, P2;
-double tol_rho = 1e-3;
+double tol_rho = 5e-3;
 rho1_test = tol_rho+1;
 rho2_test = tol_rho+1;
 
-rho1 = rho_vec_out[i-5];
-rho2 = rho_vec_out[j+5];
+rho1 = rho_vec_out[i-20];
+rho2 = rho_vec_out[j+20];
 
 
 
@@ -1257,22 +1265,25 @@ counter = 0;
 
 cout << "rho1 = " << rho1 << " / rho2 = " << rho2 << endl;
 
-while(rho1_test > tol_rho || rho2_test > tol_rho)
+while(rho1_test > tol_rho || rho2_test > tol_rho || P1-P2 > tol_rho || u1-u2 > tol_rho)
 {
 f1 = cspline(rho_vec_out, f_vec_out, rho1);
 f2 = cspline(rho_vec_out, f_vec_out, rho2);
 u1 = cspline_deriv1(rho_vec_out, f_vec_out, rho1);
 u2 = cspline_deriv1(rho_vec_out, f_vec_out, rho2);
 
-f1p = cspline(rho_vec_out, f_vec_out, rho1+1e-5);
-f2p = cspline(rho_vec_out, f_vec_out, rho2+1e-5);
-u1p = cspline_deriv1(rho_vec_out, f_vec_out, rho1+1e-5);
-u2p = cspline_deriv1(rho_vec_out, f_vec_out, rho2+1e-5);
+P1 = -f1+rho1*u1;
+P2 = -f2+rho2*u2;
 
-f1m = cspline(rho_vec_out, f_vec_out, rho1-1e-5);
-f2m = cspline(rho_vec_out, f_vec_out, rho2-1e-5);
-u1m = cspline_deriv1(rho_vec_out, f_vec_out, rho1-1e-5);
-u2m = cspline_deriv1(rho_vec_out, f_vec_out, rho2-1e-5);
+f1p = cspline(rho_vec_out, f_vec_out, rho1+1e-4);
+f2p = cspline(rho_vec_out, f_vec_out, rho2+1e-4);
+u1p = cspline_deriv1(rho_vec_out, f_vec_out, rho1+1e-4);
+u2p = cspline_deriv1(rho_vec_out, f_vec_out, rho2+1e-4);
+
+f1m = cspline(rho_vec_out, f_vec_out, rho1-1e-4);
+f2m = cspline(rho_vec_out, f_vec_out, rho2-1e-4);
+u1m = cspline_deriv1(rho_vec_out, f_vec_out, rho1-1e-4);
+u2m = cspline_deriv1(rho_vec_out, f_vec_out, rho2-1e-4);
 
 //cout << "f1 = " << rho1 << " / rho2 = " << rho2 << endl;
 //cout << "u1 = " << rho1 << " / rho2 = " << rho2 << endl;
@@ -1281,12 +1292,12 @@ u2m = cspline_deriv1(rho_vec_out, f_vec_out, rho2-1e-5);
 F1 = (f2 - f1) + u1*(rho1-rho2);
 F2 = (f2 - f1) + u2*(rho1-rho2);
 
-dF1drho1 = (((f2p - f1p) + u1p*(rho1+1e-5-rho2)) - ((f2m - f1m) + u1m*(rho1-1e-5-rho2)))/(2e-5);
-dF2drho2 = (((f2p - f1p) + u2p*(rho1+1e-5-rho2)) - ((f2m - f1m) + u2m*(rho1-1e-5-rho2)))/(2e-5);
+dF1drho1 = (((f2p - f1p) + u1p*(rho1+1e-4-rho2)) - ((f2m - f1m) + u1m*(rho1-1e-4-rho2)))/(2e-4);
+dF2drho2 = (((f2p - f1p) + u2p*(rho1+1e-4-rho2)) - ((f2m - f1m) + u2m*(rho1-1e-4-rho2)))/(2e-4);
 
 
-cout << "main / " << "F1 = " << F1 << " / dF1 = " << dF1drho1 << endl;
-cout << "main / " << "F2 = " << F2 << " / dF2 = " << dF2drho2 << endl;
+//cout << "main / " << "F1 = " << F1 << " / dF1 = " << dF1drho1 << endl;
+//cout << "main / " << "F2 = " << F2 << " / dF2 = " << dF2drho2 << endl;
 
 rho1_new = rho1 - F1/dF1drho1;
 rho2_new = rho2 - F2/dF2drho2;
@@ -1297,7 +1308,8 @@ rho2_test = fabs(rho2_new - rho2);
 rho1 = rho1_new;
 rho2 = rho2_new;
 
-cout << "main / " << "rho1 = " << rho1 << " / rho2 = " << rho2 << endl;
+//cout << "main / " << "rho1 = " << rho1 << " / rho2 = " << rho2 << " | F1 = " << F1 << " | tests = " << rho1_test
+//     << ", " << rho2_test << endl;
 
 if(rho1 < 0) rho1 = 0.01;
 }
