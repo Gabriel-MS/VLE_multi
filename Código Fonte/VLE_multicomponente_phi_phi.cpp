@@ -896,7 +896,7 @@ while(rho<=rho_max)
     f0 = f0 + 0.5*am*rho*rho;
     f_old = f0;
 
-    for(i=1;i<11;i=i+1)
+    for(i=1;i<9;i=i+1)
     {
         K = kB*T/((pow(2,3*i))*pow(L,3));
 
@@ -906,7 +906,7 @@ while(rho<=rho_max)
             fs_old = f_old;
             }
 
-        width = (rho2-0)/n;
+        width = (rho2-0)/500;
         suml = 0;
         sums = 0;
         m = n-1;
@@ -928,18 +928,6 @@ while(rho<=rho_max)
                      tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho_minus, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
             }
 
-            if(rho_minus <= 0)
-            {
-                cout << "lower limit" << endl;
-                cin>> stop;
-            }
-
-            if(rho_plus >= rho_max)
-            {
-                cout << "upper limit" << endl;
-                cin>> stop;
-            }
-
 
             if(i==1)
             {
@@ -952,20 +940,8 @@ while(rho<=rho_max)
             fs_old_m(j) = 0.5*am*(rho_minus)*(rho_minus)+helmholtz_repulsive(EdE, R, T, rho_minus, am, bm, X_minus, x);
             }
 
-/*
-            if(i==1)
-            {
-            fl_old_p(j) = helmholtz_repulsive(EdE, R, T, rho_plus, am, bm, X_plus, x);
-            fl_oldv(j) = helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x);
-            fl_old_m(j) = helmholtz_repulsive(EdE, R, T, rho_minus, am, bm, X_minus, x);
 
-            fs_old_p(j) = helmholtz_repulsive(EdE, R, T, rho_plus, am, bm, X_plus, x);
-            fs_oldv(j) = helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x);
-            fs_old_m(j) = helmholtz_repulsive(EdE, R, T, rho_minus, am, bm, X_minus, x);
-            }
-*/
-
-if(r_type==3)
+if(r_type==2)
 {
             fl_plus = helmholtz_recursion_long(EdE, fl_old_p(j), rho_plus, am);
             fl = helmholtz_recursion_long(EdE, fl_oldv(j), rho, am);
@@ -988,7 +964,7 @@ if(r_type==3)
             //}
 
 
-if(r_type==2)
+if(r_type==3)
 {
             fl_plus = helmholtz_recursion_long(EdE, fl_old, rho+var, am);
             fl = helmholtz_recursion_long(EdE, fl_old, rho, am);
@@ -1035,10 +1011,10 @@ if(r_type==2)
         f = f_old + delta_f;
 
         f_old = f;
-        fl_old = f_old;
-        fs_old = f_old;
+        //fl_old = f_old;
+        //fs_old = f_old;
 
-        //cout << "i = " << i << " // f = " << f << " // delta_f = " << delta_f <<
+        cout << "i = " << i << " / rho = " << rho << " // f = " << f << " // delta_f = " << delta_f << endl;
         //" // Is = " << OMEGAs << " // Il = " << OMEGAl << endl;
     }
     f = f - 0.5*am*rho*rho;
