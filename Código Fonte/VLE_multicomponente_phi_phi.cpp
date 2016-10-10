@@ -578,6 +578,7 @@ if(Renormalization==1)
 
     std::vector<double> rho_vec_out(1000), dP2dV2(1000), dP_dV(1000), P_vec(1000);
     std::vector<double> u_vec(1000), u_vec_0(1000), P_vec_0(1000), f_vec_out(1000), f0_vec_out(1000);
+    std::vector<double> flvv(1000), fsvv(1000);
 
     //MatrixXd Area(1000,1000);
 
@@ -756,9 +757,11 @@ if(r_type==1)
 
         for(w=0; w<1000; w++)
         {
-        flv(w) = fv(w) + 0.5*am*rho*rho;
+        flv(w) = helmholtz_recursion_long(EdE, fv(w), rho, am);
         fsv(w) = helmholtz_recursion_short(EdE, fv(w), rho, am, i, L, phi_r, sr_type);
         rho = rho + rho_max/1000;
+        //flvv[w] = flv(w);
+        //fsvv[w] = fsv(w);
         //cout << "flv 0 = " << flv(w) << " \ fv = " << fv(w) << endl;
         }
 
@@ -775,6 +778,12 @@ if(r_type==1)
         flv(999) = helmholtz_repulsive(EdE, R, T, rho_max, am, bm, X, x) + 0.5*am*(rho_max)*(rho_max);
         fsv(999) = helmholtz_recursion_short(EdE, fv(999), rho_max, am, i, L, phi_r, sr_type);
 
+        //flvv[0] = flv(0);
+        //fsvv[0] = fsv(0);
+        //flvv[999] = flv(999);
+        //fsvv[999] = fsv(999);
+
+
             //Iteração 2 - calcular os valores para f no i atual
             rho = 1e-4;
             w = 0;
@@ -788,49 +797,62 @@ if(r_type==1)
                 suml = 0;
                 sums = 0;
 
+                var = rho2/500;
+
                 //Iteração 3 - regra do trapézio para cálculo de I
                 t=0;
-                for(t=0; t<min((w+1),(999-w+1)); t++)
+
                 //for(t=0; t<(w+1); t++)
+                //double flvp, flvm, fsvp, fsvm;
+                //for(var=0; var<=rho2;  var=var+rho2/500)
                 //while(rho_vector[w-t]>=1e-4 && rho_vector[w+t]<=rho_max)
+                for(t=0; t<min((w+1),(999-w+1)); t++)
                 {
-                Glv(w) = (flv(w+t) - 2*flv(w) + flv(w-t))/2;
-                Gsv(w) = (fsv(w+t) - 2*fsv(w) + fsv(w-t))/2;
+                //flvp = cspline(rho_vec,flvv,rho+var);
+                //flvm = cspline(rho_vec,flvv,rho-var);
+                //fsvp = cspline(rho_vec,fsvv,rho+var);
+                //fsvm = cspline(rho_vec,fsvv,rho-var);
+                Glv(t) = (flv(w+t) - 2*flv(w) + flv(w-t))/2;
+                Gsv(t) = (fsv(w+t) - 2*fsv(w) + fsv(w-t))/2;
 
-                Glv2[w] = (flv(w+t) - 2*flv(w) + flv(w-t))/2;
-                Gsv2[w] = (fsv(w+t) - 2*fsv(w) + fsv(w-t))/2;
+                Glv2[t] = exp(-Glv(t)/Kn);
+                Gsv2[t] = exp(-Gsv(t)/Kn);
 
+                    //cout << "sum antes = " << suml;
 
                     if(t==0 || t==min((w),(999-w)))
                     {
-                    suml = suml + 0.5*(exp(-Glv(w)/Kn));
-                    sums = sums + 0.5*(exp(-Gsv(w)/Kn));
+                    suml = suml + (exp(-Glv(t)/Kn));
+                    sums = sums + (exp(-Gsv(t)/Kn));
                     }
 
 
                     else
                     {
-                    suml = suml + exp(-Glv(w)/Kn);
-                    sums = sums + exp(-Gsv(w)/Kn);
+                    suml = suml + 2*exp(-Glv(t)/Kn);
+                    sums = sums + 2*exp(-Gsv(t)/Kn);
                     }
+
+                    //cout << " / Glv = " << exp(-Glv(t)/Kn) << " / " << var << " / sum parcial = " << suml << endl;
 
                 }
 
+            Inl = width/2*suml;
+            Ins = width/2*sums;
 
-
-            Inl = width*suml;
-            Ins = width*sums;
-
+            //cout << "suml = " << suml << " | width = " << width << " | Inl = " << Inl << endl;
             if(Iteration==2)
             {
                 Inl = trapezoidal_rule(rho_vec, Glv2, w);
-                Ins = trapezoidal_rule(rho_vec, Glv2, w);
+                //Ins = trapezoidal_rule(rho_vec, Gsv2, w);
             }
+
+            //cout << " | Inl TRAP = " << Inl << endl;
 
             if(Iteration==3)
             {
                 Inl = simpson_rule(rho_vec, Glv2, w);
-                Ins = simpson_rule(rho_vec, Glv2, w);
+                Ins = simpson_rule(rho_vec, Gsv2, w);
             }
             //Calcular o delta_f para rho atual
             delta_fv(w) = -Kn*log(Ins/Inl);
@@ -855,7 +877,15 @@ if(r_type==1)
         fv.array() = fv.array() + delta_fv.array();
 
         //cout << "i = " << i << " / f 300 = " << fv(300) << " / delta 300 -->" << delta_fv(300) << endl;
-
+/*
+    rho = 1e-4;
+    for(k=0; k<1000; k++)
+    {
+    flv(k) = fv(k) - 0.5*am*rho*rho;
+    Not_splined << std::fixed << std::setprecision(15) << rho << ";" << flv(k) << endl;
+    rho = rho + rho_max/1000;
+    }
+*/
     }
 
     fv(0) = helmholtz_repulsive(EdE, R, T, 1e-4, am, bm, X, x);
@@ -879,7 +909,6 @@ if(r_type==2 || r_type==3)
 {
 while(rho<=rho_max)
 {
-
     V = 1/rho;
 
     if(EdE==3)
@@ -1014,7 +1043,7 @@ if(r_type==3)
         //fl_old = f_old;
         //fs_old = f_old;
 
-        cout << "i = " << i << " / rho = " << rho << " // f = " << f << " // delta_f = " << delta_f << endl;
+        //cout << "i = " << i << " / rho = " << rho << " // f = " << f << " // delta_f = " << delta_f << endl;
         //" // Is = " << OMEGAs << " // Il = " << OMEGAl << endl;
     }
     f = f - 0.5*am*rho*rho;
@@ -1163,8 +1192,7 @@ rho2_test = tol_rho+1;
 rho1 = rho_vec_out[i-20];
 rho2 = rho_vec_out[j+20];
 
-
-
+/*
 if(P_min < 0)
 {
     //inf and sup are inferior and superior positions of x vector to contain initial interval
@@ -1173,13 +1201,14 @@ if(P_min < 0)
 
     std::vector <double> P_mintry(10000);
 
-    for(i=0; i<10000; i++)
+    for(i=j-10; i<10000; i++)
     {
     P_mintry[i] = fabs(P_vec[i]);
     }
 
     int cen, counter;
-    cen = distance(P_mintry.begin(),min_element(P_mintry.begin()+j,P_mintry.end()));
+    cen = distance(P_mintry.begin(),min_element(P_mintry.begin(),P_mintry.end()-j));
+    cout << "cen = " << cen << endl;
     int sup = cen+50;
     if(sup>10000) sup = 9900;
     int inf = cen-50;
@@ -1238,10 +1267,10 @@ P_min = P_cen;
 rho2 = rho_cen;
 counter = 0;
 }
-
+*/
 cout << "rho1 = " << rho1 << " / rho2 = " << rho2 << endl;
 
-while(rho1_test > tol_rho || rho2_test > tol_rho || P1-P2 > tol_rho || u1-u2 > tol_rho)
+while(rho1_test > tol_rho || rho2_test > tol_rho || fabs(P1-P2) > tol_rho || fabs(u1-u2) > tol_rho)
 {
 f1 = cspline(rho_vec_out, f_vec_out, rho1);
 f2 = cspline(rho_vec_out, f_vec_out, rho2);

@@ -18,14 +18,24 @@ double trapezoidal_rule(vector<double>& x, vector<double>& y, int SIZE)
   double sum = 0;
   double h = (x[SIZE]-x[0])/SIZE;
 
-  for(i=1; i<SIZE-1; i++)
+    //cout << "y = " << y[0] << " / " << 0 << endl;
+    sum = sum + y[0];
+
+  for(i=1; i<SIZE; i++)
   {
-    sum = sum + y[i]/2;
-    cout << "x = " << x[i] <<  " / y = " << y[i] << " / sum = " << sum << endl;
+    sum = sum + 2*y[i];
+
+    //cout << "y = " << y[i] << " / " << i << " / sum parcial = " << sum << endl;
   }
 
-  sum = sum + y[0] + y[SIZE];
+    //cout << "y = " << y[SIZE] << " / " << SIZE << endl;
+
+  sum = sum + y[SIZE];
+
+  //cout << "sum = " << sum << " | h/2 = " << h/2;
   sum = sum * h/2;
+
+
 
   return sum;
 }
@@ -39,7 +49,7 @@ double simpson_rule(vector<double>& x, vector<double>& y, int SIZE)
   double sum = 0;
   double h = (x[SIZE]-x[0])/SIZE;
 
-  for(i=1; i<SIZE-1; i++)
+  for(i=1; i<SIZE; i++)
   {
     if(i%2 > 0) sum = sum + 4*y[i];
     else sum = sum + 2*y[i];
