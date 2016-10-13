@@ -165,7 +165,7 @@ cin >> Renormalization;
 
 if(Renormalization==1)
 {
-    cout << "short-range type: \n 1. n \n 2. 2n+1 \n 3. 2n-1 \n 4. phi/L^2" << endl;
+    cout << "short-range type: \n 1. n \n 2. 2n+1 \n 3. 2n-1 \n 4. phi/L^2 \n 5. phi/L^2 (m)" << endl;
     cin >> sr_type;
     cout << "Calculation type: \n 1. Vector \n 2. Point-wise+Vec \n 3. Point-wise" << endl;
     cin >> r_type;
@@ -197,11 +197,6 @@ Tc_v[n] = prop[row][18];
 Pc_v[n] = prop[row][19];
 omega_v[n] = prop[row][20];
 }
-
-cout << "Tc = " << Tc << endl;
-cout << "Tc_v = " << Tc_v << endl;
-cout << "Pc_v = " << Pc_v << endl;
-cout << "omega_v = " << omega_v << endl;
 
 //Reading C++ vectors into Eigen type vectors
 for(n=0; n<nc; n++)
@@ -263,11 +258,6 @@ Tc_virtual[n] = Tc_v[n];
 Pc_virtual[n] = Pc_v[n];
 omega_virtual[n] = omega_v[n];
 }
-
-cout << "Tc = " << Tc << endl;
-cout << "Tc_virtual = " << Tc_virtual << endl;
-cout << "Pc_virtual = " << Pc_virtual << endl;
-cout << "omega_virtual = " << omega_virtual << endl;
 
 //--------------------------------------------------------------------------------
 cout << "\n Choose the mixing rule: \n 1.Van der Waals \n 2.Van der Waals 2 (not working!) \n 3.Huron-Vidal" << endl;
@@ -362,14 +352,12 @@ logPsat = A - (CT.asDiagonal().inverse()*B);
 ln10.fill(log(10));
 lnPsat = (logPsat*ln10.transpose()).diagonal();
 Psat = lnPsat.array().exp();
-cout << "Psat = " << Psat << endl;
 break;
 
 case 2: //Isobaric
 log10P = log10(P);
 Alog10P = A.array()-log10P;
 Tsat = (Alog10P.asDiagonal().inverse()*B)-C;
-cout << "Tsat = " << Tsat << endl;
 break;
 }
 
@@ -505,7 +493,6 @@ for (i=0; i<nc; i++)
 
 //y initial guess
 y = ((Psat*x.transpose()).diagonal()).array()/P;
-cout << "y initial guess = \n" << y << endl;
 yinit = y;
 
 
@@ -574,11 +561,11 @@ if(Renormalization==1)
     long double width, suml, sums, m, fl_plus_old, fl_minus_old, fs_plus_old, fs_minus_old, f_original;
     long double Gl0, Gs0, Gln, Gsn, eGl0, eGs0, eGln, eGsn, phi_r, P_test_old, P_average_0;
     long double pmax_cond, P_max, P_min, P_average, P_test, test, P_l, u_l, P_v, u_v, pmin_cond, rho_v;
-    std::vector<double> rho_vec(1000), f_vec(1000), u_vec1(1000), f0_vec(1000), P_vec1(1000), Glv2(1000), Gsv2(1000);
+    std::vector<double> rho_vec(5000), f_vec(5000), u_vec1(5000), f0_vec(5000), P_vec1(5000), Glv2(5000), Gsv2(5000);
 
     std::vector<double> rho_vec_out(1000), dP2dV2(1000), dP_dV(1000), P_vec(1000);
     std::vector<double> u_vec(1000), u_vec_0(1000), P_vec_0(1000), f_vec_out(1000), f0_vec_out(1000);
-    std::vector<double> flvv(1000), fsvv(1000);
+    std::vector<double> flvv(5000), fsvv(5000);
 
     //MatrixXd Area(1000,1000);
 
@@ -589,7 +576,7 @@ if(Renormalization==1)
 
     VectorXd rhov(500), x_(500), fv_(500), X_plus(4*nc), X_minus(4*nc);
 
-    n = 1000;
+    n = 5000;
 
     VectorXd fl_old_p(n), fl_oldv(n), fl_old_m(n), fs_old_p(n), fs_oldv(n), fs_old_m(n), rho_vector2(n);
 
@@ -606,7 +593,7 @@ if(Renormalization==1)
 
     x << 0.999999, 0.000001;
     y << 0.999999, 0.000001;
-    L_v << 7.40e10, 7.50e10;
+    L_v << 7.40e-10, 7.50e-10;
     fi_v << 8.39, 8.98;
 
     bm = b_mixing_rules_function(nc, b, x, MR);
@@ -726,7 +713,7 @@ if(r_type==1)
     //Calcular vetor de f em f0 com um cálculo
     rho = 1e-4;
 
-    for(k=0; k<1000; k++)
+    for(k=0; k<5000; k++)
     {
     rho_vec[k] = rho;
 
@@ -736,7 +723,7 @@ if(r_type==1)
     fv(k) = helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x) + 0.5*am*rho*rho;
     f_originalv(k) = fv(k) - 0.5*am*rho*rho;
     rho_vector(k) = rho;
-    rho = rho + rho_max/1000;
+    rho = rho + rho_max/5000;
 
     f0_vec[k] = f_originalv(k);
     //cout << "rho = " << rho << " / f0 = " << f_originalv(k) << endl;
@@ -754,17 +741,26 @@ if(r_type==1)
         if(EdE==3) X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
                      tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
 
-
-        for(w=0; w<1000; w++)
+//if(i==1)
+//{
+        for(w=0; w<5000; w++)
         {
         flv(w) = helmholtz_recursion_long(EdE, fv(w), rho, am);
         fsv(w) = helmholtz_recursion_short(EdE, fv(w), rho, am, i, L, phi_r, sr_type);
-        rho = rho + rho_max/1000;
-        //flvv[w] = flv(w);
-        //fsvv[w] = fsv(w);
-        //cout << "flv 0 = " << flv(w) << " \ fv = " << fv(w) << endl;
+        rho = rho + rho_max/5000;
         }
-
+//}
+/*
+else
+{
+        for(w=0; w<10000; w++)
+        {
+        flv(w) = helmholtz_recursion_long(EdE, flv(w), rho, am);
+        fsv(w) = helmholtz_recursion_short(EdE, fsv(w), rho, am, i, L, phi_r, sr_type);
+        rho = rho + rho_max/10000;
+        }
+}
+*/
         fv(0) = helmholtz_repulsive(EdE, R, T, 1e-4, am, bm, X, x);
 
         flv(0) = helmholtz_repulsive(EdE, R, T, 1e-4, am, bm, X, x) + 0.5*am*(1e-4)*(1e-4);
@@ -773,10 +769,10 @@ if(r_type==1)
         if(EdE==3) X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
                      tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho_max, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
 
-        fv(999) = helmholtz_repulsive(EdE, R, T, rho_max, am, bm, X, x);
+        fv(4999) = helmholtz_repulsive(EdE, R, T, rho_max, am, bm, X, x);
 
-        flv(999) = helmholtz_repulsive(EdE, R, T, rho_max, am, bm, X, x) + 0.5*am*(rho_max)*(rho_max);
-        fsv(999) = helmholtz_recursion_short(EdE, fv(999), rho_max, am, i, L, phi_r, sr_type);
+        flv(4999) = helmholtz_repulsive(EdE, R, T, rho_max, am, bm, X, x) + 0.5*am*(rho_max)*(rho_max);
+        fsv(4999) = helmholtz_recursion_short(EdE, fv(4999), rho_max, am, i, L, phi_r, sr_type);
 
         //flvv[0] = flv(0);
         //fsvv[0] = fsv(0);
@@ -787,17 +783,15 @@ if(r_type==1)
             //Iteração 2 - calcular os valores para f no i atual
             rho = 1e-4;
             w = 0;
-            for(w=1; w<999; w++)
+            for(w=1; w<4999; w++)
             {
                 rho2 = min(rho,(rho_max-rho));
 
                 //width = rho2/min(w,1000-w);
-                width = rho_max/1000;
+                width = rho_max/5000;
 
                 suml = 0;
                 sums = 0;
-
-                var = rho2/500;
 
                 //Iteração 3 - regra do trapézio para cálculo de I
                 t=0;
@@ -806,12 +800,8 @@ if(r_type==1)
                 //double flvp, flvm, fsvp, fsvm;
                 //for(var=0; var<=rho2;  var=var+rho2/500)
                 //while(rho_vector[w-t]>=1e-4 && rho_vector[w+t]<=rho_max)
-                for(t=0; t<min((w+1),(999-w+1)); t++)
+                for(t=0; t<min((w+1),(4999-w+1)); t++)
                 {
-                //flvp = cspline(rho_vec,flvv,rho+var);
-                //flvm = cspline(rho_vec,flvv,rho-var);
-                //fsvp = cspline(rho_vec,fsvv,rho+var);
-                //fsvm = cspline(rho_vec,fsvv,rho-var);
                 Glv(t) = (flv(w+t) - 2*flv(w) + flv(w-t))/2;
                 Gsv(t) = (fsv(w+t) - 2*fsv(w) + fsv(w-t))/2;
 
@@ -820,7 +810,7 @@ if(r_type==1)
 
                     //cout << "sum antes = " << suml;
 
-                    if(t==0 || t==min((w),(999-w)))
+                    if(t==0 || t==min((w),(4999-w)))
                     {
                     suml = suml + (exp(-Glv(t)/Kn));
                     sums = sums + (exp(-Gsv(t)/Kn));
@@ -844,7 +834,7 @@ if(r_type==1)
             if(Iteration==2)
             {
                 Inl = trapezoidal_rule(rho_vec, Glv2, w);
-                //Ins = trapezoidal_rule(rho_vec, Gsv2, w);
+                Ins = trapezoidal_rule(rho_vec, Gsv2, w);
             }
 
             //cout << " | Inl TRAP = " << Inl << endl;
@@ -857,26 +847,17 @@ if(r_type==1)
             //Calcular o delta_f para rho atual
             delta_fv(w) = -Kn*log(Ins/Inl);
 
-            if(isnan(delta_fv(w))==1) delta_fv(w) = 0;
-
-/*
-            if(w>499)
-            {
-                delta_fv(w) = 0;
-            }
-*/
-
             if(isnan(delta_fv(w)) == 1 || isinf(delta_fv(w)) == 1) delta_fv(w) = 1e-15;
 
             //cout << "rho = " << rho << " || delta = " << delta_fv(w) << endl;
 
-            rho = rho + rho_max/1000;
+            rho = rho + rho_max/5000;
             }
 
         //Calcular o novo vetor de f, ajustando com o vetor de delta_f
         fv.array() = fv.array() + delta_fv.array();
 
-        //cout << "i = " << i << " / f 300 = " << fv(300) << " / delta 300 -->" << delta_fv(300) << endl;
+        cout << "i = " << i << " / f 2000 = " << fv(2000) << " / delta 2000 -->" << delta_fv(2000) << endl;
 /*
     rho = 1e-4;
     for(k=0; k<1000; k++)
@@ -892,14 +873,14 @@ if(r_type==1)
 
 
     rho = 1e-4;
-    for(w=0; w<1000; w++)
+    for(w=0; w<5000; w++)
     {
     fv(w) = fv(w) - 0.5*am*rho*rho;
     f_vec[w] = fv(w);
 
     //cout << "rho = " << rho_vector(w) << "  //  f = " << fv(w) << endl;
     Not_splined << std::fixed << std::setprecision(15) << rho_vector(w) << ";" << fv(w) << ";" << f_originalv(w) << ";" << T << endl;
-    rho = rho + rho_max/1000;
+    rho = rho + rho_max/5000;
     }
 }
     //====================================================================
@@ -1152,7 +1133,7 @@ for(i=0; i<9999; i++)
     dP_dV[i] = (P_vec[i+1]-P_vec[i-1])/(rho_vec_out[i+1]-rho_vec_out[i-1]);
   }
 
-  dP_dV[1000] = (P_vec[1000]-P_vec[999])/(rho_vec_out[10000] - rho_vec_out[999]);
+  dP_dV[1000] = (P_vec[1000]-P_vec[4999])/(rho_vec_out[1000] - rho_vec_out[4999]);
 
 //Maximum pressure at dP/dV=0
 double tol_dpdv = 1e-1;
@@ -1189,8 +1170,8 @@ double tol_rho = 5e-3;
 rho1_test = tol_rho+1;
 rho2_test = tol_rho+1;
 
-rho1 = rho_vec_out[i-20];
-rho2 = rho_vec_out[j+20];
+rho1 = rho_vec_out[i-5];
+rho2 = rho_vec_out[j+5];
 
 /*
 if(P_min < 0)
