@@ -36,8 +36,7 @@ double helmholtz_repulsive(int EdE, double R, double T, long double rho, long do
                       0, 1;
 
             f_CPA1 = X.array().log()-0.5*X.array()+0.5;
-            //f_CPA = (one_4c*x).transpose()*f_CPA1;
-            f_CPA = x.transpose()*(f_CPA1.transpose()*one_4c);
+            f_CPA = (one_4c*x).transpose()*f_CPA1;
 
             f = rho*R*T*(log(rho/(1-rho*b))-1)-rho*a/b*log(1+rho*b)+rho*R*T*f_CPA;
             //f = -rho*R*T*log(1-rho*b)-rho*a/b*log(1+rho*b);
