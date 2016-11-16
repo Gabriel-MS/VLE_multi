@@ -77,7 +77,7 @@
 	"Gibbs.h"
 	"EdE.h"
 
-1476331381 source:c:\ufrj\atoms\projeto-vle\código fonte\vle_multicomponente_phi_phi.cpp
+1479271457 source:c:\ufrj\atoms\projeto-vle\código fonte\vle_multicomponente_phi_phi.cpp
 	<cmath>
 	<cstdio>
 	<stdio.h>
@@ -87,6 +87,7 @@
 	<iomanip>
 	"mixingrules.h"
 	"EdE.h"
+	"MSA.h"
 	"Gibbs.h"
 	"Association.h"
 	"Renormalization.h"
@@ -96,17 +97,17 @@
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
 
-1476048140 c:\ufrj\atoms\projeto-vle\código fonte\mixingrules.h
+1476051740 c:\ufrj\atoms\projeto-vle\código fonte\mixingrules.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
 	"Gibbs.h"
 
-1476048140 c:\ufrj\atoms\projeto-vle\código fonte\gibbs.h
+1476051740 c:\ufrj\atoms\projeto-vle\código fonte\gibbs.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 
-1476048140 c:\ufrj\atoms\projeto-vle\código fonte\ede.h
+1476051740 c:\ufrj\atoms\projeto-vle\código fonte\ede.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
@@ -114,7 +115,7 @@
 	"mixingrules.h"
 	"Association.h"
 
-1476048140 c:\ufrj\atoms\projeto-vle\código fonte\association.h
+1476051740 c:\ufrj\atoms\projeto-vle\código fonte\association.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
@@ -160,7 +161,8 @@
 	"Gibbs.h"
 	"EdE.h"
 
-1476331381 c:\ufrj\atoms\projeto-vle\código fonte\renormalization.h
+1479262770 c:\ufrj\atoms\projeto-vle\código fonte\renormalization.h
+	"MSA.h"
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
@@ -171,17 +173,20 @@
 	<vector>
 	<algorithm>
 
-1476048140 c:\ufrj\atoms\projeto-vle\código fonte\interpolation_util.h
+1476051740 c:\ufrj\atoms\projeto-vle\código fonte\interpolation_util.h
 	<cstdio>
 	<cassert>
 	<vector>
 	<algorithm>
 
-1476048140 c:\ufrj\atoms\projeto-vle\código fonte\numerical.h
+1476051740 c:\ufrj\atoms\projeto-vle\código fonte\numerical.h
 	<cstdio>
 	<cstdlib>
 	<cmath>
 	<vector>
 	"interpolation_util.h"
 	<math.h>
+
+1477245311 c:\ufrj\atoms\projeto-vle\código fonte\msa.h
+	<cmath>
 
