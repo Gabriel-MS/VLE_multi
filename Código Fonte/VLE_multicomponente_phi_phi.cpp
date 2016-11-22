@@ -70,6 +70,12 @@ int mixture;
 
 cout.precision(10);
 
+double pmsa;
+
+pmsa = MSA_pressure(500, 0.000008314, 0, 8020);
+cout << "pmsa = " << pmsa << endl;
+cin >> nc;
+
 //Usuário escolhe o número de componentes
 cout << "\nNumber of components in mixture: ";
 cin >> mixture;
@@ -1196,6 +1202,9 @@ rho2_test = tol_rho+1;
 
 rho1 = rho_vec_out[i-50]; //Vapor
 rho2 = rho_vec_out[j+50]; //Liquid
+
+rho1 = rho_vec_out[50];
+rho2 = rho_vec_out[950];
 
 /*
 if(P_min < 0)
