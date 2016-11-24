@@ -38,6 +38,7 @@ double a_mixing_rules_function(int nc, int MR, VectorXd ai, VectorXd x, double k
     kij(1,0) = k12;
     kij(0,1) = k12;
     kij(1,1) = 0;
+
 switch(MR)
 {
     case 3: //HV
@@ -112,8 +113,6 @@ double b_mixing_rules_function(int nc, VectorXd bi, VectorXd x, int MR)
     VectorXd one(nc), one_2(nc_nc);
 
     MatrixXd bij(nc,nc), bibj(nc,nc), bxx(nc,nc);
-
-
 
 
         for(i=0; i<nc; i++)

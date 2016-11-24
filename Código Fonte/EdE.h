@@ -10,6 +10,7 @@
 #include "Gibbs.h"
 #include "mixingrules.h"
 #include "Association.h"
+#include <vector>
 
 using namespace Eigen;
 using namespace std;
@@ -83,6 +84,13 @@ VectorXd EdE_parameters_function(int EdE)
         OMEGA = 0.08664;
         PSI = 0.42748;
         break;
+
+    case 4: //MSA
+        sigma = 0;
+        epsilon = 0;
+        OMEGA = 0;
+        PSI = 0;
+        break;
 	}
 EdE_parameters[0] = sigma;
 EdE_parameters[1] = epsilon;
@@ -92,11 +100,40 @@ EdE_parameters[3] = PSI;
 	return EdE_parameters;
 }
 
+//Temporary function to hold msa data for co2 and c4
+vector<double> d_msa(int comp)
+{
+vector<double> data(7);
+if(comp==1) // CO2
+{
+data[0] = 0.16179E-02; //a111
+data[1] = 0.22172E+01; //a112
+data[2] = 0.20000E+01; //a113
+data[3] = 0.13311E-04; //b111
+data[4] = 0.00000E+00; //b112
+data[5] = 0.00000E+00; //b113
+data[6] = 0.16500E+01; //xlam
+}
+if(comp==2) // n-butane
+{
+data[0] = 0.22613E-02; //a111
+data[1] = 0.36637E+01; //a112
+data[2] = 0.20000E+01; //a113
+data[3] = 0.36177E-04; //b111
+data[4] = 0.00000E+00; //b112
+data[5] = 0.00000E+00; //b113
+data[6] = 0.16500E+01; //xlam
+}
+return data;
+}
+
 //Function to calculate ai
 VectorXd a_function(int nc, double R, VectorXd EdE_parameters, VectorXd omega, VectorXd Tc, VectorXd Pc, VectorXd alfa, int EdE, VectorXd a0)
 {
         double sigma, epsilon, OMEGA, PSI;
+        double a111, a112, a113, a221, a222, a223;
         VectorXd pre_a(nc), a(nc), Tc2(nc), pre_a2(nc);
+        vector<double> msa_data;
         //MatrixXd pre_a2(nc,nc);
 
 switch(EdE)
@@ -144,6 +181,20 @@ switch(EdE)
     case 3: //CPA
     a = (a0.asDiagonal())*alfa;
     break;
+
+    case 4: //MSA
+    msa_data = d_msa(1); //Set to CO2
+    a111 = msa_data[0];
+    a112 = msa_data[1];
+    a113 = msa_data[2];
+
+    msa_data = d_msa(2); //Set to C4
+    a221 = msa_data[0];
+    a222 = msa_data[1];
+    a223 = msa_data[2];
+    a(0) = (a111 + pow((a112/500),a113));
+    a(1) = (a221 + pow((a222/500),a223));
+    break;
 }
 
     return a;
@@ -153,7 +204,9 @@ switch(EdE)
 VectorXd b_function(int nc, double R, VectorXd EdE_parameters, VectorXd omega, VectorXd Tc, VectorXd Pc, VectorXd alfa, VectorXd bCPA, int EdE)
 {
         double sigma, epsilon, OMEGA, PSI;
+        double b111, b112, b113, b221, b222, b223;
         VectorXd b(nc), pre_b(nc);
+        vector<double> msa_data;
 
 sigma = EdE_parameters[0];
 epsilon = EdE_parameters[1];
@@ -175,6 +228,19 @@ case 2: //PR
 case 3: //CPA
     b = bCPA;
     break;
+
+case 4: //MSA
+    msa_data = d_msa(1); //Set to CO2
+    b111 = msa_data[3];
+    b112 = msa_data[4];
+    b113 = msa_data[5];
+
+    msa_data = d_msa(2); //Set to C4
+    b221 = msa_data[3];
+    b222 = msa_data[4];
+    b223 = msa_data[5];
+    b(0) = b221 + b222/500 + b223/pow(500,2);
+    b(1) = b221 + b222/500 + b223/pow(500,2);
 }
 
     return b;

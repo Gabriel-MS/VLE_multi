@@ -70,12 +70,6 @@ int mixture;
 
 cout.precision(10);
 
-double pmsa;
-
-pmsa = MSA_pressure(500, 0.000008314, 0, 8020);
-cout << "pmsa = " << pmsa << endl;
-cin >> nc;
-
 //Usuário escolhe o número de componentes
 cout << "\nNumber of components in mixture: ";
 cin >> mixture;
@@ -295,7 +289,7 @@ alfa_NRTL(1,0) = alfa_NRTL(0,1);
 
 //Ideal gas constant
 R = 0.08314462; // L.bar/K/mol
-//R = 0.000008314; //MPa.m³/mol/K
+R = 0.000008314; //MPa.m³/mol/K
 //R = 8.3144598;
 
 //Tolerances
@@ -578,6 +572,7 @@ if(Renormalization==1)
     long double Gl0, Gs0, Gln, Gsn, eGl0, eGs0, eGln, eGsn, phi_r, P_test_old, P_average_0;
     long double pmax_cond, P_max, P_min, P_average, P_test, test, P_l, u_l, P_v, u_v, pmin_cond, rho_v;
     double pi, eps, lambda, sigma, zeta_squared, NA;
+    double sig1, sig2, sig12, l12, cnst;
 
     std::vector<double> rho_vec_out(1000), dP2dV2(1000), dP_dV(1000), P_vec(1000), du_dV(1000);
     std::vector<double> u_vec(1000), u_vec_0(1000), P_vec_0(1000), f_vec_out(1000), f0_vec_out(1000);
@@ -594,7 +589,6 @@ if(Renormalization==1)
 
     cout << "Renormalization density steps: ";
     cin >> n;
-    cout << "\n\n";
     //n = 5000;
 
 
@@ -662,11 +656,11 @@ if(Renormalization==1)
     */
 if(EdE != 4)
 {
-        cout << "L (dm) = ";
+        cout << "\nL (dm) = ";
         cin >> L;
         cout << endl;
 
-        cout << "phi = ";
+        cout << "\nphi = ";
         cin >> phi_r;
         cout << endl;
 }
@@ -727,12 +721,28 @@ for(T=init_T; T<=final_T; T=T+step)
     if(EdE==4)
     {
         eps = 8.75;
-        lambda = 1.75;
-        sigma = 3.53e-9;
-        L = 6.43e-9;
-        pi = 3.14159265359;
+        lambda = 1.65;
+        sigma = 4.86e-10;
+        L = 0.8e-4; //omega
+        pi = 3.14159265359796;
         NA = 6.023e23;
-        am = 2*pi/3*eps*pow(lambda,3)*pow(sigma,3);
+        cnst = pi/6;
+        l12 = 0;
+
+        sig1 = pow((b(0)/cnst),(1.0/3.0));
+        sig2 = pow((b(1)/cnst),(1.0/3.0));
+        sig12 = 0.5*(sig1+sig2)*(1.0-l12);
+        bm = (pi/6)*pow(sig12,3.0);
+        am = pow((a(0)*a(1)),0.5)*(1.0-k12);
+        cout << "sig1 = " << sig1 << endl;
+        cout << "sig2 = " << sig2 << endl;
+        cout << "sig12 = " << sig12 << endl;
+        cout << "b(0) = " << b(0) << endl;
+        cout << "b(1) = " << b(1) << endl;
+        cout << "cnst = " << cnst << endl;
+        cout << "bm = " << bm << endl;
+        cout << "am = " << am << endl;
+
         zeta_squared = pow(lambda,2)*pow(sigma,2)/5;
 
         rho_max = 6/(pi*pow(sigma,3))/NA;
@@ -757,36 +767,33 @@ if(r_type==1)
 
     for(k=0; k<n; k++)
     {
-    rho_vec[k] = double(k)/n/b(0);
-    rho_vector(k) = double(k)/n/b(0);
+    rho_vec[k] = double(k)/n/bm;
+    rho_vector(k) = double(k)/n/bm;
     rho_vec[0] = 1e-6;
     rho_vector(0) = 1e-6;
-    //cout << "k= " << k << " / rho_vector= " << rho_vector(k) << " / bm = " << b(0) << endl;
-    //cin >> stop;
 
     if(EdE==3) X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
                      tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho_vector(k), deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
 
-    fv(k) = helmholtz_repulsive(EdE, R, T, rho_vector(k), am, bm, X, x, sigma, eps, kB) + 0.5*am*rho_vector(k)*rho_vector(k);
-    f_originalv(k) = fv(k) - 0.5*am*rho_vector(k)*rho_vector(k);
+    fv(k) = helmholtz_repulsive(EdE, R, T, rho_vector(k), am, bm, X, x, sigma, eps, kB);
+
+    if(EdE != 4) fv(k) = fv(k) + 0.5*am*rho_vector(k)*rho_vector(k);
+    f_originalv(k) = fv(k);
+
+    if(EdE != 4) f_originalv(k) = fv(k) - 0.5*am*rho_vector(k)*rho_vector(k);
+
 
     f0_vec[k] = f_originalv(k);
     f_before(k) = fv(k);
     rho = rho + rho_max/n;
-    //cout << "rho = " << rho_vector(k) << endl;
-    //cout << "fv = " << fv(k) << endl;
-    //cout << "f_original = " << f_originalv(k) << endl;
-    //cin >> stop;
-    //cout << "rho = " << rho << " / f0 = " << f_originalv(k) << endl;
     }
 
-
-
     //Iteração principal - o n
-    for(i=1; i<11; i++) //i começando em 1
+    for(i=1; i<6; i++) //i começando em 1
     {
         //Calcular K
         Kn = kB*T/((pow(2,3*i))*pow(L,3));
+        if(EdE == 4) Kn = R*T/((pow(2,3*i))*L);
         //Kn = kB*T*NA/((pow(2,3*i))*L*b(0));
 
         //Preparar vetores f_l e f_s
@@ -877,20 +884,13 @@ if(r_type==1)
 
         //Calcular o novo vetor de f, ajustando com o vetor de delta_f
         fv.array() = fv.array() + delta_fv.array();
-
         cout << "i = " << i << " / f 500 = " << fv(200) << " / delta 500 -->" << delta_fv(200) << endl;
     }
-/*
-    for(w=0; w<n; w++)
-    {
-    f_after(w) = fv(w);
-    after_renorm << std::fixed << std::setprecision(15) << rho_vector(w) << ";" << f_before(w) << ";" << f_after(w) << ";" << ";" << ";" << T << endl;
-    }
-*/
+
     rho = 1e-6;
     for(w=0; w<n; w++)
     {
-    fv(w) = fv(w) - 0.5*am*rho_vector(w)*rho_vector(w);
+    if(EdE != 4) fv(w) = fv(w) - 0.5*am*rho_vector(w)*rho_vector(w);
     f_vec[w] = fv(w);
 
     //cout << "rho = " << rho_vector(w) << "  //  f = " << fv(w) << endl;
@@ -919,7 +919,8 @@ while(rho<=rho_max)
     f0 = helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x, sigma, eps, kB);
     f_original = f0;
 
-    f0 = f0 + 0.5*am*rho*rho;
+    if(EdE != 4)    f0 = f0 + 0.5*am*rho*rho;
+
     f_old = f0;
 
     for(i=1;i<9;i=i+1)
@@ -932,13 +933,13 @@ while(rho<=rho_max)
             fs_old = f_old;
             }
 
-        width = (rho2-0)/500;
+        width = (rho2-0)/n;
         suml = 0;
         sums = 0;
         m = n-1;
 
 
-        for(j=0;j<500;j++)
+        for(j=0;j<n;j++)
         {
 
             var = 0+j*width;
@@ -1043,7 +1044,7 @@ if(r_type==3)
         //cout << "i = " << i << " / rho = " << rho << " // f = " << f << " // delta_f = " << delta_f << endl;
         //" // Is = " << OMEGAs << " // Il = " << OMEGAl << endl;
     }
-    f = f - 0.5*am*rho*rho;
+    if(EdE != 4) f = f - 0.5*am*rho*rho;
 
     rho_vec[w] = rho;
     f_vec[w] = f;
