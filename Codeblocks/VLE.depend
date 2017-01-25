@@ -77,7 +77,7 @@
 	"Gibbs.h"
 	"EdE.h"
 
-1479959813 source:c:\ufrj\atoms\projeto-vle\código fonte\vle_multicomponente_phi_phi.cpp
+1485312314 source:c:\ufrj\atoms\projeto-vle\código fonte\vle_multicomponente_phi_phi.cpp
 	<cmath>
 	<cstdio>
 	<stdio.h>
@@ -97,17 +97,17 @@
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
 
-1479954027 c:\ufrj\atoms\projeto-vle\código fonte\mixingrules.h
+1480235948 c:\ufrj\atoms\projeto-vle\código fonte\mixingrules.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
 	"Gibbs.h"
 
-1476051740 c:\ufrj\atoms\projeto-vle\código fonte\gibbs.h
+1480235948 c:\ufrj\atoms\projeto-vle\código fonte\gibbs.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 
-1479954454 c:\ufrj\atoms\projeto-vle\código fonte\ede.h
+1480735154 c:\ufrj\atoms\projeto-vle\código fonte\ede.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
@@ -116,7 +116,7 @@
 	"Association.h"
 	<vector>
 
-1476051740 c:\ufrj\atoms\projeto-vle\código fonte\association.h
+1480235948 c:\ufrj\atoms\projeto-vle\código fonte\association.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
@@ -162,7 +162,7 @@
 	"Gibbs.h"
 	"EdE.h"
 
-1479957382 c:\ufrj\atoms\projeto-vle\código fonte\renormalization.h
+1480734725 c:\ufrj\atoms\projeto-vle\código fonte\renormalization.h
 	"MSA.h"
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
@@ -175,21 +175,24 @@
 	<vector>
 	<algorithm>
 
-1476051740 c:\ufrj\atoms\projeto-vle\código fonte\interpolation_util.h
+1480235948 c:\ufrj\atoms\projeto-vle\código fonte\interpolation_util.h
 	<cstdio>
 	<cassert>
 	<vector>
 	<algorithm>
 
-1476051740 c:\ufrj\atoms\projeto-vle\código fonte\numerical.h
+1485314610 c:\ufrj\atoms\projeto-vle\código fonte\numerical.h
 	<cstdio>
 	<cstdlib>
 	<cmath>
 	<vector>
 	"interpolation_util.h"
 	<math.h>
+	<Eigen/Dense>
+	<unsupported/Eigen/MatrixFunctions>
+	<unsupported/Eigen/KroneckerProduct>
 
-1479954454 c:\ufrj\atoms\projeto-vle\código fonte\msa.h
+1480235948 c:\ufrj\atoms\projeto-vle\código fonte\msa.h
 	<cmath>
 	<complex>
 	<vector>

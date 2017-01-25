@@ -127,6 +127,70 @@ data[6] = 0.16500E+01; //xlam
 return data;
 }
 
+//Function to calculate ai to msa model
+VectorXd a_function_msa(int nc, double R, VectorXd EdE_parameters, VectorXd omega,
+                        VectorXd Tc, VectorXd Pc, VectorXd alfa, int EdE, VectorXd a0, double T)
+{
+        double sigma, epsilon, OMEGA, PSI;
+        double a111, a112, a113, a221, a222, a223;
+        VectorXd pre_a(nc), a(nc), Tc2(nc), pre_a2(nc);
+        vector<double> msa_data;
+        //MatrixXd pre_a2(nc,nc);
+
+switch(EdE)
+{
+    case 4: //MSA
+    msa_data = d_msa(1); //Set to CO2
+    a111 = msa_data[0];
+    a112 = msa_data[1];
+    a113 = msa_data[2];
+
+    msa_data = d_msa(2); //Set to C4
+    a221 = msa_data[0];
+    a222 = msa_data[1];
+    a223 = msa_data[2];
+    a(0) = (a111 + pow((a112/T),a113));
+    a(1) = (a221 + pow((a222/T),a223));
+    break;
+}
+
+    return a;
+}
+
+//Function to calculate bi to msa model
+VectorXd b_function_msa(int nc, double R, VectorXd EdE_parameters, VectorXd omega, VectorXd Tc,
+                        VectorXd Pc, VectorXd alfa, VectorXd bCPA, int EdE, double T)
+{
+        double sigma, epsilon, OMEGA, PSI;
+        double b111, b112, b113, b221, b222, b223;
+        VectorXd b(nc), pre_b(nc);
+        vector<double> msa_data;
+
+sigma = EdE_parameters[0];
+epsilon = EdE_parameters[1];
+OMEGA = EdE_parameters[2];
+PSI = EdE_parameters[3];
+
+switch(EdE)
+{
+
+case 4: //MSA
+    msa_data = d_msa(1); //Set to CO2
+    b111 = msa_data[3];
+    b112 = msa_data[4];
+    b113 = msa_data[5];
+
+    msa_data = d_msa(2); //Set to C4
+    b221 = msa_data[3];
+    b222 = msa_data[4];
+    b223 = msa_data[5];
+    b(0) = b221 + b222/T + b223/pow(T,2);
+    b(1) = b221 + b222/T + b223/pow(T,2);
+}
+    return b;
+}
+
+
 //Function to calculate ai
 VectorXd a_function(int nc, double R, VectorXd EdE_parameters, VectorXd omega, VectorXd Tc, VectorXd Pc, VectorXd alfa, int EdE, VectorXd a0)
 {

@@ -114,7 +114,7 @@ a12 = pow((a11*a22),0.5)*(1.0-xkmix);
     return f0a;
 }
 
-double helmholtz_recursion_long(int EdE, long double f, long double rho, long double a)
+double helmholtz_recursion_long(int EdE, long double f, long double rho, long double a, double T)
 {
     long double fr, f0a;
 
@@ -129,7 +129,7 @@ double helmholtz_recursion_long(int EdE, long double f, long double rho, long do
             break;
 
         case 4: //MSA
-            f0a = f0a_msa(500, 0, rho, 1, 1);
+            f0a = f0a_msa(T, 0, rho, 1, 1);
             fr = f - f0a;
             break;
     }
@@ -137,7 +137,7 @@ double helmholtz_recursion_long(int EdE, long double f, long double rho, long do
    return fr;
 }
 
-double helmholtz_recursion_short(int EdE, long double f, long double rho, double a, int n, double L, long double phi, int sr_type)
+double helmholtz_recursion_short(int EdE, long double f, long double rho, double a, int n, double L, long double phi, int sr_type, double T)
 {
     long double fr, n2, n2L, c, n2SRK, n2CPA, f0a;
 
@@ -172,7 +172,7 @@ double helmholtz_recursion_short(int EdE, long double f, long double rho, double
             break;
 
         case 4: //MSA
-            f0a = f0a_msa(500, 0, rho, 2, n);
+            f0a = f0a_msa(T, 0, rho, 2, n);
             fr = f - f0a;
             break;
     }
