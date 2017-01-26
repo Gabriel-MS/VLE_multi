@@ -875,13 +875,13 @@ if(r_type==1)
             //cout << "suml = " << suml << " | width = " << width << " | Inl = " << Inl << endl;
             if(Iteration==2)
             {
-                Inl = trapezoidal_rule(rho_vec, Glv2, w);
-                Ins = trapezoidal_rule(rho_vec, Gsv2, w);
+                Inl = trapezoidal_rule(rho_vec, Glv2);
+                Ins = trapezoidal_rule(rho_vec, Gsv2);
             }
             if(Iteration==3)
             {
-                Inl = simpson_rule(rho_vec, Glv2, w);
-                Ins = simpson_rule(rho_vec, Gsv2, w);
+                Inl = simpson_rule(rho_vec, Glv2);
+                Ins = simpson_rule(rho_vec, Gsv2);
             }
 
             delta_fv(w) = -Kn*(Ins-Inl);
@@ -1137,21 +1137,22 @@ double Tstar = bm*R*T/am;
 double vap;
 
 cout << "before dens" << endl;
-std::vector<double> dens(2);
-dens = dens_maxwell(rho_env, P_env);
-cout << "DENSITIES = " << dens[0]/bm << " / " << dens[1]/bm << endl;
-cin >> stop;
+std::vector<double> dens(3);
+dens = dens_maxwell(rho_vec_out, P_vec);
+cout << "\n";
+//cout << "\n DENSITIES = " << dens[0]/bm << " / " << dens[1]/bm << endl;
+//cin >> stop;
 
 //cout << "before phase " << endl;
-rho_l = phase_coexistence_e2(Tstar, P_vec_e, u_vec_e, rho_vec_out_e, f_vec_e, 1);
-rho_l = rho_l/bm;
-cin >> stop;
+//rho_l = phase_coexistence_e2(Tstar, P_vec_e, u_vec_e, rho_vec_out_e, f_vec_e, 1);
+//rho_l = rho_l/bm;
+//cin >> stop;
 //cout << "liquid = " << rho_l/bm << endl;
 //dimensionless form
-vap = phase_coexistence_e2(Tstar, P_vec_e, u_vec_e, rho_vec_out_e, f_vec_e, 2);
-vap = vap/bm;
+//vap = phase_coexistence_e2(Tstar, P_vec_e, u_vec_e, rho_vec_out_e, f_vec_e, 2);
+//vap = vap/bm;
 //cout << "vapor = " << vap/bm << endl;
-cin >> stop;
+//cin >> stop;
 
 
 
@@ -1224,18 +1225,18 @@ cout << "rho1 = " << rho1 << endl;
 cout << "rho2 = " << rho2 << endl;
 cout << "i = " << i << endl;
 cout << "j = " << j << endl;
-cin >> stop;
+//cin >> stop;
 
 //cout << "before phase " << endl;
-rho_l = phase_coexistence_e3(Tstar, P_vec_e, u_vec_e, rho_vec_out_e, f_vec_e, j, i, 1);
-rho_l = rho_l/bm;
-cin >> stop;
+//rho_l = phase_coexistence_e3(Tstar, P_vec_e, u_vec_e, rho_vec_out_e, f_vec_e, j, i, 1);
+//rho_l = rho_l/bm;
+//cin >> stop;
 //cout << "liquid = " << rho_l/bm << endl;
 //dimensionless form
-vap = phase_coexistence_e3(Tstar, P_vec_e, u_vec_e, rho_vec_out_e, f_vec_e, j, i, 2);
-vap = vap/bm;
+//vap = phase_coexistence_e3(Tstar, P_vec_e, u_vec_e, rho_vec_out_e, f_vec_e, j, i, 2);
+//vap = vap/bm;
 //cout << "vapor = " << vap/bm << endl;
-cin >> stop;
+//cin >> stop;
 
 rho1 = rho_vec_out[50];
 rho2 = rho_vec_out[950];
@@ -1463,14 +1464,14 @@ rho2 = rho2_new;
 if(rho1 < 0) rho1 = 0.01;
 }
 
-rho1 = rho_l;
-rho2 = vap;
+//rho1 = rho_l;
+//rho2 = vap;
 
 cout << "rho1 = " << rho1 << " / rho2 = " << rho2 << endl;
-f1 = cspline(rho_vec_out, f_vec_out, rho1);
-f2 = cspline(rho_vec_out, f_vec_out, rho2);
-u1 = cspline_deriv1(rho_vec_out, f_vec_out, rho1);
-u2 = cspline_deriv1(rho_vec_out, f_vec_out, rho2);
+f1 = cspline(rho_vec_out, f_vec_out, dens[0]);
+f2 = cspline(rho_vec_out, f_vec_out, dens[1]);
+u1 = cspline_deriv1(rho_vec_out, f_vec_out, dens[0]);
+u2 = cspline_deriv1(rho_vec_out, f_vec_out, dens[1]);
 P1 = -f1+u1*rho1;
 P2 = -f2+u2*rho2;
 cout << "u1 - u2 = " << u1 - u2 << endl;
@@ -1482,8 +1483,11 @@ cout << "=======================================\n" << endl;
 
 k++;
 
-Envelope << std::fixed << std::setprecision(15) << T << ";" << rho2 << ";"
-           << P2 << ";" << rho1 << ";" << P1 << ";" << P_average << endl;
+  //Envelope << std::fixed << std::setprecision(15) << T << ";" << rho2 << ";"
+  //         << P2 << ";" << rho1 << ";" << P1 << ";" << P_average << endl;
+
+  Envelope << std::fixed << std::setprecision(15) << T << ";" << dens[1] << ";"
+           << dens[2] << ";" << dens[0] << ";" << dens[2] << ";" << u1-u2 << endl;
 
         T = T + step;
 }
