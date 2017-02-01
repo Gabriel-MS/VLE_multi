@@ -693,12 +693,12 @@ f22 = script_f(t22,y,xlam22);
 }
 
 
-double cg(double (*bfnl)[400], double (*bfns)[400], double xkni, double dy, int imax, int jmax)
+double cg(double (*bfnl)[1000], double (*bfns)[1000], double xkni, double dy, int imax, int jmax)
 {
       double di, aminl, amins, qnl, qns, al, as, gnl, gns;
       int ngrid, ng, i, j;
-      static double argl[400][400], args[400][400];
-      ngrid = 400;
+      static double argl[1000][1000], args[1000][1000];
+      ngrid = 1000;
       ng = ngrid-1;
 
 // ****************************************
@@ -822,15 +822,15 @@ a12 = pow((a11*a22),0.5)*(1.0-xkmix);
         int i, ngrid, ng, nmax, j;
         pi = 3.14159265359796;
         nmax = 5;
-        ngrid = 400;
+        ngrid = 1000;
         ng = ngrid-1;
         R = 8.314E-6;
 
-        static double fn[400][400], fm[400][400], fn1[400][400], fn11[400][400];
-        static double fn111[400][400], fn2[400][400], fn22[400][400], fn222[400][400];
-        static double fnm1[400][400], dfn[400][400], p2[400][400], f0a[400][400], f0b[400][400], p[400][400];
-        double bfnl[400][400], bfns[400][400];
-        vector<double> rho1(400), rho2(400);
+        static double fn[1000][1000], fm[1000][1000], fn1[1000][1000], fn11[1000][1000];
+        static double fn111[1000][1000], fn2[1000][1000], fn22[1000][1000], fn222[1000][1000];
+        static double fnm1[1000][1000], dfn[1000][1000], p2[1000][1000], f0a[1000][1000], f0b[1000][1000], p[1000][1000];
+        double bfnl[1000][1000], bfns[1000][1000];
+        vector<double> rho1(1000), rho2(1000);
 
 
 // *****************************
@@ -1047,4 +1047,4 @@ a12 = pow((a11*a22),0.5)*(1.0-xkmix);
 
 
 
-#endif // MSA_HELMHOLTZ_H_INCLUDED
+#endif // MSA_H_INCLUDED

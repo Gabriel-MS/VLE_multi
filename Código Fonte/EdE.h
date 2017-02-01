@@ -192,7 +192,8 @@ case 4: //MSA
 
 
 //Function to calculate ai
-VectorXd a_function(int nc, double R, VectorXd EdE_parameters, VectorXd omega, VectorXd Tc, VectorXd Pc, VectorXd alfa, int EdE, VectorXd a0)
+VectorXd a_function(int nc, double R, VectorXd EdE_parameters, VectorXd omega, VectorXd Tc,
+                    VectorXd Pc, VectorXd alfa, int EdE, VectorXd a0)
 {
         double sigma, epsilon, OMEGA, PSI;
         double a111, a112, a113, a221, a222, a223;

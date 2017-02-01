@@ -593,10 +593,11 @@ if(Renormalization==1)
 
 
     std::vector<double> rho_vec(n), f_vec(n), u_vec1(n), f0_vec(n), P_vec1(n), Glv2(n), Gsv2(n);
-    std::vector<double> flvv(n), fsvv(n), rho_env(n), P_env(n);
+    std::vector<double> flvv(n), fsvv(n);
     VectorXd fl_old_p(n), fl_oldv(n), fl_old_m(n), fs_old_p(n), fs_oldv(n), fs_old_m(n), rho_vector2(n), f_after(n), f_before(n);
     VectorXd flv(n), fsv(n), fv(n), rho_vector(n), delta_fv(n), f_originalv(n), Glv(n), Gsv(n), argl(n), args(n);
     VectorXd P_vec_e(1000), u_vec_e(1000), rho_vec_out_e(1000), f_vec_e(1000);
+    std::vector<double> V_vec(1000), A_vec(1000), f_env(1000), rho_env(1000), P_env(1000), u_env(1000);
 
     one_4c << 1, 0,
               1, 0,
@@ -1082,7 +1083,7 @@ while(rho<=rho_max)
 
 for(w=0; w<1000; w++) //FAAAAAAAAAAAAAAAALSOOOOOOOOO
 {
-    rho_vec_out[w] = double(w)/n/bm;
+    rho_vec_out[w] = double(w)/1000/bm;
     rho_vec_out[0] = 1e-6;
 }
 
@@ -1118,8 +1119,8 @@ for(i=0; i<1000; i++)
  Renorm << std::fixed << std::setprecision(15) << rho_vec_out[i] << ";" << f_vec_out[i] << ";"
         << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T << endl;
 }
-//=============================================================
 
+//=============================================================
 
 
 for(i=0;i<1000;i++)
@@ -1129,353 +1130,44 @@ for(i=0;i<1000;i++)
         rho_vec_out_e(i) = bm*rho_vec_out[i];
         f_vec_e(i) = -P_vec_e(i) + rho_vec_out_e(i)*u_vec_e(i);
 
+        V_vec[i] = 1/rho_vec_out[i];
+        A_vec[i] = f_vec_out[i]/rho_vec_out[i];
+
         P_env[i] = P_vec_e(i);
         rho_env[i] = rho_vec_out_e(i);
+        f_env[i] = f_vec_e(i);
+        u_env[i] = u_vec_e(i);
     }
-
+/*
+for(i=0; i<1000; i++)
+{
+ Renorm << std::fixed << std::setprecision(15) << rho_vec_out_e(i) << ";" << f_vec_e(i) << ";"
+        << u_vec_e(i) << ";" << P_vec_e(i) << ";" << T << endl;
+}
+*/
 double Tstar = bm*R*T/am;
-double vap;
 
-cout << "before dens" << endl;
 std::vector<double> dens(3);
+double f1, f2, u1, u2, P1, P2;
 dens = dens_maxwell(rho_vec_out, P_vec);
-cout << "\n";
-//cout << "\n DENSITIES = " << dens[0]/bm << " / " << dens[1]/bm << endl;
-//cin >> stop;
-
-//cout << "before phase " << endl;
-//rho_l = phase_coexistence_e2(Tstar, P_vec_e, u_vec_e, rho_vec_out_e, f_vec_e, 1);
-//rho_l = rho_l/bm;
-//cin >> stop;
-//cout << "liquid = " << rho_l/bm << endl;
-//dimensionless form
-//vap = phase_coexistence_e2(Tstar, P_vec_e, u_vec_e, rho_vec_out_e, f_vec_e, 2);
-//vap = vap/bm;
-//cout << "vapor = " << vap/bm << endl;
-//cin >> stop;
+cout << "dens = " << dens[0] << " / " << dens[1] << " / " << dens[2] << endl;
+//dens = dens_area(V_vec, A_vec, P_vec);
+//dens = dens_newt(rho_vec_out, f_vec_out, P_vec, u_vec, 1e-3);
+dens = dens_newt(rho_env, f_env, P_env, u_env, 1e-3);
+dens[0] = dens[0]/bm;
+dens[1] = dens[1]/bm;
+dens[2] = dens[2]/bm/bm*am;
 
 
-
-  dP_dV[0] = (P_vec[1]-P_vec[0])/(rho_vec_out[1] - rho_vec_out[0]);
-  //cout << "i = " << i << " / " << dP_dV[i] << endl;
-
-  for(i=1; i<999; i++)
-  {
-    dP_dV[i] = (P_vec[i+1]-P_vec[i-1])/(rho_vec_out[i+1]-rho_vec_out[i-1]);
-    //cout << "i = " << i << " / " << dP_dV[i] << endl;
-  }
-
-  dP_dV[999] = (P_vec[999]-P_vec[998])/(rho_vec_out[999] - rho_vec_out[998]);
-  //cout << "i = " << i << " / " << dP_dV[i] << endl;
-  //cin >> stop;
-  //=====================================================
-  du_dV[0] = (u_vec[1]-u_vec[0])/(rho_vec_out[1] - rho_vec_out[0]);
-  //cout << "i = " << i << " / " << du_dV[i] << endl;
-
-  for(i=1; i<999; i++)
-  {
-    du_dV[i] = (u_vec[i+1]-u_vec[i-1])/(rho_vec_out[i+1]-rho_vec_out[i-1]);
-    //cout << "i = " << i << " / " << du_dV[i] << endl;
-  }
-
-  du_dV[999] = (u_vec[999]-u_vec[998])/(rho_vec_out[999] - rho_vec_out[998]);
-  //cout << "i = " << i << " / " << du_dV[i] << endl;
-  //cin >> stop;
-
-//Maximum pressure at dP/dV=0
-double tol_dpdv = 1e-8;
-i=100;
-do
-{
- pmax_cond = dP_dV[i];
- i++;
- //cout << "i = " << i << " / pmax = " << pmax_cond << " / rho = " << rho_vec_out[i] << endl;
-}while(pmax_cond>0);
-pmax_cond = 1;
-P_max = P_vec[i-1];
-cout << "dP/dV at max = " << dP_dV[i-2] << endl;
-//cin >> stop;
-
-//Minimum pressure at dP/dV=0
-j=900;
-do
-{
- pmin_cond = dP_dV[j];
- j--;
-//cout << "j = " << j << " / pmin = " << pmin_cond << " / rho = " << rho_vec_out[j] << endl;
-}while(pmin_cond>0);
-pmin_cond = 1;
-P_min = P_vec[j+1];
-cout << "dP/dV at min = " << dP_dV[j+2] << endl;
-
-cout << "max pressure = " << P_max << endl;
-cout << "min pressure = " << P_min << endl;
-//cin >> stop;
-
-double F1, F2, dF1drho1, dF2drho2, u1, u2, du1, du2, rho1_new, rho2_new, rho1_test, rho2_test, rho1old, rho2old, detJ;
-double f1, f2, rho1, rho2, f1p, f1m, f2p, f2m, u1p, u1m, u2p, u2m, P1, P2, dF1_drho1, dF1_drho2, dF2_drho1, dF2_drho2;
-double tol_rho = 5e-2;
-rho1_test = tol_rho+1;
-rho2_test = tol_rho+1;
-
-rho1 = rho_vec_out[i-50]; //Vapor
-rho2 = rho_vec_out[j+50]; //Liquid
-
-cout << "rho1 = " << rho1 << endl;
-cout << "rho2 = " << rho2 << endl;
-cout << "i = " << i << endl;
-cout << "j = " << j << endl;
-//cin >> stop;
-
-//cout << "before phase " << endl;
-//rho_l = phase_coexistence_e3(Tstar, P_vec_e, u_vec_e, rho_vec_out_e, f_vec_e, j, i, 1);
-//rho_l = rho_l/bm;
-//cin >> stop;
-//cout << "liquid = " << rho_l/bm << endl;
-//dimensionless form
-//vap = phase_coexistence_e3(Tstar, P_vec_e, u_vec_e, rho_vec_out_e, f_vec_e, j, i, 2);
-//vap = vap/bm;
-//cout << "vapor = " << vap/bm << endl;
-//cin >> stop;
-
-rho1 = rho_vec_out[50];
-rho2 = rho_vec_out[950];
-
-cout << "rho1 = " << rho1 << " / rho2 = " << rho2 << endl;
-
-std::vector<double> V_vec(n), A_vec(n);
-double F1old, F2old, V1, V2, V1old, V2old, errV1, errV2, AV1, AV2, dF1_dV1, dF1_dV2, dF2_dV1, dF2_dV2;
-VectorXd dV_v(2), F_v(2);
-MatrixXd J(2,2);
-
-for(i=0;i<1000;i++)
-{
-    V_vec[i] = 1/rho_vec_out[i];
-    A_vec[i] = f_vec_out[i]/rho_vec_out[i];
-}
-
-V1 = 1/rho1;
-V2 = 1/rho2;
-P2 = P_min;
-P1 = P_max;
-F1old = 0;
-F2old = 0;
-V1old = 0;
-V2old = 0;
-tolV = 1e-3;
-errV1 = tolV+1;
-errV2 = tolV+1;
-i=0;
-
-errV1 = 1e-5;
-errV2 = 1e-5;
-rho1_test = 1e-5;
-rho2_test = 1e-5;
-
-
-//rho2 = rho_vec_out[100];
-//rho1 = rho_vec_out[900];
-
-while(fabs(errV1)>tolV || fabs(errV2)>tolV)
-{
-rho1 = 1/V1;
-rho2 = 1/V2;
-f1 = cspline(rho_vec_out, f_vec_out, rho1);
-f2 = cspline(rho_vec_out, f_vec_out, rho2);
-u1 = cspline_deriv1(rho_vec_out, f_vec_out, rho1);
-u2 = cspline_deriv1(rho_vec_out, f_vec_out, rho2);
-
-cout << "wow" << endl;
-
-u1p = cspline_deriv1(rho_vec_out, f_vec_out, (1/(V1+1e-4)));
-u2p = cspline_deriv1(rho_vec_out, f_vec_out, (1/(V2+1e-4)));
-u1m = cspline_deriv1(rho_vec_out, f_vec_out, (1/(V1-1e-4)));
-u2m = cspline_deriv1(rho_vec_out, f_vec_out, (1/(V2-1e-4)));
-
-f1p = cspline(rho_vec_out, f_vec_out, (1/(V1+1e-4)));
-f2p = cspline(rho_vec_out, f_vec_out, (1/(V2+1e-4)));
-f1m = cspline(rho_vec_out, f_vec_out, (1/(V1-1e-4)));
-f2m = cspline(rho_vec_out, f_vec_out, (1/(V2-1e-4)));
-
-AV1 = f1/rho1;
-AV2 = f2/rho2;
-/*
-P1 = -f1+rho1*u1;
-P2 = -f2+rho2*u2;
-//2 is liquid root, 1 vapor
-F1 = P2-P1;
-F2 = u2-u1;
-
-dF1_drho1 = -cspline(rho_vec_out, dP_dV, rho1);
-dF1_drho2 = cspline(rho_vec_out, dP_dV, rho2);
-dF2_drho1 = -cspline_deriv1(rho_vec_out, du_dV, rho1);
-dF2_drho2 = cspline_deriv1(rho_vec_out, du_dV, rho2);
-
-dF2_drho1 = dF2_drho1/1e5;
-dF2_drho2 = dF2_drho2/1e5;
-
-cout << "\nP1 = \n" << P1 << endl;
-cout << "P2 = \n" << P2 << endl;
-cout << "u1 = \n" << u1 << endl;
-cout << "u2 = \n" << u2 << endl;
-cout << "F1 = \n" << F1 << endl;
-cout << "F2 = \n" << F2 << endl;
-cout << "dF1_drho1 = \n" << dF1_drho1 << endl;
-cout << "dF1_drho2 = \n" << dF1_drho2 << endl;
-cout << "dF2_drho1 = \n" << dF2_drho1 << endl;
-cout << "dF2_drho2 = \n" << dF2_drho2 << endl;
-*/
-
-F1 = -((V2-V1)/2)*u1+((AV2-AV1)/2);
-F2 = -((V2-V1)/2)*u2+((AV2-AV1)/2);
-
-cout << "\nV1 = " << V1 << endl;
-cout << "V2 = " << V2 << endl;
-cout << "rho1 = " << rho1 << endl;
-cout << "rho2 = " << rho2 << endl;
-cout << "F1 = " << F1 << endl;
-cout << "F2 = " << F2 << endl;
-/*
-if(i>0)
-{
-dF1_dV1 = 1e2;
-dF1_dV2 = 1e2;
-dF2_dV1 = 1e2;
-dF2_dV2 = 1e2;
-}
-*/
-//else
-//{
-dF1_dV1 = ((-((V2-V1+1e-4)/2)*u1p+((AV2-f1p*(V1+1e-4))/2))   -   (-((V2-V1-1e-4)/2)*u1m+((AV2-f1m*(V1-1e-4))/2)))/2e-4;
-dF1_dV2 = ((-((V2+1e-4-V1)/2)*u1+((f2p*(V2+1e-4)-AV1)/2))   -   (-((V2-1e-4-V1)/2)*u1+((f2m*(V2-1e-4)-AV1)/2)))/2e-4;
-dF2_dV1 = ((-((V2-V1+1e-4)/2)*u2+((AV2-f1p*(V1+1e-4))/2))   -   (-((V2-V1-1e-4)/2)*u2+((AV2-f1m*(V1-1e-4))/2)))/2e-4;
-dF2_dV2 = ((-((V2+1e-4-V1)/2)*u2p+((f2p*(V2+1e-4)-AV1)/2))   -   (-((V2-1e-4-V1)/2)*u2m+((f2m*(V2-1e-4)-AV1)/2)))/2e-4;
-//}
-
-//J << dF1_drho1, dF1_drho2,
-//     dF2_drho1, dF2_drho2;
-
-J << dF1_dV1, dF1_dV2,
-     dF2_dV1, dF2_dV2;
-
-//J(0,0) << dF1_dV1;
-//J(0,1) << dF1_dV2;
-//J(1,0) << dF2_dV1;
-//J(1,1) << dF2_dV2;
-F_v << -F1,
-       -F2;
-
-//F_v(0) << F1;
-//F_v(1) << F2;
-//dV_v(0) << V1;
-//dV_v(1) << V2;
-
-//dV_v = J.inverse()*F_v;
-
-cout << "\nJ = \n" << J << endl;
-cout << "J_inv = \n" << J.inverse() << endl;
-cout << "F = \n" << F_v << endl;
-//cout << "dV = \n" << dV_v << endl;
-dV_v = J.colPivHouseholderQr().solve(F_v);
-cout << "after" << endl;
-//cout << "\nJ = \n" << J << endl;
-//cout << "F = \n" << F_v << endl;
-cout << "dV = \n" << dV_v << endl;
-
-F1old = F1;
-F2old = F2;
-rho1old = rho1;
-rho2old = rho2;
-V1old = V1;
-V2old = V2;
-
-//detJ = -dF1_drho1*dF2drho2+dF1_drho2*dF2_drho1;
-
-V1 = V1 + dV_v(0);
-V2 = V2 + dV_v(1);
-
-//rho1 = rho1 + dV_v(0);
-//rho2 = rho2 + dV_v(1);
-//rho1 = rho1 - dF2_drho2/detJ*(P2-P1) + dF1_drho2/detJ*(u2-u1);
-//rho2 = rho2 - dF2_drho1/detJ*(P2-P1) + dF1_drho1/detJ*(u2-u1);
-
-errV1 = (V1-V1old)/V1;
-errV2 = (V2-V2old)/V2;
-//errV1 = (rho1-rho1old)/rho1;
-//errV2 = (rho2-rho2old)/rho2;
-
-//cout << "detJ = " << detJ << endl;
-cout << "rho1 = " << 1/V1 << endl;
-cout << "rho2 = " << 1/V2 << endl;
-cout << "errV1 = " << errV1 << endl;
-cout << "errV2 = " << errV2 << endl;
-i++;
-cin >> stop;
-}
-
-//while(rho1_test > tol_rho || rho2_test > tol_rho || fabs(P1-P2) > tol_rho || fabs(u1-u2) > tol_rho)
-while(rho1_test > tol_rho || rho2_test > tol_rho)
-{
-f1 = cspline(rho_vec_out, f_vec_out, rho1);
-f2 = cspline(rho_vec_out, f_vec_out, rho2);
-u1 = cspline_deriv1(rho_vec_out, f_vec_out, rho1);
-u2 = cspline_deriv1(rho_vec_out, f_vec_out, rho2);
-
-P1 = -f1+rho1*u1;
-P2 = -f2+rho2*u2;
-
-f1p = cspline(rho_vec_out, f_vec_out, rho1+1e-4);
-f2p = cspline(rho_vec_out, f_vec_out, rho2+1e-4);
-u1p = cspline_deriv1(rho_vec_out, f_vec_out, rho1+1e-4);
-u2p = cspline_deriv1(rho_vec_out, f_vec_out, rho2+1e-4);
-
-f1m = cspline(rho_vec_out, f_vec_out, rho1-1e-4);
-f2m = cspline(rho_vec_out, f_vec_out, rho2-1e-4);
-u1m = cspline_deriv1(rho_vec_out, f_vec_out, rho1-1e-4);
-u2m = cspline_deriv1(rho_vec_out, f_vec_out, rho2-1e-4);
-
-//cout << "f1 = " << rho1 << " / rho2 = " << rho2 << endl;
-//cout << "u1 = " << rho1 << " / rho2 = " << rho2 << endl;
-//cout << "du1 = " << rho1 << " / rho2 = " << rho2 << endl;
-
-F1 = (f2 - f1) + u1*(rho1-rho2);
-F2 = (f2 - f1) + u2*(rho1-rho2);
-
-dF1drho1 = (((f2p - f1p) + u1p*(rho1+1e-4-rho2)) - ((f2m - f1m) + u1m*(rho1-1e-4-rho2)))/(2e-4);
-dF2drho2 = (((f2p - f1p) + u2p*(rho1+1e-4-rho2)) - ((f2m - f1m) + u2m*(rho1-1e-4-rho2)))/(2e-4);
-
-
-//cout << "(rho1_new - rho1) = " << fabs(rho1_new - rho1) << " / d2 = " << fabs(rho2_new - rho2) << endl;
-cout << "u1 - u2 = " << u1 - u2 << endl;
-cout << "P1 - P2 = " << P1 - P2 << endl;
-
-//cout << "main / " << "F1 = " << F1 << " / dF1 = " << dF1drho1 << endl;
-//cout << "main / " << "F2 = " << F2 << " / dF2 = " << dF2drho2 << endl;
-
-rho1_new = rho1 - F1/dF1drho1;
-rho2_new = rho2 - F2/dF2drho2;
-
-rho1_test = fabs(rho1_new - rho1)/rho1_new;
-rho2_test = fabs(rho2_new - rho2)/rho1_new;
-
-rho1 = rho1_new;
-rho2 = rho2_new;
-
-if(rho1 < 0) rho1 = 0.01;
-}
-
-//rho1 = rho_l;
-//rho2 = vap;
-
-cout << "rho1 = " << rho1 << " / rho2 = " << rho2 << endl;
 f1 = cspline(rho_vec_out, f_vec_out, dens[0]);
 f2 = cspline(rho_vec_out, f_vec_out, dens[1]);
 u1 = cspline_deriv1(rho_vec_out, f_vec_out, dens[0]);
 u2 = cspline_deriv1(rho_vec_out, f_vec_out, dens[1]);
-P1 = -f1+u1*rho1;
-P2 = -f2+u2*rho2;
+P1 = -f1+u1*dens[0];
+P2 = -f2+u2*dens[1];
 cout << "u1 - u2 = " << u1 - u2 << endl;
 cout << "P1 - P2 = " << P1 - P2 << endl;
+cout << "dens = " << dens[0] << " / " << dens[1] << " / " << dens[2] << endl;
 
 
 cout << "T = " << T << endl;
