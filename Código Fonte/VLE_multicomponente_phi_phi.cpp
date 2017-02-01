@@ -680,6 +680,10 @@ if(EdE != 4)
     cout << "\nDefine step size: ";
     cin >> step;
 
+    int env_type;
+    cout << "\nEnvelope type: \n1. Maxwell \n2. Maxwell dimensionless \n3.Area \n4.Newton \n5.Newton dimensionless \n";
+    cin >> env_type;
+
     init_T = T;
     Told = T;
     T = init_T;
@@ -1149,14 +1153,23 @@ double Tstar = bm*R*T/am;
 
 std::vector<double> dens(3);
 double f1, f2, u1, u2, P1, P2;
-dens = dens_maxwell(rho_vec_out, P_vec);
-cout << "dens = " << dens[0] << " / " << dens[1] << " / " << dens[2] << endl;
-//dens = dens_area(V_vec, A_vec, P_vec);
-//dens = dens_newt(rho_vec_out, f_vec_out, P_vec, u_vec, 1e-3);
-dens = dens_newt(rho_env, f_env, P_env, u_env, 1e-3);
-dens[0] = dens[0]/bm;
-dens[1] = dens[1]/bm;
-dens[2] = dens[2]/bm/bm*am;
+if(env_type==1) dens = dens_maxwell(rho_vec_out, P_vec);
+if(env_type==2)
+{
+    dens = dens_maxwell(rho_env, P_env);
+    dens[0] = dens[0]/bm;
+    dens[1] = dens[1]/bm;
+    dens[2] = dens[2]/bm/bm*am;
+}
+if(env_type==3) dens = dens_area(V_vec, A_vec, P_vec);
+if(env_type==4) dens = dens_newt(rho_vec_out, f_vec_out, P_vec, u_vec, 1e-4);
+if(env_type==5)
+{
+    dens = dens_newt(rho_env, f_env, P_env, u_env, 1e-4);
+    dens[0] = dens[0]/bm;
+    dens[1] = dens[1]/bm;
+    dens[2] = dens[2]/bm/bm*am;
+}
 
 
 f1 = cspline(rho_vec_out, f_vec_out, dens[0]);
