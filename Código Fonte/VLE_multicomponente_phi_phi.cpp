@@ -29,6 +29,7 @@ typedef std::numeric_limits< long double > ldbl;
 #include "Renormalization.h"
 #include "interpolation_util.h"
 #include "numerical.h"
+#include "envelope.h"
 
 template<class Function>
 double deriv1(const Function& f, double x)
@@ -1191,11 +1192,13 @@ k++;
   //Envelope << std::fixed << std::setprecision(15) << T << ";" << rho2 << ";"
   //         << P2 << ";" << rho1 << ";" << P1 << ";" << P_average << endl;
 
-  Envelope << std::fixed << std::setprecision(15) << T << ";" << dens[1] << ";"
-           << dens[2] << ";" << dens[0] << ";" << dens[2] << ";" << u1-u2 << endl;
+  //Envelope << std::fixed << std::setprecision(15) << T << ";" << dens[1] << ";"
+  //         << dens[2] << ";" << dens[0] << ";" << dens[2] << ";" << u1-u2 << endl;
 
         T = T + step;
 }
+
+envelope_tracer(1e-5,env_type);
 
 }
 
