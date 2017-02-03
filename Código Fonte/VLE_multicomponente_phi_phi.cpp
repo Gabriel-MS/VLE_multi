@@ -659,7 +659,7 @@ if(Renormalization==1)
     */
 if(EdE != 4)
 {
-        cout << "\nL (dm) = ";
+        cout << "\nL (m) = ";
         cin >> L;
         cout << endl;
 
@@ -1151,7 +1151,7 @@ for(i=0; i<1000; i++)
 }
 */
 double Tstar = bm*R*T/am;
-
+/*
 std::vector<double> dens(3);
 double f1, f2, u1, u2, P1, P2;
 if(env_type==1) dens = dens_maxwell(rho_vec_out, P_vec);
@@ -1183,7 +1183,7 @@ cout << "u1 - u2 = " << u1 - u2 << endl;
 cout << "P1 - P2 = " << P1 - P2 << endl;
 cout << "dens = " << dens[0] << " / " << dens[1] << " / " << dens[2] << endl;
 
-
+*/
 cout << "T = " << T << endl;
 cout << "=======================================\n" << endl;
 
@@ -1198,7 +1198,7 @@ k++;
         T = T + step;
 }
 
-envelope_tracer(1e-5,env_type);
+envelope_tracer(1e-4,env_type);
 
 }
 

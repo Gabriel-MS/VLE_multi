@@ -4,8 +4,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /></head>
 <body>
 <tt>
-Build started on: <u>02-02-2017 at 01:10.59</u><br />
-Build ended on: <u>02-02-2017 at 01:12.44</u><p />
+Build started on: <u>03-02-2017 at 01:18.31</u><br />
+Build ended on: <u>03-02-2017 at 01:19.59</u><p />
 <b>-------------- Build: Debug in VLE (compiler: GNU GCC Compiler)---------------</b><br />
 mingw32-g++.exe -Wall -fexceptions -g -IC:\UFRJ\ATOMS\Eigen\eigen-eigen-07105f7124f9 -IC:\UFRJ\ATOMS\alglib\cpp\src -IC:\UFRJ\ATOMS\alglib\cpp\tests -c "C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp" -o "obj\Debug\Código Fonte\VLE_multicomponente_phi_phi.o"<br />
 In file included from C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\Association.h:10:0,<br />
@@ -586,68 +586,114 @@ C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h: In function 'double falsi_s
      int i;<br />
          ^<br />
 C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h: In function 'double maxwell_cons(std::vector&lt;double&gt;&amp;, std::vector&lt;double&gt;&amp;, double)':<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1007:42: warning: variable 'P_max' set but not used [-Wunused-but-set-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1006:42: warning: variable 'P_max' set but not used [-Wunused-but-set-variable]</font><br />
      double max1, min1, rho_max, rho_min, P_max, P_min, rho1, rho2, rho3, rhoz1, rhoz2, h1, h2;<br />
                                           ^<br />
-C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h: In function 'std::vector&lt;double&gt; dens_maxwell(std::vector&lt;double&gt;&amp;, std::vector&lt;double&gt;&amp;)':<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1109:56: warning: variable 'P0' set but not used [-Wunused-but-set-variable]</font><br />
-     double rho1, rho2, rho_max, rho_min, P_max, P_min, P0, P1, P2, Pz;<br />
-                                                        ^<br />
+C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h: In function 'double maxwell_cons2(std::vector&lt;double&gt;&amp;, std::vector&lt;double&gt;&amp;, double)':<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1090:19: warning: unused variable 'Area2' [-Wunused-variable]</font><br />
+     double Area1, Area2, Area;<br />
+                   ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1091:42: warning: variable 'P_max' set but not used [-Wunused-but-set-variable]</font><br />
+     double max1, min1, rho_max, rho_min, P_max, P_min, rho1, rho2, rho3, rhoz1, rhoz2, h1, h2;<br />
+                                          ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1091:81: warning: variable 'rhoz2' set but not used [-Wunused-but-set-variable]</font><br />
+     double max1, min1, rho_max, rho_min, P_max, P_min, rho1, rho2, rho3, rhoz1, rhoz2, h1, h2;<br />
+                                                                                 ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1091:92: warning: unused variable 'h2' [-Wunused-variable]</font><br />
+     double max1, min1, rho_max, rho_min, P_max, P_min, rho1, rho2, rho3, rhoz1, rhoz2, h1, h2;<br />
+                                                                                            ^<br />
 C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h: In function 'double area_helm(std::vector&lt;double&gt;&amp;, std::vector&lt;double&gt;&amp;, std::vector&lt;double&gt;&amp;, double)':<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1165:34: warning: unused variable 'Vmax' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1158:34: warning: unused variable 'Vmax' [-Wunused-variable]</font><br />
      double Area, A1, A2, V1, V2, Vmax, Vmin, Pmax, Pmin, Vh, Vz, Az, h;<br />
                                   ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1165:40: warning: unused variable 'Vmin' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1158:40: warning: unused variable 'Vmin' [-Wunused-variable]</font><br />
      double Area, A1, A2, V1, V2, Vmax, Vmin, Pmax, Pmin, Vh, Vz, Az, h;<br />
                                         ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1165:46: warning: variable 'Pmax' set but not used [-Wunused-but-set-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1158:46: warning: variable 'Pmax' set but not used [-Wunused-but-set-variable]</font><br />
      double Area, A1, A2, V1, V2, Vmax, Vmin, Pmax, Pmin, Vh, Vz, Az, h;<br />
                                               ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1165:58: warning: unused variable 'Vh' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1158:58: warning: unused variable 'Vh' [-Wunused-variable]</font><br />
      double Area, A1, A2, V1, V2, Vmax, Vmin, Pmax, Pmin, Vh, Vz, Az, h;<br />
                                                           ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1165:62: warning: unused variable 'Vz' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1158:62: warning: unused variable 'Vz' [-Wunused-variable]</font><br />
      double Area, A1, A2, V1, V2, Vmax, Vmin, Pmax, Pmin, Vh, Vz, Az, h;<br />
                                                               ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1165:66: warning: unused variable 'Az' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1158:66: warning: unused variable 'Az' [-Wunused-variable]</font><br />
      double Area, A1, A2, V1, V2, Vmax, Vmin, Pmax, Pmin, Vh, Vz, Az, h;<br />
                                                                   ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1166:40: warning: variable 'rhoh' set but not used [-Wunused-but-set-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1159:40: warning: variable 'rhoh' set but not used [-Wunused-but-set-variable]</font><br />
      double rhomax, rhomin, rho1, rho2, rhoh, rhoz;<br />
                                         ^<br />
+C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h: In function 'std::vector&lt;double&gt; dens_maxwell(std::vector&lt;double&gt;&amp;, std::vector&lt;double&gt;&amp;, double)':<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1369:56: warning: variable 'P0' set but not used [-Wunused-but-set-variable]</font><br />
+     double rho1, rho2, rho_max, rho_min, P_max, P_min, P0, P1, P2, Pz, u1, u2;<br />
+                                                        ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1369:72: warning: unused variable 'u1' [-Wunused-variable]</font><br />
+     double rho1, rho2, rho_max, rho_min, P_max, P_min, P0, P1, P2, Pz, u1, u2;<br />
+                                                                        ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1369:76: warning: unused variable 'u2' [-Wunused-variable]</font><br />
+     double rho1, rho2, rho_max, rho_min, P_max, P_min, P0, P1, P2, Pz, u1, u2;<br />
+                                                                            ^<br />
+C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h: In function 'std::vector&lt;double&gt; dens_maxwell_seed(std::vector&lt;double&gt;&amp;, std::vector&lt;double&gt;&amp;, double, std::vector&lt;double&gt;&amp;)':<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1424:56: warning: variable 'P0' set but not used [-Wunused-but-set-variable]</font><br />
+     double rho1, rho2, rho_max, rho_min, P_max, P_min, P0, P1, P2, Pz, u1, u2;<br />
+                                                        ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1424:72: warning: unused variable 'u1' [-Wunused-variable]</font><br />
+     double rho1, rho2, rho_max, rho_min, P_max, P_min, P0, P1, P2, Pz, u1, u2;<br />
+                                                                        ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1424:76: warning: unused variable 'u2' [-Wunused-variable]</font><br />
+     double rho1, rho2, rho_max, rho_min, P_max, P_min, P0, P1, P2, Pz, u1, u2;<br />
+                                                                            ^<br />
 C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h: In function 'std::vector&lt;double&gt; dens_newt(std::vector&lt;double&gt;&amp;, std::vector&lt;double&gt;&amp;, std::vector&lt;double&gt;&amp;, std::vector&lt;double&gt;&amp;, double)':<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1376:24: warning: unused variable 'area' [-Wunused-variable]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1479:24: warning: unused variable 'area' [-Wunused-variable]</font><br />
      double rho1, rho2, area;<br />
                         ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1506:9: warning: unused variable 'counter' [-Wunused-variable]</font><br />
+     int counter = 0;<br />
+         ^<br />
+In file included from C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:31:0:<br />
+C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h: In function 'std::vector&lt;double&gt; dens_newt_seed(std::vector&lt;double&gt;&amp;, std::vector&lt;double&gt;&amp;, std::vector&lt;double&gt;&amp;, std::vector&lt;double&gt;&amp;, double, std::vector&lt;double&gt;&amp;)':<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1550:9: warning: unused variable 'i' [-Wunused-variable]</font><br />
+     int i, max1, min1;<br />
+         ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1550:12: warning: unused variable 'max1' [-Wunused-variable]</font><br />
+     int i, max1, min1;<br />
+            ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1550:18: warning: unused variable 'min1' [-Wunused-variable]</font><br />
+     int i, max1, min1;<br />
+                  ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1551:12: warning: unused variable 'rhomax' [-Wunused-variable]</font><br />
+     double rhomax, rhomin, Pmax, Pmin, P1, P2, f1, f2, u1, u2, du1, du2, dP1, dP2, detJ, drho1, drho2;<br />
+            ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1551:20: warning: unused variable 'rhomin' [-Wunused-variable]</font><br />
+     double rhomax, rhomin, Pmax, Pmin, P1, P2, f1, f2, u1, u2, du1, du2, dP1, dP2, detJ, drho1, drho2;<br />
+                    ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1551:28: warning: unused variable 'Pmax' [-Wunused-variable]</font><br />
+     double rhomax, rhomin, Pmax, Pmin, P1, P2, f1, f2, u1, u2, du1, du2, dP1, dP2, detJ, drho1, drho2;<br />
+                            ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1551:34: warning: unused variable 'Pmin' [-Wunused-variable]</font><br />
+     double rhomax, rhomin, Pmax, Pmin, P1, P2, f1, f2, u1, u2, du1, du2, dP1, dP2, detJ, drho1, drho2;<br />
+                                  ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1552:24: warning: unused variable 'area' [-Wunused-variable]</font><br />
+     double rho1, rho2, area;<br />
+                        ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1559:9: warning: unused variable 'counter' [-Wunused-variable]</font><br />
+     int counter = 0;<br />
+         ^<br />
 In file included from C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:32:0:<br />
 C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\envelope.h: In function 'void envelope_tracer(double, double)':<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\envelope.h:114:8: warning: unused variable 'f1' [-Wunused-variable]</font><br />
- double f1, f2, u1, u2, P1, P2;<br />
-        ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\envelope.h:114:12: warning: unused variable 'f2' [-Wunused-variable]</font><br />
- double f1, f2, u1, u2, P1, P2;<br />
-            ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\envelope.h:114:16: warning: unused variable 'u1' [-Wunused-variable]</font><br />
- double f1, f2, u1, u2, P1, P2;<br />
-                ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\envelope.h:114:20: warning: unused variable 'u2' [-Wunused-variable]</font><br />
- double f1, f2, u1, u2, P1, P2;<br />
-                    ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\envelope.h:114:24: warning: unused variable 'P1' [-Wunused-variable]</font><br />
- double f1, f2, u1, u2, P1, P2;<br />
-                        ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\envelope.h:114:28: warning: unused variable 'P2' [-Wunused-variable]</font><br />
- double f1, f2, u1, u2, P1, P2;<br />
-                            ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\envelope.h:21:9: warning: unused variable 'stop' [-Wunused-variable]</font><br />
-     int stop, w, k, searchline;<br />
-         ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\envelope.h:21:18: warning: variable 'k' set but not used [-Wunused-but-set-variable]</font><br />
-     int stop, w, k, searchline;<br />
-                  ^<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\envelope.h:21:21: warning: unused variable 'searchline' [-Wunused-variable]</font><br />
-     int stop, w, k, searchline;<br />
-                     ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\envelope.h:17:5: warning: unused variable 'stop' [-Wunused-variable]</font><br />
+ int stop, w, k, r;<br />
+     ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\envelope.h:17:14: warning: variable 'k' set but not used [-Wunused-but-set-variable]</font><br />
+ int stop, w, k, r;<br />
+              ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\envelope.h:20:11: warning: unused variable 'u1' [-Wunused-variable]</font><br />
+ double T, u1, u2;<br />
+           ^<br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\envelope.h:20:15: warning: unused variable 'u2' [-Wunused-variable]</font><br />
+ double T, u1, u2;<br />
+               ^<br />
 C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp: In function 'int main()':<br />
 <font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:183:1: warning: name lookup of 'row' changed</font><br />
  row = cp[n] - 1;<br />
@@ -862,7 +908,7 @@ C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h: In function 'double enclose
  return Area;<br />
         ^<br />
 C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h: In function 'std::vector&lt;double&gt; dens_area(std::vector&lt;double&gt;&amp;, std::vector&lt;double&gt;&amp;, std::vector&lt;double&gt;&amp;)':<br />
-<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1339:70: warning: 'xmin' may be used uninitialized in this function [-Wmaybe-uninitialized]</font><br />
+<font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\numerical.h:1332:70: warning: 'xmin' may be used uninitialized in this function [-Wmaybe-uninitialized]</font><br />
      Pg = golden(P1*0.95, P0, P2*1.05, area_helm, 1e-5, xmin, V, A, P);<br />
                                                                       ^<br />
 In file included from C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:24:0:<br />
@@ -888,9 +934,9 @@ C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp: In func
 <font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:789:18: warning: 'phase' may be used uninitialized in this function [-Wmaybe-uninitialized]</font><br />
 <font color="#0000ff">C:\UFRJ\ATOMS\Projeto-VLE\Código Fonte\VLE_multicomponente_phi_phi.cpp:789:18: warning: 'deltaV' may be used uninitialized in this function [-Wmaybe-uninitialized]</font><br />
 mingw32-g++.exe -LC:\UFRJ\ATOMS\Eigen\eigen-eigen-07105f7124f9 -LC:\UFRJ\ATOMS\alglib\cpp\src -o bin\Debug\VLE.exe "obj\Debug\Código Fonte\VLE_multicomponente_phi_phi.o"<br />
-Output file is bin\Debug\VLE.exe with size 26.61 MB<br />
-<font color="#0000ff">Process terminated with status 0 (1 minute(s), 44 second(s))</font><br />
-<font color="#0000ff">0 error(s), 274 warning(s) (1 minute(s), 44 second(s))</font><br />
+Output file is bin\Debug\VLE.exe with size 26.62 MB<br />
+<font color="#0000ff">Process terminated with status 0 (1 minute(s), 28 second(s))</font><br />
+<font color="#0000ff">0 error(s), 288 warning(s) (1 minute(s), 28 second(s))</font><br />
 </tt>
 </body>
 </html>

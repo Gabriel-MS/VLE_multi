@@ -1000,7 +1000,6 @@ double falsi_spline(vector<double>& x, vector<double>& y, double a, double b, do
 //Uses Cubic Spline to interpolate data points
 double maxwell_cons(vector<double>& rho, vector<double>& P, double P1)
 {
-    cout << "Maxwell in" << endl;
     std::vector<double> dPdV(1000), rho_a1(100), rho_a2(100), P_a1(100), P_a2(100), Pf(1000);
     int SIZE, i;
     double Area1, Area2, Area;
@@ -1016,10 +1015,8 @@ double maxwell_cons(vector<double>& rho, vector<double>& P, double P1)
     min1 = bin_min(dPdV);
     rho_max = rho[max1];
     rho_min = rho[min1];
-    //cout << "rho_max = " << rho_max << " / " << rho_min << endl;
     P_max = P[max1];
     P_min = P[min1];
-    cout << "P1 = " << P1 << endl;
 
     //Adjust isotherm to find roots to pressure
     for(i=0; i<SIZE; i++)
@@ -1035,16 +1032,10 @@ double maxwell_cons(vector<double>& rho, vector<double>& P, double P1)
         }
     }
 
-    cout << "x = " << rho.size() << endl;
-    cout << "y = " << Pf.size() << endl;
-
     //Find density roots for pressure using Regula Falsi method
     rho1 = falsi_spline(rho, Pf, rho[0], rho_max, 1e-3);
-    //cout << "rho1 = " << rho1 << endl;
     rho2 = falsi_spline(rho, Pf, rho_max, rho_min, 1e-3);
-    //cout << "rho2 = " << rho2 << endl;
     rho3 = falsi_spline(rho, Pf, rho_min, rho[700], 1e-3);
-    //cout << "rho3 = " << rho3 << endl;
 
     //Find new values of pressure and density between rho1 and rho3
     rhoz1 = rho1;
@@ -1074,7 +1065,6 @@ double maxwell_cons(vector<double>& rho, vector<double>& P, double P1)
     {
     P_a1[i] = cspline(rho, P, rho_a1[i]);
     P_a2[i] = cspline(rho, P, rho_a2[i]);
-    //cout << "a1 = " << rho_a1[i] << " / " << P_a1[i] << endl;
     }
 
     //Calculates Maxwell area
@@ -1087,32 +1077,25 @@ double maxwell_cons(vector<double>& rho, vector<double>& P, double P1)
     Area = Area1 - Area2;
     Area = fabs(Area);
 
-    //cout << "P1 = " << P1 << endl;
-    cout << "rho1 = " << rho1 << endl;
-    //cout << "rho2 = " << rho2 << endl;
-    cout << "rho3 = " << rho3 << endl;
-    //cout << "Area1 pre = " << simpson_rule(rho_a1, P_a1) << endl;
-    //cout << "Areas = " << Area1 << " / " << Area2 << endl;
-    cout << "Area = " << Area << endl;
-    cout << "Maxwell out" << endl;
-    cin >> i;
     return Area;
 }
 
-//Function to calculate density of coexistent phases using maxwell construction
-//Input is dimensionless isotherm
-vector<double> dens_maxwell(vector<double>& rho, vector<double>& P)
+//Calculates Area of given isotherm (helmholtz energy density f, density rho and chemical potential u)
+//All inputs should be provided dimensionless
+//Uses Cubic Spline to interpolate data points
+double maxwell_cons2(vector<double>& rho, vector<double>& P, double P1)
 {
-    int i, SIZE;
-    std::vector<double> dens(3);
-    std::vector<double> dPdV(1000), Pf(1000);
-    double rho1, rho2, rho_max, rho_min, P_max, P_min, P0, P1, P2, Pz;
-    int max1, min1;
+    std::vector<double> dPdV(1000), rho_a1(100), rho_a2(100), P_a1(100), P_a2(100), Pf(1000);
+    int SIZE, i;
+    double Area1, Area2, Area;
+    double max1, min1, rho_max, rho_min, P_max, P_min, rho1, rho2, rho3, rhoz1, rhoz2, h1, h2;
 
     SIZE = rho.size();
+
+    //Calculating vector with first derivatives
     dPdV = fin_diff_1_vec(rho, P);
 
-    //Find max and min of isotherm inside binodal region
+    //Find max and min pressure of isotherm inside binodal curve
     max1 = bin_max(dPdV);
     min1 = bin_min(dPdV);
     rho_max = rho[max1];
@@ -1120,45 +1103,55 @@ vector<double> dens_maxwell(vector<double>& rho, vector<double>& P)
     P_max = P[max1];
     P_min = P[min1];
 
-    //Initial guess for pressure and density
-    P0 = (P_max + P_min)/2;
-    P1 = P_max; //range of pressure
-    P2 = P_min; //range of pressure
-
-    cout << "before brent" << endl;
-
-    //Brent method to use Maxwell Construction Method
-    Pz = zbrentm(maxwell_cons, P1*0.95, P2*1.05, 1e-7, rho, P);
-    //cout << "Pz = " << Pz << endl;
-    cout << "after brent" << endl;
-
     //Adjust isotherm to find roots to pressure
-    for(i=0; i<SIZE+1; i++)
+    for(i=0; i<SIZE; i++)
     {
         if(P_min<0)
         {
-            Pf[i] = P[i] + P_min - Pz;
+            Pf[i] = P[i] + P_min - P1;
         }
 
         else
         {
-            Pf[i] = P[i] - Pz;
+            Pf[i] = P[i] - P1;
         }
     }
 
-
     //Find density roots for pressure using Regula Falsi method
     rho1 = falsi_spline(rho, Pf, rho[0], rho_max, 1e-3);
-    rho2 = falsi_spline(rho, Pf, rho_min, rho[600], 1e-3);
+    rho2 = falsi_spline(rho, Pf, rho_max, rho_min, 1e-3);
+    rho3 = falsi_spline(rho, Pf, rho_min, rho[700], 1e-3);
 
-    //output vector of densities
-    dens[0] = rho1;
-    dens[1] = rho2;
-    dens[2] = Pz;
-    cout << "rho1 = " << rho1;
-    cout << "rho2 = " << rho2;
-    return dens;
+    //Find new values of pressure and density between rho1 and rho3
+    rhoz1 = rho1;
+    rhoz2 = rho2;
+    h1 = (rho3-rho1)/100;
+
+    rho_a1[0] = rho1;
+    rho_a1[99] = rho3;
+
+    P_a1[0] = P1;
+    P_a1[99] = P1;
+
+    for(i=1; i<99; i++)
+    {
+    rho_a1[i] = rhoz1;
+    rhoz1 = rhoz1 + h1;
+    }
+
+    for(i=1; i<99; i++)
+    {
+    P_a1[i] = cspline(rho, P, rho_a1[i]);
+    }
+
+    //Calculates Maxwell area
+    Area1 = simpson_rule(rho_a1, P_a1);
+    Area = Area1 - P1*(rho3-rho1);
+    Area = fabs(Area);
+
+    return Area;
 }
+
 
 double area_helm(vector<double>& V, vector<double>& A, vector<double>& P, double P0)
 {
@@ -1366,6 +1359,116 @@ vector<double> dens_area(vector<double>& V, vector<double>& A, vector<double>& P
     return dens;
 }
 
+//Function to calculate density of coexistent phases using maxwell construction
+//Input is dimensionless isotherm
+vector<double> dens_maxwell(vector<double>& rho, vector<double>& P, double tol)
+{
+    int i, SIZE;
+    std::vector<double> dens(3);
+    std::vector<double> dPdV(1000), Pf(1000);
+    double rho1, rho2, rho_max, rho_min, P_max, P_min, P0, P1, P2, Pz, u1, u2;
+    int max1, min1;
+
+    SIZE = rho.size();
+    dPdV = fin_diff_1_vec(rho, P);
+
+    //Find max and min of isotherm inside binodal region
+    max1 = bin_max(dPdV);
+    min1 = bin_min(dPdV);
+    rho_max = rho[max1];
+    rho_min = rho[min1];
+    P_max = P[max1];
+    P_min = P[min1];
+
+    //Initial guess for pressure and density
+    P0 = (P_max + P_min)/2;
+    P1 = P_max; //range of pressure
+    P2 = P_min; //range of pressure
+
+    //Brent method to use Maxwell Construction Method
+    Pz = zbrentm(maxwell_cons, P1*0.999999, P2*1.000001, tol, rho, P);
+
+    //Adjust isotherm to find roots to pressure
+    for(i=0; i<SIZE; i++)
+    {
+        if(P_min<0)
+        {
+            Pf[i] = P[i] + P_min - Pz;
+        }
+
+        else
+        {
+            Pf[i] = P[i] - Pz;
+        }
+    }
+
+
+    //Find density roots for pressure using Regula Falsi method
+    rho1 = falsi_spline(rho, Pf, rho[0], rho_max, 1e-3);
+    rho2 = falsi_spline(rho, Pf, rho_min, rho[600], 1e-3);
+
+    //output vector of densities
+    dens[0] = rho1;
+    dens[1] = rho2;
+    dens[2] = Pz;
+    return dens;
+}
+
+//Function to calculate density of coexistent phases using maxwell construction
+//Input is dimensionless isotherm
+vector<double> dens_maxwell_seed(vector<double>& rho, vector<double>& P, double tol, vector<double>& seed)
+{
+    int i, SIZE;
+    std::vector<double> dens(3);
+    std::vector<double> dPdV(1000), Pf(1000);
+    double rho1, rho2, rho_max, rho_min, P_max, P_min, P0, P1, P2, Pz, u1, u2;
+    int max1, min1;
+
+    SIZE = rho.size();
+    dPdV = fin_diff_1_vec(rho, P);
+
+    //Find max and min of isotherm inside binodal region
+    max1 = bin_max(dPdV);
+    min1 = bin_min(dPdV);
+    rho_max = rho[max1];
+    rho_min = rho[min1];
+    P_max = P[max1];
+    P_min = P[min1];
+
+    //Initial guess for pressure and density
+    P0 = (P_max + P_min)/2;
+    P1 = P_max; //range of pressure
+    P2 = P_min; //range of pressure
+
+    //Brent method to use Maxwell Construction Method
+    Pz = zbrentm(maxwell_cons, P1*0.999999, P2*1.000001, tol, rho, P);
+
+    //Adjust isotherm to find roots to pressure
+    for(i=0; i<SIZE; i++)
+    {
+        if(P_min<0)
+        {
+            Pf[i] = P[i] + P_min - Pz;
+        }
+
+        else
+        {
+            Pf[i] = P[i] - Pz;
+        }
+    }
+
+
+    //Find density roots for pressure using Regula Falsi method
+    rho1 = falsi_spline(rho, Pf, rho[0], rho_max, 1e-3);
+    rho2 = falsi_spline(rho, Pf, rho_min, rho[600], 1e-3);
+
+    //output vector of densities
+    dens[0] = rho1;
+    dens[1] = rho2;
+    dens[2] = Pz;
+    return dens;
+}
+
 //Function to calculate phase coexistence densities
 //Using Newton method
 vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>& P, vector<double>& u, double tol)
@@ -1400,6 +1503,7 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
 
     //Solve newton-raphson system
     drho1 = tol+1;
+    int counter = 0;
     while(drho1>tol || drho2>tol)
     {
     f1 = cspline(rho,f,rho1);
@@ -1420,6 +1524,7 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
 
     rho1 = rho1 + drho1/10;
     rho2 = rho2 + drho2/10;
+    //cout << "drho = " << drho1 << " / " << drho2 << endl;
     }
 
     f1 = cspline(rho,f,rho1);
@@ -1428,6 +1533,8 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
     u2 = cspline_deriv1(rho,f,rho2);
     P1 = -f1+rho1*u1;
     P2 = -f2+rho2*u2;
+    //area = maxwell_cons(rho,P,P1);
+    //cout << "area newt = " << area << endl;
 
     rhov[0] = rho1;
     rhov[1] = rho2;
@@ -1435,6 +1542,58 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
     return rhov;
 }
 
+//Function to calculate phase coexistence densities
+//Using Newton method
+vector<double> dens_newt_seed(vector<double>& rho, vector<double>& f, vector<double>& P, vector<double>& u, double tol, vector<double>& seed)
+{
+    std::vector<double> dPdrho(1000), Pf1(1000), Pf2(1000), rhov(1000);
+    int i, max1, min1;
+    double rhomax, rhomin, Pmax, Pmin, P1, P2, f1, f2, u1, u2, du1, du2, dP1, dP2, detJ, drho1, drho2;
+    double rho1, rho2, area;
+
+    rho1 = seed[0];
+    rho2 = seed[1];
+
+    //Solve newton-raphson system
+    drho1 = tol+1;
+    int counter = 0;
+    while(drho1>tol || drho2>tol)
+    {
+    f1 = cspline(rho,f,rho1);
+    f2 = cspline(rho,f,rho2);
+    u1 = cspline_deriv1(rho,f,rho1);
+    u2 = cspline_deriv1(rho,f,rho2);
+    P1 = -f1+rho1*u1;
+    P2 = -f2+rho2*u2;
+
+    du1 = cspline_deriv1(rho,u,rho1);
+    du2 = cspline_deriv1(rho,u,rho2);
+    dP1 = cspline_deriv1(rho,P,rho1);
+    dP2 = cspline_deriv1(rho,P,rho2);
+    detJ = -dP2*du1+dP1*du2;
+
+    drho2 = -du1/detJ*(P1-P2)+dP1/detJ*(u1-u2);
+    drho1 = -du2/detJ*(P1-P2)+dP2/detJ*(u1-u2);
+
+    rho1 = rho1 + drho1/10;
+    rho2 = rho2 + drho2/10;
+    //cout << "drho = " << drho1 << " / " << drho2 << endl;
+    }
+
+    f1 = cspline(rho,f,rho1);
+    f2 = cspline(rho,f,rho2);
+    u1 = cspline_deriv1(rho,f,rho1);
+    u2 = cspline_deriv1(rho,f,rho2);
+    P1 = -f1+rho1*u1;
+    P2 = -f2+rho2*u2;
+    //area = maxwell_cons(rho,P,P1);
+    //cout << "area newt = " << area << endl;
+
+    rhov[0] = rho1;
+    rhov[1] = rho2;
+    rhov[2] = P1;
+    return rhov;
+}
 
 
 #endif // NUMERICAL_H_INCLUDED
