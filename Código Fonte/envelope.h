@@ -53,7 +53,7 @@ file.close();
     for (int col = 0; col < 8; ++col)
     {
     string val;
-    getline(iss, val, ',');
+    getline(iss, val, ';');
     if ( !iss )
     break;
     stringstream convertor(val);
@@ -77,12 +77,11 @@ file.close();
     f[i] = data[i][1];
     u[i] = data[i][3];
     }
-    cout << rho[0] << " " << rho[999] << endl;
 
     if(w==0)
     {
-    zerom = dens_maxwell(rho, P, tol);
-    cout << "maxwell = " << T << " / " << zerom[0] << " / " << zerom[1] << " / " << zerom[2] << endl;
+    //zerom = dens_maxwell(rho, P, tol);
+    //cout << "maxwell = " << T << " / " << zerom[0] << " / " << zerom[1] << " / " << zerom[2] << endl;
     //zero = dens_area(V, A, P);
     //cout << "area = " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
     zero = dens_newt(rho,f,P,u,tol);
@@ -91,8 +90,8 @@ file.close();
 
     else
     {
-    zerom = dens_maxwell_seed(rho, P, tol, zerom_last);
-    cout << "maxwell = " << T << " / " << zerom[0] << " / " << zerom[1] << " / " << zerom[2] << endl;
+    //zerom = dens_maxwell_seed(rho, P, tol, zerom_last);
+    //cout << "maxwell = " << T << " / " << zerom[0] << " / " << zerom[1] << " / " << zerom[2] << endl;
     //zero = dens_area(V, A, P);
     //cout << "area = " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
     zero = dens_newt_seed(rho,f,P,u,tol,zero_last);

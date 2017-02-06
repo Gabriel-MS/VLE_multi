@@ -1000,7 +1000,7 @@ double falsi_spline(vector<double>& x, vector<double>& y, double a, double b, do
 //Uses Cubic Spline to interpolate data points
 double maxwell_cons(vector<double>& rho, vector<double>& P, double P1)
 {
-    std::vector<double> dPdV(1000), rho_a1(100), rho_a2(100), P_a1(100), P_a2(100), Pf(1000);
+    std::vector<double> dPdV(1000), rho_a1(1000), rho_a2(1000), P_a1(1000), P_a2(1000), Pf(1000);
     int SIZE, i;
     double Area1, Area2, Area;
     double max1, min1, rho_max, rho_min, P_max, P_min, rho1, rho2, rho3, rhoz1, rhoz2, h1, h2;
@@ -1040,20 +1040,20 @@ double maxwell_cons(vector<double>& rho, vector<double>& P, double P1)
     //Find new values of pressure and density between rho1 and rho3
     rhoz1 = rho1;
     rhoz2 = rho2;
-    h1 = (rho2-rho1)/100;
-    h2 = (rho3-rho2)/100;
+    h1 = (rho2-rho1)/1000;
+    h2 = (rho3-rho2)/1000;
 
     rho_a1[0] = rho1;
-    rho_a1[99] = rho2;
+    rho_a1[999] = rho2;
     rho_a2[0] = rho2;
-    rho_a2[99] = rho3;
+    rho_a2[999] = rho3;
 
     P_a1[0] = P1;
-    P_a1[99] = P1;
+    P_a1[999] = P1;
     P_a2[0] = P1;
-    P_a2[99] = P1;
+    P_a2[999] = P1;
 
-    for(i=1; i<99; i++)
+    for(i=1; i<999; i++)
     {
     rho_a1[i] = rhoz1;
     rho_a2[i] = rhoz2;
@@ -1061,7 +1061,7 @@ double maxwell_cons(vector<double>& rho, vector<double>& P, double P1)
     rhoz2 = rhoz2 + h2;
     }
 
-    for(i=1; i<99; i++)
+    for(i=1; i<999; i++)
     {
     P_a1[i] = cspline(rho, P, rho_a1[i]);
     P_a2[i] = cspline(rho, P, rho_a2[i]);
@@ -1085,7 +1085,7 @@ double maxwell_cons(vector<double>& rho, vector<double>& P, double P1)
 //Uses Cubic Spline to interpolate data points
 double maxwell_cons2(vector<double>& rho, vector<double>& P, double P1)
 {
-    std::vector<double> dPdV(1000), rho_a1(100), rho_a2(100), P_a1(100), P_a2(100), Pf(1000);
+    std::vector<double> dPdV(1000), rho_a1(1000), rho_a2(1000), P_a1(1000), P_a2(1000), Pf(1000);
     int SIZE, i;
     double Area1, Area2, Area;
     double max1, min1, rho_max, rho_min, P_max, P_min, rho1, rho2, rho3, rhoz1, rhoz2, h1, h2;
@@ -1125,21 +1125,21 @@ double maxwell_cons2(vector<double>& rho, vector<double>& P, double P1)
     //Find new values of pressure and density between rho1 and rho3
     rhoz1 = rho1;
     rhoz2 = rho2;
-    h1 = (rho3-rho1)/100;
+    h1 = (rho3-rho1)/1000;
 
     rho_a1[0] = rho1;
-    rho_a1[99] = rho3;
+    rho_a1[999] = rho3;
 
     P_a1[0] = P1;
-    P_a1[99] = P1;
+    P_a1[999] = P1;
 
-    for(i=1; i<99; i++)
+    for(i=1; i<999; i++)
     {
     rho_a1[i] = rhoz1;
     rhoz1 = rhoz1 + h1;
     }
 
-    for(i=1; i<99; i++)
+    for(i=1; i<999; i++)
     {
     P_a1[i] = cspline(rho, P, rho_a1[i]);
     }
@@ -1148,6 +1148,8 @@ double maxwell_cons2(vector<double>& rho, vector<double>& P, double P1)
     Area1 = simpson_rule(rho_a1, P_a1);
     Area = Area1 - P1*(rho3-rho1);
     Area = fabs(Area);
+
+    cout << "Area = " << Area << endl;
 
     return Area;
 }
@@ -1385,8 +1387,10 @@ vector<double> dens_maxwell(vector<double>& rho, vector<double>& P, double tol)
     P1 = P_max; //range of pressure
     P2 = P_min; //range of pressure
 
+    cout << "before brent" << P1*0.99999 << " / " << P2*1.00001 << endl;
+
     //Brent method to use Maxwell Construction Method
-    Pz = zbrentm(maxwell_cons, P1*0.999999, P2*1.000001, tol, rho, P);
+    Pz = zbrentm(maxwell_cons2, P1*0.99999, P2*1.00001, tol, rho, P);
 
     //Adjust isotherm to find roots to pressure
     for(i=0; i<SIZE; i++)
@@ -1405,7 +1409,7 @@ vector<double> dens_maxwell(vector<double>& rho, vector<double>& P, double tol)
 
     //Find density roots for pressure using Regula Falsi method
     rho1 = falsi_spline(rho, Pf, rho[0], rho_max, 1e-3);
-    rho2 = falsi_spline(rho, Pf, rho_min, rho[600], 1e-3);
+    rho2 = falsi_spline(rho, Pf, rho_min, rho[700], 1e-3);
 
     //output vector of densities
     dens[0] = rho1;
@@ -1441,7 +1445,7 @@ vector<double> dens_maxwell_seed(vector<double>& rho, vector<double>& P, double 
     P2 = P_min; //range of pressure
 
     //Brent method to use Maxwell Construction Method
-    Pz = zbrentm(maxwell_cons, P1*0.999999, P2*1.000001, tol, rho, P);
+    Pz = zbrentm(maxwell_cons2, P1*0.99999, P2*1.00001, tol, rho, P);
 
     //Adjust isotherm to find roots to pressure
     for(i=0; i<SIZE; i++)

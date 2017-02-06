@@ -40,6 +40,7 @@ double helmholtz_repulsive(int EdE, double R, double T, long double rho, long do
             f_CPA = (one_4c*x).transpose()*f_CPA1;
 
             f = rho*R*T*(log(rho/(1-rho*b))-1)-rho*a/b*log(1+rho*b)+rho*R*T*f_CPA;
+            //cout << "f = " << f_CPA1 << " / " << f_CPA << " / " << f << endl;
             //f = -rho*R*T*log(1-rho*b)-rho*a/b*log(1+rho*b);
             break;
 
@@ -164,7 +165,7 @@ double helmholtz_recursion_short(int EdE, long double f, long double rho, double
             switch(sr_type)
             {
                 case 1: fr = f + 0.5*phi*a*rho*rho/(pow(2,n)); break;
-                case 2: fr = f + 0.5*phi*a*rho*rho/(pow(2,2*n+1)); break;
+                case 2: fr = f + phi*a*rho*rho/(pow(2,2*n+1)); break;
                 case 3: fr = f + 0.5*phi*a*rho*rho/(pow(2,2*n-1)); break;
                 case 4: fr = f + 0.5*phi*a*rho*rho/((pow(2,2*n+1))*pow(L,2)); break;
                 case 5: fr = f + 0.5*phi*a*rho*rho/((pow(2,2*n+1))*pow(L/10,2)); break;

@@ -790,6 +790,7 @@ if(r_type==1)
                      tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho_vector(k), deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
 
     fv(k) = helmholtz_repulsive(EdE, R, T, rho_vector(k), am, bm, X, x, sigma, eps, kB);
+    //cout << "rho / fv = " << rho_vec[k] << " / " << fv(k) << " / "  << X(0) << endl;
 
     if(EdE != 4) fv(k) = fv(k) + 0.5*am*rho_vector(k)*rho_vector(k);
     f_originalv(k) = fv(k);
@@ -803,7 +804,7 @@ if(r_type==1)
     }
 
     //Iteração principal - o n
-    for(i=1; i<6; i++) //i começando em 1
+    for(i=1; i<9; i++) //i começando em 1
     {
         //Calcular K
         Kn = kB*T/((pow(2,3*i))*pow(L,3));
@@ -1198,7 +1199,7 @@ k++;
         T = T + step;
 }
 
-envelope_tracer(1e-4,env_type);
+envelope_tracer(1e-3,env_type);
 
 }
 
