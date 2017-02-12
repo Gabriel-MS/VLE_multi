@@ -671,6 +671,9 @@ if(EdE != 4)
 
     rho_max = 0.99999/bm;
 
+    //DIMENSIONLESS!!!************************************************************
+    rho_max = 0.99999;
+
     t = 0;
     k = 0;
     w = 0;
@@ -689,6 +692,13 @@ if(EdE != 4)
     Told = T;
     T = init_T;
 
+    double T_original, step_original, final_T_original;
+    T_original = T;
+    step_original = step;
+    final_T_original = final_T;
+    int g;
+    g = 0;
+
 //while(T<(Tc[0]+10))
 
 //for(T=init_T; T<final_T; T=T+step)
@@ -696,12 +706,21 @@ while(T<=final_T)
 {
     cout << "BEGIN==============================================================\n";
     //Recalculating Temperature-dependent parameters
+
+    //DIMENSIONLESS!!!************************************************************
+    T = T_original + g*step_original;
+    final_T = final_T_original;
+    step = step_original;
+
+
     if(EdE==1)
     {
         if(Tc_virtual[0] != 0)
         {
         Tr = T*Tc_virtual.asDiagonal().inverse().diagonal(); //Vetor com temperaturas reduzidas virtuais
         alfa = alfa_function(EdE, nc, Tr, omega_virtual, a0, c1);
+        //alfa(0) = pow(1+0.5380*(1-pow(Tr,0.5))+0.2327*(1-Tr)*(0.7-Tr),2)
+        //alfa(1) = pow(1+0.5380*(1-pow(Tr,0.5))+0.2327*(1-Tr)*(0.7-Tr),2)
         a = a_function(nc, R, EdE_parameters, omega_virtual, Tc_virtual, Pc_virtual, alfa, EdE, a0);
         b = b_function(nc, R, EdE_parameters, omega_virtual, Tc_virtual, Pc_virtual, alfa, bCPA, EdE);
         }
@@ -770,7 +789,17 @@ while(T<=final_T)
     Told = T;
 
     rho = 1e-6;
+
+    //DIMENSIONLESS!!!************************************************************
+    rho = 1e-6*bm;
+
     w = 0;
+
+    //DIMENSIONLESS!!!************************************************************
+    T = T*bm*R/am;
+    final_T = final_T_original*bm*R/am;
+    step = step_original*bm*R/am;
+
 
     //====================================================================
     cout << "Before renormalization =======================================\n";
@@ -779,6 +808,10 @@ if(r_type==1)
     //Calcular vetor de f em f0 com um cálculo
     rho = 1e-6;
 
+    //DIMENSIONLESS!!!************************************************************
+    rho = 1e-6*bm;
+
+
     for(k=0; k<n; k++)
     {
     rho_vec[k] = double(k)/n/bm;
@@ -786,16 +819,29 @@ if(r_type==1)
     rho_vec[0] = 1e-6;
     rho_vector(0) = 1e-6;
 
+    //DIMENSIONLESS!!!************************************************************
+    rho_vec[k] = rho_vec[k]*bm;
+    rho_vector(k) = rho_vector(k)*bm;
+    rho_vec[0] = rho_vec[0]*bm;
+    rho_vector(0) = rho_vector(0)*bm;
+
     if(EdE==3) X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
                      tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho_vector(k), deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
 
     fv(k) = helmholtz_repulsive(EdE, R, T, rho_vector(k), am, bm, X, x, sigma, eps, kB);
     //cout << "rho / fv = " << rho_vec[k] << " / " << fv(k) << " / "  << X(0) << endl;
 
-    if(EdE != 4) fv(k) = fv(k) + 0.5*am*rho_vector(k)*rho_vector(k);
+    //DIMENSIONLESS!!!************************************************************
+    //if(EdE != 4) fv(k) = fv(k) + 0.5*am*rho_vector(k)*rho_vector(k);
+    if(EdE != 4) fv(k) = fv(k) + 0.5*rho_vector(k)*rho_vector(k);
+    //DIMENSIONLESS!!!************************************************************
+
     f_originalv(k) = fv(k);
 
-    if(EdE != 4) f_originalv(k) = fv(k) - 0.5*am*rho_vector(k)*rho_vector(k);
+    //DIMENSIONLESS!!!************************************************************
+    //if(EdE != 4) f_originalv(k) = fv(k) - 0.5*am*rho_vector(k)*rho_vector(k);
+    if(EdE != 4) f_originalv(k) = fv(k) - 0.5*rho_vector(k)*rho_vector(k);
+    //DIMENSIONLESS!!!************************************************************
 
 
     f0_vec[k] = f_originalv(k);
@@ -808,11 +854,19 @@ if(r_type==1)
     {
         //Calcular K
         Kn = kB*T/((pow(2,3*i))*pow(L,3));
+
+        //DIMENSIONLESS!!!************************************************************
+        Kn = T/pow(2,3*i)/(pow(L,3)/bm*6.023e23);
+
+
         if(EdE == 4) Kn = R*T/((pow(2,3*i))*L);
         //Kn = kB*T*NA/((pow(2,3*i))*L*b(0));
 
         //Preparar vetores f_l e f_s
         rho = 1e-6;
+
+        //DIMENSIONLESS!!!************************************************************
+        rho = 1e-6*bm;
 
         if(EdE==3) X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
                      tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
@@ -826,6 +880,10 @@ if(r_type==1)
 
             //Iteração 2 - calcular os valores para f no i atual
             rho = 1e-6;
+
+            //DIMENSIONLESS!!!************************************************************
+            rho = 1e-6*bm;
+
             w = 0;
             width = rho_max/n;
 
@@ -904,10 +962,23 @@ if(r_type==1)
     }
 
     rho = 1e-6;
+
+    //DIMENSIONLESS!!!************************************************************
+    rho = 1e-6*bm;
+
     for(w=0; w<n; w++)
     {
-    if(EdE != 4) fv(w) = fv(w) - 0.5*am*rho_vector(w)*rho_vector(w);
+    //DIMENSIONLESS!!!************************************************************
+    //if(EdE != 4) fv(w) = fv(w) - 0.5*am*rho_vector(w)*rho_vector(w);
+    if(EdE != 4) fv(w) = fv(w) - 0.5*rho_vector(w)*rho_vector(w);
+    //DIMENSIONLESS!!!************************************************************
+
     f_vec[w] = fv(w);
+
+    //DIMENSIONLESS!!!************************************************************
+    f_vec[w] = fv(w)*am/bm/bm;
+    f0_vec[w] = f0_vec[w]*am/bm/bm;
+    rho_vec[w] = rho_vec[w]/bm;
 
     //cout << "rho = " << rho_vector(w) << "  //  f = " << fv(w) << endl;
     Not_splined << std::fixed << std::setprecision(15) << rho_vector(w) << ";" << fv(w) << ";" << f_originalv(w) << ";"
@@ -1078,19 +1149,15 @@ if(r_type==3)
 rho = 1e-6;
 w=0;
 
-/* ORIGINAAAAAAAAAAAAAAAAAAAAAL =========================================
-while(rho<=rho_max)
-{
-    rho_vec_out[w] = rho;
-    rho = rho + rho_max/1000;
-    w++;
-}
-*/
 
 for(w=0; w<1000; w++) //FAAAAAAAAAAAAAAAALSOOOOOOOOO
 {
     rho_vec_out[w] = double(w)/1000/bm;
     rho_vec_out[0] = 1e-6;
+
+    //DIMENSIONLESS!!!************************************************************
+    //rho_vec_out[w] = double(w)/1000/bm*bm;
+    //rho_vec_out[0] = 1e-6*bm;
 }
 
 f_vec_out = cspline_vec(rho_vec, f_vec, rho_vec_out);
@@ -1104,7 +1171,6 @@ for(i=0; i<1000; i++)
 {
     P_vec[i] = -f_vec_out[i] + rho_vec_out[i]*u_vec[i];
     P_vec_0[i] = -f0_vec_out[i] + rho_vec_out[i]*u_vec_0[i];
-
 
     //Renorm << std::fixed << std::setprecision(15) << rho_vec_out[i] << ";" << f_vec_out[i] << ";"
     //       << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T << endl;
@@ -1122,8 +1188,12 @@ for(i=0; i<1000; i++)
 
 for(i=0; i<1000; i++)
 {
+// Renorm << std::fixed << std::setprecision(15) << rho_vec_out[i] << ";" << f_vec_out[i] << ";"
+//        << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T << endl;
+
+        //DIMENSIONLESS!!!************************************************************
  Renorm << std::fixed << std::setprecision(15) << rho_vec_out[i] << ";" << f_vec_out[i] << ";"
-        << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T << endl;
+        << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i]<< ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T*am/bm/R << endl;
 }
 
 //=============================================================
@@ -1197,6 +1267,7 @@ k++;
   //         << dens[2] << ";" << dens[0] << ";" << dens[2] << ";" << u1-u2 << endl;
 
         T = T + step;
+        g++;
 }
 
 envelope_tracer(1e-3,env_type);

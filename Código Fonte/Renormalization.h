@@ -22,7 +22,13 @@ double helmholtz_repulsive(int EdE, double R, double T, long double rho, long do
     {
         case 1: //SRK
             //f = rho*R*T*(log(rho/(1-rho*b))-1)-rho*a/b*log(1+rho*b);
+            rho = rho/b;
+            T = T/b/R*a;
             f = -rho*R*T*log(1-rho*b)-rho*a/b*log(1+rho*b)+rho*R*T*(log(rho)-1);
+
+            //DIMENSIONLESS!!!************************************************************
+            f = b*b/a*f;
+
             //f = -rho*R*T*log(1-rho*b)-rho*a/b*log(1+rho*b);
             break;
 
@@ -123,6 +129,10 @@ double helmholtz_recursion_long(int EdE, long double f, long double rho, long do
     {
         case 1: //SRK
             fr = f + 0.5*a*rho*rho;
+
+            //DIMENSIONLESS!!!************************************************************
+            fr = f + 0.5*rho*rho;
+            //
             break;
 
         case 3: //CPA
@@ -156,6 +166,7 @@ double helmholtz_recursion_short(int EdE, long double f, long double rho, double
                 case 3: fr = f + 0.5*phi*a*rho*rho/(pow(2,2*n-1)); break;
                 case 4: fr = f + 0.5*phi*a*rho*rho/((pow(2,2*n+1))*pow(L,2)); break;
                 case 5: fr = f + 0.5*phi*a*rho*rho/((pow(2,2*n+1))*pow(L/10,2)); break;
+                case 6: fr = f + 0.5*pow(2,-2*n)*rho*rho;
             }
             break;
 

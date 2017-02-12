@@ -1387,6 +1387,8 @@ vector<double> dens_maxwell(vector<double>& rho, vector<double>& P, double tol)
     P1 = P_max; //range of pressure
     P2 = P_min; //range of pressure
 
+    if(P2<0) P2 = 1e-4;
+
     cout << "before brent" << P1*0.99999 << " / " << P2*1.00001 << endl;
 
     //Brent method to use Maxwell Construction Method
@@ -1493,6 +1495,8 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
     Pmax = P[max1];
     Pmin = P[min1];
 
+    if (Pmin<0) Pmin=1e-3;
+
     for(i=0; i<1000; i++)
     {
         if(Pmin<0) Pf1[i] = P[i] + Pmin;
@@ -1501,9 +1505,11 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
         Pf2[i] = P[i] - Pmax;
     }
 
+    //cout << "Pmax/min = " << Pmax << " / " << Pmin << endl;
     //Find initial guess for densities
     rho1 = falsi_spline(rho, Pf1, rho[0], rhomax, 1e-3);
     rho2 = falsi_spline(rho, Pf2, rhomin, rho[700], 1e-3);
+    //cout << "rho1 = " << rho1 << " / " << rho2 << endl;
 
     //Solve newton-raphson system
     drho1 = tol+1;
