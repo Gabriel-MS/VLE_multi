@@ -1361,7 +1361,7 @@ vector<double> dens_area(vector<double>& V, vector<double>& A, vector<double>& P
     return dens;
 }
 
-//Function to calculate density of coexistent phases using maxwell construction
+//Function to c3culate density of coexistent phases using maxwell construction
 //Input is dimensionless isotherm
 vector<double> dens_maxwell(vector<double>& rho, vector<double>& P, double tol)
 {

@@ -33,6 +33,9 @@ double helmholtz_repulsive(int EdE, double R, double T, long double rho, long do
             break;
 
         case 3: //CPA
+            rho = rho/b;
+            T = T/b/R*a;
+
             one_4c << 1, 0,
                       1, 0,
                       1, 0,
@@ -48,6 +51,9 @@ double helmholtz_repulsive(int EdE, double R, double T, long double rho, long do
             f = rho*R*T*(log(rho/(1-rho*b))-1)-rho*a/b*log(1+rho*b)+rho*R*T*f_CPA;
             //cout << "f = " << f_CPA1 << " / " << f_CPA << " / " << f << endl;
             //f = -rho*R*T*log(1-rho*b)-rho*a/b*log(1+rho*b);
+
+            //DIMENSIONLESS!!!************************************************************
+            f = b*b/a*f;
             break;
 
         case 4: //MSA
@@ -132,11 +138,14 @@ double helmholtz_recursion_long(int EdE, long double f, long double rho, long do
 
             //DIMENSIONLESS!!!************************************************************
             fr = f + 0.5*rho*rho;
-            //
+
             break;
 
         case 3: //CPA
             fr = f + 0.5*a*rho*rho;
+
+            //DIMENSIONLESS!!!************************************************************
+            fr = f + 0.5*rho*rho;
             break;
 
         case 4: //MSA
@@ -161,7 +170,10 @@ double helmholtz_recursion_short(int EdE, long double f, long double rho, double
 
             switch(sr_type)
             {
-                case 1: fr = f + 0.5*phi*a*rho*rho/(pow(2,n)); break;
+                //case 1: fr = f + 0.5*phi*a*rho*rho/(pow(2,n)); break; ORIGINAL
+
+                case 1: fr = f + 0.5*phi*rho*rho/(pow(2,n)); break;
+
                 case 2: fr = f + 0.5*phi*a*rho*rho/(pow(2,2*n+1)); break;
                 case 3: fr = f + 0.5*phi*a*rho*rho/(pow(2,2*n-1)); break;
                 case 4: fr = f + 0.5*phi*a*rho*rho/((pow(2,2*n+1))*pow(L,2)); break;
@@ -176,7 +188,10 @@ double helmholtz_recursion_short(int EdE, long double f, long double rho, double
             switch(sr_type)
             {
                 case 1: fr = f + 0.5*phi*a*rho*rho/(pow(2,n)); break;
-                case 2: fr = f + phi*a*rho*rho/(pow(2,2*n+1)); break;
+                //case 2: fr = f + 0.5*phi*a*rho*rho/(pow(2,2*n+1)); break; ORIGINAAAAAL
+
+                case 2: fr = f + 0.5*phi*rho*rho/(pow(2,2*n+1)); break;
+
                 case 3: fr = f + 0.5*phi*a*rho*rho/(pow(2,2*n-1)); break;
                 case 4: fr = f + 0.5*phi*a*rho*rho/((pow(2,2*n+1))*pow(L,2)); break;
                 case 5: fr = f + 0.5*phi*a*rho*rho/((pow(2,2*n+1))*pow(L/10,2)); break;

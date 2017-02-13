@@ -819,14 +819,21 @@ if(r_type==1)
     rho_vec[0] = 1e-6;
     rho_vector(0) = 1e-6;
 
+    //NON BONDED FRACTION DIMENSIONAL**************************
+    T = T/bm/R*am;
+
+    if(EdE==3) X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
+                     tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho_vector(k), deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
+
+    T = T*bm*R/am;
+    //*********************************************************
+
+
     //DIMENSIONLESS!!!************************************************************
     rho_vec[k] = rho_vec[k]*bm;
     rho_vector(k) = rho_vector(k)*bm;
     rho_vec[0] = rho_vec[0]*bm;
     rho_vector(0) = rho_vector(0)*bm;
-
-    if(EdE==3) X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
-                     tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho_vector(k), deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
 
     fv(k) = helmholtz_repulsive(EdE, R, T, rho_vector(k), am, bm, X, x, sigma, eps, kB);
     //cout << "rho / fv = " << rho_vec[k] << " / " << fv(k) << " / "  << X(0) << endl;
