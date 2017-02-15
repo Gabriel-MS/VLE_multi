@@ -948,7 +948,7 @@ return 0.0;
 int bin_max(vector<double>& dP_dV)
 {
 double pmax_cond;
-int i=100;
+int i=50;
 do
 {
  pmax_cond = dP_dV[i];
@@ -969,6 +969,20 @@ do
 //cout << "j = " << j << " / pmin = " << pmin_cond << " / rho = " << rho_vec_out[j] << endl;
 }while(pmin_cond>0);
     return j+1;
+}
+
+//Finds maximum integer position of dPdV inside binodal curve
+int bin_min_seed(vector<double>& dP_dV, int seed)
+{
+double pmin_cond;
+int j=seed+1;
+do
+{
+ pmin_cond = dP_dV[j];
+ j++;
+}while(pmin_cond<0);
+    return j-1;
+
 }
 
 //Uses Regula Falsi method with cubic spline interpolation to find root in given interval
@@ -1495,6 +1509,13 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
     Pmax = P[max1];
     Pmin = P[min1];
 
+    if (Pmin>Pmax)
+    {
+        min1 = bin_min_seed(dPdrho,max1);
+        rhomin = rho[min1];
+        Pmin = P[min1];
+    }
+
     if (Pmin<0) Pmin=1e-3;
 
     for(i=0; i<1000; i++)
@@ -1506,6 +1527,7 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
     }
 
     //cout << "Pmax/min = " << Pmax << " / " << Pmin << endl;
+    //cout << "max/min = " << max1 << " / " << min1 << endl;
     //Find initial guess for densities
     rho1 = falsi_spline(rho, Pf1, rho[0], rhomax, 1e-3);
     rho2 = falsi_spline(rho, Pf2, rhomin, rho[700], 1e-3);

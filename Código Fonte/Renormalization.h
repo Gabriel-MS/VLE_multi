@@ -174,7 +174,10 @@ double helmholtz_recursion_short(int EdE, long double f, long double rho, double
 
                 case 1: fr = f + 0.5*phi*rho*rho/(pow(2,n)); break;
 
-                case 2: fr = f + 0.5*phi*a*rho*rho/(pow(2,2*n+1)); break;
+                //case 2: fr = f + 0.5*phi*a*rho*rho/(pow(2,2*n+1)); break; ORIGINAL
+
+                case 2: fr = f + 0.5*phi*rho*rho/(pow(2,2*n+1)); break;
+
                 case 3: fr = f + 0.5*phi*a*rho*rho/(pow(2,2*n-1)); break;
                 case 4: fr = f + 0.5*phi*a*rho*rho/((pow(2,2*n+1))*pow(L,2)); break;
                 case 5: fr = f + 0.5*phi*a*rho*rho/((pow(2,2*n+1))*pow(L/10,2)); break;

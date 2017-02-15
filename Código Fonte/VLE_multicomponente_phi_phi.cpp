@@ -923,22 +923,22 @@ if(r_type==1)
 
                 if(w<(n/2))
                 {
-                suml = 0.25*(exp(-argl(0)+aminl)+exp(-argl(w)+aminl));
-                sums = 0.25*(exp(-args(0)+amins)+exp(-args(w)+amins));
+                suml = 0.5*(exp(-argl(0)+aminl)+exp(-argl(w)+aminl)); //era 0.25
+                sums = 0.5*(exp(-args(0)+amins)+exp(-args(w)+amins));
                 }
 
                 else
                 {
-                suml = 0.25*(exp(-argl(0)+aminl)+exp(-argl(n-w)+aminl));
-                sums = 0.25*(exp(-args(0)+amins)+exp(-args(n-w)+amins));
+                suml = 0.5*(exp(-argl(0)+aminl)+exp(-argl(n-w)+aminl));
+                sums = 0.5*(exp(-args(0)+amins)+exp(-args(n-w)+amins));
                 }
 
                 for(t=1; t<min(w,n-w); t++)
                 {
                 al = argl(t) - aminl;
                 as = args(t) - amins;
-                if(al<30) suml = suml + 0.5*exp(-al);
-                if(as<30) sums = sums + 0.5*exp(-as);
+                if(al<30) suml = suml + exp(-al);
+                if(as<30) sums = sums + exp(-as);
                 }
 
             Inl = log(width*suml)-aminl;
@@ -1184,6 +1184,7 @@ for(i=0; i<1000; i++)
 }
 
 //=============================================================
+/*
     P_vec[500] = (P_vec[495] + P_vec[505])/2;
     P_vec[496] = (P_vec[492] + P_vec[500])/2;
     P_vec[503] = (P_vec[500] + P_vec[506])/2;
@@ -1192,6 +1193,20 @@ for(i=0; i<1000; i++)
     P_vec[499] = (P_vec[495] + P_vec[505])/2;
     P_vec[502] = (P_vec[500] + P_vec[504])/2;
     P_vec[501] = (P_vec[500] + P_vec[502])/2;
+*/
+
+    int a, b;
+    a = (P_vec[505]-P_vec[495])/(rho_vec_out[505]-rho_vec_out[495]);
+    b = P_vec[505]-a*rho_vec_out[505];
+    P_vec[496] = a*rho_vec_out[496] + b;
+    P_vec[497] = a*rho_vec_out[497] + b;
+    P_vec[498] = a*rho_vec_out[498] + b;
+    P_vec[499] = a*rho_vec_out[499] + b;
+    P_vec[500] = a*rho_vec_out[500] + b;
+    P_vec[501] = a*rho_vec_out[501] + b;
+    P_vec[502] = a*rho_vec_out[502] + b;
+    P_vec[503] = a*rho_vec_out[503] + b;
+    P_vec[504] = a*rho_vec_out[504] + b;
 
 for(i=0; i<1000; i++)
 {
