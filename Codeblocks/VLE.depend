@@ -77,7 +77,7 @@
 	"Gibbs.h"
 	"EdE.h"
 
-1487129247 source:c:\ufrj\atoms\projeto-vle\código fonte\vle_multicomponente_phi_phi.cpp
+1487642500 source:c:\ufrj\atoms\projeto-vle\código fonte\vle_multicomponente_phi_phi.cpp
 	<cmath>
 	<cstdio>
 	<stdio.h>
@@ -98,17 +98,17 @@
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
 
-1480235948 c:\ufrj\atoms\projeto-vle\código fonte\mixingrules.h
+1480232348 c:\ufrj\atoms\projeto-vle\código fonte\mixingrules.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
 	"Gibbs.h"
 
-1480235948 c:\ufrj\atoms\projeto-vle\código fonte\gibbs.h
+1480232348 c:\ufrj\atoms\projeto-vle\código fonte\gibbs.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 
-1485567222 c:\ufrj\atoms\projeto-vle\código fonte\ede.h
+1487627888 c:\ufrj\atoms\projeto-vle\código fonte\ede.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
@@ -117,7 +117,7 @@
 	"Association.h"
 	<vector>
 
-1480235948 c:\ufrj\atoms\projeto-vle\código fonte\association.h
+1480232348 c:\ufrj\atoms\projeto-vle\código fonte\association.h
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
@@ -163,7 +163,7 @@
 	"Gibbs.h"
 	"EdE.h"
 
-1487018680 c:\ufrj\atoms\projeto-vle\código fonte\renormalization.h
+1487636779 c:\ufrj\atoms\projeto-vle\código fonte\renormalization.h
 	"MSA.h"
 	<Eigen/Dense>
 	<unsupported/Eigen/MatrixFunctions>
@@ -176,13 +176,13 @@
 	<vector>
 	<algorithm>
 
-1480235948 c:\ufrj\atoms\projeto-vle\código fonte\interpolation_util.h
+1480232348 c:\ufrj\atoms\projeto-vle\código fonte\interpolation_util.h
 	<cstdio>
 	<cassert>
 	<vector>
 	<algorithm>
 
-1487117832 c:\ufrj\atoms\projeto-vle\código fonte\numerical.h
+1487644132 c:\ufrj\atoms\projeto-vle\código fonte\numerical.h
 	<cstdio>
 	<cstdlib>
 	<cmath>
@@ -193,20 +193,20 @@
 	<unsupported/Eigen/MatrixFunctions>
 	<unsupported/Eigen/KroneckerProduct>
 
-1485738798 c:\ufrj\atoms\projeto-vle\código fonte\msa.h
+1485735198 c:\ufrj\atoms\projeto-vle\código fonte\msa.h
 	<cmath>
 	<complex>
 	<vector>
 	<math.h>
 
-1486868577 c:\ufrj\atoms\projeto-vle\código fonte\envelope.h
+1487643785 c:\ufrj\atoms\projeto-vle\código fonte\envelope.h
 	<iostream>
 	"numerical.h"
 	<vector>
 	<fstream>
 	<sstream>
 
-1457043926 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\dense
+1457040326 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\dense
 	"Core"
 	"LU"
 	"Cholesky"
@@ -215,7 +215,7 @@
 	"Geometry"
 	"Eigenvalues"
 
-1457043926 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\core
+1457040326 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\core
 	"src/Core/util/DisableStupidWarnings.h"
 	"src/Core/util/Macros.h"
 	<complex>
@@ -346,203 +346,203 @@
 	"src/Core/util/ReenableStupidWarnings.h"
 	"Eigen2Support"
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\disablestupidwarnings.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\disablestupidwarnings.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\macros.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\macros.h
 	<cstdlib>
 	<iostream>
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\mkl_support.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\mkl_support.h
 	<mkl.h>
 	<mkl_lapacke.h>
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\constants.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\constants.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\forwarddeclarations.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\forwarddeclarations.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\meta.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\meta.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\staticassert.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\staticassert.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\xprhelper.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\xprhelper.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\memory.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\memory.h
 	<unistd.h>
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\numtraits.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\numtraits.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\mathfunctions.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\mathfunctions.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\genericpacketmath.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\genericpacketmath.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arch\sse\packetmath.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arch\sse\packetmath.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arch\sse\mathfunctions.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arch\sse\mathfunctions.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arch\sse\complex.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arch\sse\complex.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arch\altivec\packetmath.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arch\altivec\packetmath.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arch\altivec\complex.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arch\altivec\complex.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arch\neon\packetmath.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arch\neon\packetmath.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arch\neon\complex.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arch\neon\complex.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arch\default\settings.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arch\default\settings.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\functors.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\functors.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\densecoeffsbase.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\densecoeffsbase.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\densebase.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\densebase.h
 	"../plugins/BlockMethods.h"
 
-1457043936 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\plugins\blockmethods.h
+1457040336 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\plugins\blockmethods.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\matrixbase.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\matrixbase.h
 	"../plugins/CommonCwiseUnaryOps.h"
 	"../plugins/CommonCwiseBinaryOps.h"
 	"../plugins/MatrixCwiseUnaryOps.h"
 	"../plugins/MatrixCwiseBinaryOps.h"
 
-1457043936 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\plugins\commoncwiseunaryops.h
+1457040336 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\plugins\commoncwiseunaryops.h
 
-1457043936 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\plugins\commoncwisebinaryops.h
+1457040336 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\plugins\commoncwisebinaryops.h
 
-1457043936 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\plugins\matrixcwiseunaryops.h
+1457040336 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\plugins\matrixcwiseunaryops.h
 
-1457043936 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\plugins\matrixcwisebinaryops.h
+1457040336 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\plugins\matrixcwisebinaryops.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\eigenbase.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\eigenbase.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\assign.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\assign.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\blasutil.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\blasutil.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\densestorage.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\densestorage.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\nestbyvalue.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\nestbyvalue.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\forcealignedaccess.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\forcealignedaccess.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\returnbyvalue.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\returnbyvalue.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\noalias.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\noalias.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\plainobjectbase.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\plainobjectbase.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\matrix.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\matrix.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\array.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\array.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\cwisebinaryop.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\cwisebinaryop.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\cwiseunaryop.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\cwiseunaryop.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\cwisenullaryop.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\cwisenullaryop.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\cwiseunaryview.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\cwiseunaryview.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\selfcwisebinaryop.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\selfcwisebinaryop.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\dot.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\dot.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\stablenorm.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\stablenorm.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\mapbase.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\mapbase.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\stride.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\stride.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\map.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\map.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\block.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\block.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\vectorblock.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\vectorblock.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\ref.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\ref.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\transpose.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\transpose.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\diagonalmatrix.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\diagonalmatrix.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\diagonal.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\diagonal.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\diagonalproduct.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\diagonalproduct.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\permutationmatrix.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\permutationmatrix.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\transpositions.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\transpositions.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\redux.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\redux.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\visitor.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\visitor.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\fuzzy.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\fuzzy.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\io.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\io.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\swap.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\swap.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\commainitializer.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\commainitializer.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\flagged.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\flagged.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\productbase.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\productbase.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\generalproduct.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\generalproduct.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\triangularmatrix.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\triangularmatrix.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\selfadjointview.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\selfadjointview.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\generalblockpanelkernel.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\generalblockpanelkernel.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\parallelizer.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\parallelizer.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\coeffbasedproduct.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\coeffbasedproduct.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\generalmatrixvector.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\generalmatrixvector.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\generalmatrixmatrix.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\generalmatrixmatrix.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\solvetriangular.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\solvetriangular.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\generalmatrixmatrixtriangular.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\generalmatrixmatrixtriangular.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\selfadjointmatrixvector.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\selfadjointmatrixvector.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\selfadjointmatrixmatrix.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\selfadjointmatrixmatrix.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\selfadjointproduct.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\selfadjointproduct.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\selfadjointrank2update.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\selfadjointrank2update.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\triangularmatrixvector.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\triangularmatrixvector.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\triangularmatrixmatrix.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\triangularmatrixmatrix.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\triangularsolvermatrix.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\triangularsolvermatrix.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\triangularsolvervector.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\triangularsolvervector.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\bandmatrix.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\bandmatrix.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\coreiterators.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\coreiterators.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\booleanredux.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\booleanredux.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\select.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\select.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\vectorwiseop.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\vectorwiseop.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\random.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\random.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\replicate.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\replicate.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\reverse.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\reverse.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arraybase.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arraybase.h
 	"../plugins/CommonCwiseUnaryOps.h"
 	"../plugins/MatrixCwiseUnaryOps.h"
 	"../plugins/ArrayCwiseUnaryOps.h"
@@ -550,35 +550,35 @@
 	"../plugins/MatrixCwiseBinaryOps.h"
 	"../plugins/ArrayCwiseBinaryOps.h"
 
-1457043936 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\plugins\arraycwiseunaryops.h
+1457040336 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\plugins\arraycwiseunaryops.h
 
-1457043936 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\plugins\arraycwisebinaryops.h
+1457040336 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\plugins\arraycwisebinaryops.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arraywrapper.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\arraywrapper.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\generalmatrixmatrix_mkl.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\generalmatrixmatrix_mkl.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\generalmatrixvector_mkl.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\generalmatrixvector_mkl.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\generalmatrixmatrixtriangular_mkl.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\generalmatrixmatrixtriangular_mkl.h
 
-1457043929 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\selfadjointmatrixmatrix_mkl.h
+1457040329 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\selfadjointmatrixmatrix_mkl.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\selfadjointmatrixvector_mkl.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\selfadjointmatrixvector_mkl.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\triangularmatrixmatrix_mkl.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\triangularmatrixmatrix_mkl.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\triangularmatrixvector_mkl.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\triangularmatrixvector_mkl.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\triangularsolvermatrix_mkl.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\products\triangularsolvermatrix_mkl.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\assign_mkl.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\assign_mkl.h
 
-1457043928 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\globalfunctions.h
+1457040328 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\globalfunctions.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\reenablestupidwarnings.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\core\util\reenablestupidwarnings.h
 
-1457043926 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\eigen2support
+1457040326 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\eigen2support
 	"src/Core/util/DisableStupidWarnings.h"
 	"src/Eigen2Support/Macros.h"
 	"src/Eigen2Support/Memory.h"
@@ -594,29 +594,29 @@
 	"src/Core/util/ReenableStupidWarnings.h"
 	<iostream>
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\macros.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\macros.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\memory.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\memory.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\meta.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\meta.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\lazy.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\lazy.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\cwise.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\cwise.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\cwiseoperators.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\cwiseoperators.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\triangularsolver.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\triangularsolver.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\block.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\block.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\vectorblock.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\vectorblock.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\minor.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\minor.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\mathfunctions.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\mathfunctions.h
 
-1457043926 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\lu
+1457040326 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\lu
 	"Core"
 	"src/Core/util/DisableStupidWarnings.h"
 	"src/misc/Solve.h"
@@ -631,28 +631,28 @@
 	"src/Eigen2Support/LU.h"
 	"src/Core/util/ReenableStupidWarnings.h"
 
-1457043935 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\misc\solve.h
+1457040335 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\misc\solve.h
 
-1457043935 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\misc\kernel.h
+1457040335 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\misc\kernel.h
 
-1457043935 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\misc\image.h
+1457040335 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\misc\image.h
 
-1457043933 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\lu\fullpivlu.h
+1457040333 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\lu\fullpivlu.h
 
-1457043933 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\lu\partialpivlu.h
+1457040333 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\lu\partialpivlu.h
 
-1457043933 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\lu\partialpivlu_mkl.h
+1457040333 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\lu\partialpivlu_mkl.h
 	"Eigen/src/Core/util/MKL_support.h"
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\lu\determinant.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\lu\determinant.h
 
-1457043933 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\lu\inverse.h
+1457040333 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\lu\inverse.h
 
-1457043933 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\lu\arch\inverse_sse.h
+1457040333 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\lu\arch\inverse_sse.h
 
-1457043930 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\lu.h
+1457040330 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\lu.h
 
-1457043926 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\cholesky
+1457040326 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\cholesky
 	"Core"
 	"src/Core/util/DisableStupidWarnings.h"
 	"src/misc/Solve.h"
@@ -661,15 +661,15 @@
 	"src/Cholesky/LLT_MKL.h"
 	"src/Core/util/ReenableStupidWarnings.h"
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\cholesky\llt.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\cholesky\llt.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\cholesky\ldlt.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\cholesky\ldlt.h
 
-1457043927 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\cholesky\llt_mkl.h
+1457040327 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\cholesky\llt_mkl.h
 	"Eigen/src/Core/util/MKL_support.h"
 	<iostream>
 
-1457043926 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\qr
+1457040326 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\qr
 	"Core"
 	"src/Core/util/DisableStupidWarnings.h"
 	"Cholesky"
@@ -685,15 +685,15 @@
 	"src/Core/util/ReenableStupidWarnings.h"
 	"Eigenvalues"
 
-1457043926 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\jacobi
+1457040326 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\jacobi
 	"Core"
 	"src/Core/util/DisableStupidWarnings.h"
 	"src/Jacobi/Jacobi.h"
 	"src/Core/util/ReenableStupidWarnings.h"
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\jacobi\jacobi.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\jacobi\jacobi.h
 
-1457043926 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\householder
+1457040326 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\householder
 	"Core"
 	"src/Core/util/DisableStupidWarnings.h"
 	"src/Householder/Householder.h"
@@ -701,27 +701,27 @@
 	"src/Householder/BlockHouseholder.h"
 	"src/Core/util/ReenableStupidWarnings.h"
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\householder\householder.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\householder\householder.h
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\householder\householdersequence.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\householder\householdersequence.h
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\householder\blockhouseholder.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\householder\blockhouseholder.h
 
-1457043933 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\qr\householderqr.h
+1457040333 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\qr\householderqr.h
 
-1457043933 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\qr\fullpivhouseholderqr.h
+1457040333 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\qr\fullpivhouseholderqr.h
 
-1457043933 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\qr\colpivhouseholderqr.h
+1457040333 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\qr\colpivhouseholderqr.h
 
-1457043933 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\qr\householderqr_mkl.h
+1457040333 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\qr\householderqr_mkl.h
 	"../Core/util/MKL_support.h"
 
-1457043933 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\qr\colpivhouseholderqr_mkl.h
+1457040333 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\qr\colpivhouseholderqr_mkl.h
 	"Eigen/src/Core/util/MKL_support.h"
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\qr.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\qr.h
 
-1457043926 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\eigenvalues
+1457040326 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\eigenvalues
 	"Core"
 	"src/Core/util/DisableStupidWarnings.h"
 	"Cholesky"
@@ -745,7 +745,7 @@
 	"src/Eigenvalues/SelfAdjointEigenSolver_MKL.h"
 	"src/Core/util/ReenableStupidWarnings.h"
 
-1457043926 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\geometry
+1457040326 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\geometry
 	"Core"
 	"src/Core/util/DisableStupidWarnings.h"
 	"SVD"
@@ -769,7 +769,7 @@
 	"src/Eigen2Support/Geometry/All.h"
 	"src/Core/util/ReenableStupidWarnings.h"
 
-1457043926 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\svd
+1457040326 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\svd
 	"QR"
 	"Householder"
 	"Jacobi"
@@ -781,46 +781,46 @@
 	"src/Eigen2Support/SVD.h"
 	"src/Core/util/ReenableStupidWarnings.h"
 
-1457043933 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\svd\jacobisvd.h
+1457040333 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\svd\jacobisvd.h
 
-1457043933 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\svd\jacobisvd_mkl.h
+1457040333 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\svd\jacobisvd_mkl.h
 	"Eigen/src/Core/util/MKL_support.h"
 
-1457043934 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\svd\upperbidiagonalization.h
+1457040334 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\svd\upperbidiagonalization.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\svd.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\svd.h
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\orthomethods.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\orthomethods.h
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\eulerangles.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\eulerangles.h
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\homogeneous.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\homogeneous.h
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\rotationbase.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\rotationbase.h
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\rotation2d.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\rotation2d.h
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\quaternion.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\quaternion.h
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\angleaxis.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\angleaxis.h
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\transform.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\transform.h
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\translation.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\translation.h
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\scaling.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\scaling.h
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\hyperplane.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\hyperplane.h
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\parametrizedline.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\parametrizedline.h
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\alignedbox.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\alignedbox.h
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\umeyama.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\umeyama.h
 
-1457043932 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\arch\geometry_sse.h
+1457040332 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\geometry\arch\geometry_sse.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\all.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\all.h
 	<limits>
 	"RotationBase.h"
 	"Rotation2D.h"
@@ -843,65 +843,65 @@
 	"Hyperplane.h"
 	"ParametrizedLine.h"
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\rotationbase.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\rotationbase.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\rotation2d.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\rotation2d.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\quaternion.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\quaternion.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\angleaxis.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\angleaxis.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\transform.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\transform.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\translation.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\translation.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\scaling.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\scaling.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\alignedbox.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\alignedbox.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\hyperplane.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\hyperplane.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\parametrizedline.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigen2support\geometry\parametrizedline.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\tridiagonalization.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\tridiagonalization.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\realschur.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\realschur.h
 	"./HessenbergDecomposition.h"
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\hessenbergdecomposition.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\hessenbergdecomposition.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\eigensolver.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\eigensolver.h
 	"./RealSchur.h"
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\selfadjointeigensolver.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\selfadjointeigensolver.h
 	"./Tridiagonalization.h"
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\generalizedselfadjointeigensolver.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\generalizedselfadjointeigensolver.h
 	"./Tridiagonalization.h"
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\complexschur.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\complexschur.h
 	"./HessenbergDecomposition.h"
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\complexeigensolver.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\complexeigensolver.h
 	"./ComplexSchur.h"
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\realqz.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\realqz.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\generalizedeigensolver.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\generalizedeigensolver.h
 	"./RealQZ.h"
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\matrixbaseeigenvalues.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\matrixbaseeigenvalues.h
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\realschur_mkl.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\realschur_mkl.h
 	"Eigen/src/Core/util/MKL_support.h"
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\complexschur_mkl.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\complexschur_mkl.h
 	"Eigen/src/Core/util/MKL_support.h"
 
-1457043931 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\selfadjointeigensolver_mkl.h
+1457040331 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\eigen\src\eigenvalues\selfadjointeigensolver_mkl.h
 	"Eigen/src/Core/util/MKL_support.h"
 
-1457043963 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\matrixfunctions
+1457040363 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\matrixfunctions
 	<cfloat>
 	<list>
 	<functional>
@@ -915,28 +915,28 @@
 	"src/MatrixFunctions/MatrixLogarithm.h"
 	"src/MatrixFunctions/MatrixPower.h"
 
-1457043965 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\src\matrixfunctions\matrixexponential.h
+1457040365 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\src\matrixfunctions\matrixexponential.h
 	"StemFunction.h"
 
-1457043965 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\src\matrixfunctions\stemfunction.h
+1457040365 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\src\matrixfunctions\stemfunction.h
 
-1457043965 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\src\matrixfunctions\matrixfunction.h
+1457040365 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\src\matrixfunctions\matrixfunction.h
 	"StemFunction.h"
 	"MatrixFunctionAtomic.h"
 
-1457043965 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\src\matrixfunctions\matrixfunctionatomic.h
+1457040365 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\src\matrixfunctions\matrixfunctionatomic.h
 
-1457043965 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\src\matrixfunctions\matrixsquareroot.h
+1457040365 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\src\matrixfunctions\matrixsquareroot.h
 
-1457043965 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\src\matrixfunctions\matrixlogarithm.h
+1457040365 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\src\matrixfunctions\matrixlogarithm.h
 
-1457043965 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\src\matrixfunctions\matrixpower.h
+1457040365 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\src\matrixfunctions\matrixpower.h
 
-1457043963 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\kroneckerproduct
+1457040363 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\kroneckerproduct
 	"../../Eigen/Core"
 	"../../Eigen/src/Core/util/DisableStupidWarnings.h"
 	"src/KroneckerProduct/KroneckerTensorProduct.h"
 	"../../Eigen/src/Core/util/ReenableStupidWarnings.h"
 
-1457043964 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\src\kroneckerproduct\kroneckertensorproduct.h
+1457040364 c:\ufrj\atoms\eigen\eigen-eigen-07105f7124f9\unsupported\eigen\src\kroneckerproduct\kroneckertensorproduct.h
 

@@ -685,7 +685,7 @@ if(EdE != 4)
     cin >> step;
 
     int env_type;
-    cout << "\nEnvelope type: \n1. Maxwell \n2. Maxwell dimensionless \n3.Area \n4.Newton \n5.Newton dimensionless \n";
+    cout << "\nEnvelope type: \n1. Maxwell \n2. Area (not working) \n3.Newton \n4.Maxwell + Newton\n";
     cin >> env_type;
 
     init_T = T;
@@ -712,15 +712,13 @@ while(T<=final_T)
     final_T = final_T_original;
     step = step_original;
 
-
+    cout << "T = " << T << endl;
     if(EdE==1)
     {
         if(Tc_virtual[0] != 0)
         {
         Tr = T*Tc_virtual.asDiagonal().inverse().diagonal(); //Vetor com temperaturas reduzidas virtuais
         alfa = alfa_function(EdE, nc, Tr, omega_virtual, a0, c1);
-        //alfa(0) = pow(1+0.5380*(1-pow(Tr,0.5))+0.2327*(1-Tr)*(0.7-Tr),2)
-        //alfa(1) = pow(1+0.5380*(1-pow(Tr,0.5))+0.2327*(1-Tr)*(0.7-Tr),2)
         a = a_function(nc, R, EdE_parameters, omega_virtual, Tc_virtual, Pc_virtual, alfa, EdE, a0);
         b = b_function(nc, R, EdE_parameters, omega_virtual, Tc_virtual, Pc_virtual, alfa, bCPA, EdE);
         }
@@ -732,7 +730,6 @@ while(T<=final_T)
         a = a_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, EdE, a0);
         b = b_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, bCPA, EdE);
         }
-
     }
 
     else
@@ -742,7 +739,6 @@ while(T<=final_T)
     a = a_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, EdE, a0);
     b = b_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, bCPA, EdE);
     }
-
 
     bm = b_mixing_rules_function(nc, b, x, MR);
     am = a_mixing_rules_function(nc, MR, a, x, k12, bl, b, T, q, r, Aij, R, alfa_NRTL, EdE, G_ex_model);
@@ -803,6 +799,7 @@ while(T<=final_T)
 
     //====================================================================
     cout << "Before renormalization =======================================\n";
+
 if(r_type==1)
 {
     //Calcular vetor de f em f0 com um cálculo
@@ -867,6 +864,8 @@ if(r_type==1)
 
 
         if(EdE == 4) Kn = R*T/((pow(2,3*i))*L);
+        //cout << "Kn = " << Kn << endl;
+        //cout << "fv before = " << fv(201) << endl;
         //Kn = kB*T*NA/((pow(2,3*i))*L*b(0));
 
         //Preparar vetores f_l e f_s
@@ -884,6 +883,9 @@ if(r_type==1)
         fsv(w) = helmholtz_recursion_short(EdE, fv(w), rho_vector(w), am, i, L, phi_r, sr_type, T);
         rho = rho + rho_max/n;
         }
+
+        //cout << "flv before 201 / 201-100 = " << flv(201) << " / " << flv(201-100) << endl;
+        //cout << "fsv before 201 / 201-100 = " << fsv(201) << " / " << fsv(201-100) << endl;
 
             //Iteração 2 - calcular os valores para f no i atual
             rho = 1e-6;
@@ -903,6 +905,8 @@ if(r_type==1)
                 t=0;
                 aminl = 0;
                 amins = 0;
+
+                //for(t=0; t<min(w+1,n-w); t++) ORIGINAAAAAAAAAAAL
                 for(t=0; t<min(w+1,n-w); t++)
                 {
                 Glv(t) = (flv(w+t) - 2*flv(w) + flv(w-t))/2;
@@ -933,7 +937,7 @@ if(r_type==1)
                 sums = 0.5*(exp(-args(0)+amins)+exp(-args(n-w)+amins));
                 }
 
-                for(t=1; t<min(w,n-w); t++)
+                for(t=1; t<min(w+1,n-w); t++)
                 {
                 al = argl(t) - aminl;
                 as = args(t) - amins;
@@ -947,13 +951,42 @@ if(r_type==1)
             //cout << "suml = " << suml << " | width = " << width << " | Inl = " << Inl << endl;
             if(Iteration==2)
             {
-                Inl = trapezoidal_rule(rho_vec, Glv2);
-                Ins = trapezoidal_rule(rho_vec, Gsv2);
+                if(w<n/2)
+                {
+                    Inl = trapezoidal_interval(rho_vec, Glv2, 0, w);
+                    Ins = trapezoidal_interval(rho_vec, Gsv2, 0, w);
+                }
+
+                else
+                {
+                    Inl = trapezoidal_interval(rho_vec, Glv2, 0, n-w);
+                    Ins = trapezoidal_interval(rho_vec, Gsv2, 0, n-w);
+                }
+
+                //Inl = trapezoidal_rule(rho_vec, Glv2);
+                //Ins = trapezoidal_rule(rho_vec, Gsv2);
+                Inl = log(Inl);
+                Ins = log(Ins);
             }
+
             if(Iteration==3)
             {
-                Inl = simpson_rule(rho_vec, Glv2);
-                Ins = simpson_rule(rho_vec, Gsv2);
+                if(w<n/2)
+                {
+                    Inl = simpson_interval(rho_vec, Glv2, 0, w);
+                    Ins = simpson_interval(rho_vec, Gsv2, 0, w);
+                }
+
+                else
+                {
+                    Inl = simpson_interval(rho_vec, Glv2, 0, n-w);
+                    Ins = simpson_interval(rho_vec, Gsv2, 0, n-w);
+                }
+
+                //Inl = trapezoidal_rule(rho_vec, Glv2);
+                //Ins = trapezoidal_rule(rho_vec, Gsv2);
+                Inl = log(Inl);
+                Ins = log(Ins);
             }
 
             delta_fv(w) = -Kn*(Ins-Inl);
@@ -964,7 +997,7 @@ if(r_type==1)
 
         //Calcular o novo vetor de f, ajustando com o vetor de delta_f
         fv.array() = fv.array() + delta_fv.array();
-        cout << "i = " << i << " / f 501 = " << fv(501) << " / delta 501 --> " << delta_fv(501) << endl;
+        cout << "i = " << i << " / f 201 = " << fv(201) << " / delta 201 --> " << delta_fv(201) << endl;
         //cin >> stop;
     }
 
@@ -1183,21 +1216,20 @@ for(i=0; i<1000; i++)
     //       << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T << endl;
 }
 
-//=============================================================
-/*
-    P_vec[500] = (P_vec[495] + P_vec[505])/2;
-    P_vec[496] = (P_vec[492] + P_vec[500])/2;
-    P_vec[503] = (P_vec[500] + P_vec[506])/2;
-    P_vec[497] = (P_vec[494] + P_vec[500])/2;
-    P_vec[498] = (P_vec[496] + P_vec[500])/2;
-    P_vec[499] = (P_vec[495] + P_vec[505])/2;
-    P_vec[502] = (P_vec[500] + P_vec[504])/2;
-    P_vec[501] = (P_vec[500] + P_vec[502])/2;
-*/
-
-    int a, b;
+    double a, b;
     a = (P_vec[505]-P_vec[495])/(rho_vec_out[505]-rho_vec_out[495]);
     b = P_vec[505]-a*rho_vec_out[505];
+    /*
+    P_vec[496] = cspline(rho_vec_out,P_vec,rho_vec_out[496]);
+    P_vec[497] = cspline(rho_vec_out,P_vec,rho_vec_out[497]);
+    P_vec[498] = cspline(rho_vec_out,P_vec,rho_vec_out[498]);
+    P_vec[499] = cspline(rho_vec_out,P_vec,rho_vec_out[499]);
+    P_vec[500] = cspline(rho_vec_out,P_vec,rho_vec_out[500]);
+    P_vec[501] = cspline(rho_vec_out,P_vec,rho_vec_out[501]);
+    P_vec[502] = cspline(rho_vec_out,P_vec,rho_vec_out[502]);
+    P_vec[503] = cspline(rho_vec_out,P_vec,rho_vec_out[503]);
+    P_vec[504] = cspline(rho_vec_out,P_vec,rho_vec_out[504]);
+    */
     P_vec[496] = a*rho_vec_out[496] + b;
     P_vec[497] = a*rho_vec_out[497] + b;
     P_vec[498] = a*rho_vec_out[498] + b;
@@ -1207,6 +1239,7 @@ for(i=0; i<1000; i++)
     P_vec[502] = a*rho_vec_out[502] + b;
     P_vec[503] = a*rho_vec_out[503] + b;
     P_vec[504] = a*rho_vec_out[504] + b;
+    //cout << "a = " << a << " / " << b << P_vec[500] << endl;
 
 for(i=0; i<1000; i++)
 {
@@ -1236,63 +1269,17 @@ for(i=0;i<1000;i++)
         f_env[i] = f_vec_e(i);
         u_env[i] = u_vec_e(i);
     }
-/*
-for(i=0; i<1000; i++)
-{
- Renorm << std::fixed << std::setprecision(15) << rho_vec_out_e(i) << ";" << f_vec_e(i) << ";"
-        << u_vec_e(i) << ";" << P_vec_e(i) << ";" << T << endl;
-}
-*/
-double Tstar = bm*R*T/am;
-/*
-std::vector<double> dens(3);
-double f1, f2, u1, u2, P1, P2;
-if(env_type==1) dens = dens_maxwell(rho_vec_out, P_vec);
-if(env_type==2)
-{
-    dens = dens_maxwell(rho_env, P_env);
-    dens[0] = dens[0]/bm;
-    dens[1] = dens[1]/bm;
-    dens[2] = dens[2]/bm/bm*am;
-}
-if(env_type==3) dens = dens_area(V_vec, A_vec, P_vec);
-if(env_type==4) dens = dens_newt(rho_vec_out, f_vec_out, P_vec, u_vec, 1e-4);
-if(env_type==5)
-{
-    dens = dens_newt(rho_env, f_env, P_env, u_env, 1e-4);
-    dens[0] = dens[0]/bm;
-    dens[1] = dens[1]/bm;
-    dens[2] = dens[2]/bm/bm*am;
-}
 
-
-f1 = cspline(rho_vec_out, f_vec_out, dens[0]);
-f2 = cspline(rho_vec_out, f_vec_out, dens[1]);
-u1 = cspline_deriv1(rho_vec_out, f_vec_out, dens[0]);
-u2 = cspline_deriv1(rho_vec_out, f_vec_out, dens[1]);
-P1 = -f1+u1*dens[0];
-P2 = -f2+u2*dens[1];
-cout << "u1 - u2 = " << u1 - u2 << endl;
-cout << "P1 - P2 = " << P1 - P2 << endl;
-cout << "dens = " << dens[0] << " / " << dens[1] << " / " << dens[2] << endl;
-
-*/
 cout << "T = " << T << endl;
 cout << "=======================================\n" << endl;
 
 k++;
 
-  //Envelope << std::fixed << std::setprecision(15) << T << ";" << rho2 << ";"
-  //         << P2 << ";" << rho1 << ";" << P1 << ";" << P_average << endl;
-
-  //Envelope << std::fixed << std::setprecision(15) << T << ";" << dens[1] << ";"
-  //         << dens[2] << ";" << dens[0] << ";" << dens[2] << ";" << u1-u2 << endl;
-
         T = T + step;
         g++;
 }
 
-envelope_tracer(1e-3,env_type);
+envelope_tracer(1e-5,env_type);
 
 }
 

@@ -9,7 +9,7 @@
 
 using namespace std;
 
-void envelope_tracer_seed(double tol, double choice)
+void envelope_tracer_seed(double tol, int choice)
 {
 cout.precision(10);
 std::vector<double> rho(1000), P(1000), V(1000), A(1000), Pa(1000), f(1000), u(1000), zero(3), zerom(3);
@@ -114,10 +114,10 @@ file.close();
 }
 
 
-void envelope_tracer(double tol, double choice)
+void envelope_tracer(double tol, int choice)
 {
 cout.precision(10);
-std::vector<double> rho(1000), P(1000), V(1000), A(1000), Pa(1000), f(1000), u(1000), zero(3), zerom(3);
+std::vector<double> rho(1000), P(1000), V(1000), A(1000), Pa(1000), f(1000), u(1000), zero(6), zerom(7);
 std::vector<double> zerom_last(3), zero_last(3);
 int stop, w, k, r;
 std::string fline;
@@ -129,8 +129,9 @@ k = 0;
 ofstream Envelope("../Planilhas de análise/env.csv");
 ofstream Envelope_max("../Planilhas de análise/env_max.csv");
 ifstream file("../Planilhas de análise/Renormalization.csv");
-Envelope << "T" << ";" << "rho1" << ";" << "rho2" << ";" << "P" << endl;
-Envelope_max << "T" << ";" << "rho1" << ";" << "rho2" << ";" << "P" << endl;
+Envelope << "T" << ";" << "rho1" << ";" << "rho2" << ";" << "P" << ";" << "u" << ";" << "delta_P" << ";" << "delta_u" << endl;
+Envelope_max << "T" << ";" << "rho1" << ";" << "rho2" << ";" << "P" << ";" << "P1" << ";" << "P2" << ";" << "P2" << ";"
+             << "u1" << ";" << "u2" << ";" << "delta_P" << ";" << "delta_u" << endl;
 
 
 while (std::getline(file, fline))
@@ -182,24 +183,41 @@ file.close();
     f[i] = data[i][1];
     u[i] = data[i][3];
     }
+    //cout << " rho = " << rho[0] << " / " << rho[500] << " / " << rho[999] << endl;
+    //cout << " f = " << f[0] << " / " << f[500] << " / " << f[999] << endl;
+    //cout << " P = " << P[0] << " / " << P[500] << " / " << P[999] << endl;
+    //cout << " u = " << u[0] << " / " << u[500] << " / " << u[999] << endl;
 
-
-    //zerom = dens_maxwell(rho, P, tol);
-    //cout << "maxwell = " << T << " / " << zerom[0] << " / " << zerom[1] << " / " << zerom[2] << endl;
-    //zero = dens_area(V, A, P);
-    //cout << "area = " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
-    zero = dens_newt(rho,f,P,u,tol);
-    cout << "newton = " << T << " / " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
-
-
-    for(int j=0; j<4; j++)
+    switch(choice)
     {
-        zerom_last[j] = zerom[j];
-        zero_last[j] = zero[j];
+    case 1: //Maxwell
+        zerom = dens_maxwell(rho, P, f, tol);
+        cout << "maxwell = " << T << " / " << zerom[0] << " / " << zerom[1] << " / " << zerom[2] << endl;
+        break;
+
+    case 2: //Area
+        break;
+
+    case 3: //Newton
+        zero = dens_newt(rho,f,P,u,tol);
+        cout << "newton = " << T << " / " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
+        break;
+
+    case 4: //Maxwell + Newton
+        zerom = dens_maxwell(rho, P, f, tol);
+        cout << "maxwell = " << T << " / " << zerom[0] << " / " << zerom[1] << " / " << zerom[2] << endl;
+        zero = dens_newt(rho,f,P,u,tol);
+        cout << "newton = " << T << " / " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
+        break;
     }
 
-    Envelope << T << ";" << zero[0] << ";" << zero[1] << ";" << zero[2] << endl;
-    Envelope_max << T << ";" << zerom[0] << ";" << zerom[1] << ";" << zerom[2] << endl;
+
+    //zero = dens_area(V, A, P);
+    //cout << "area = " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
+    Envelope << T << ";" << zero[0] << ";" << zero[1] << ";" << zero[2] << ";" << zero[4] << ";" << fabs(zero[3]-zero[2])
+             << ";" << fabs(zero[4]-zero[5]) << endl;
+    Envelope_max << T << ";" << zerom[0] << ";" << zerom[1] << ";" << zerom[2] << ";" << zerom[3] << ";" << zerom[4] << ";"
+                 << zerom[5] << ";" << zerom[6] << ";" << fabs(zerom[3]-zerom[4]) << ";" << fabs(zerom[5]-zerom[6]) << ";" << endl;
 
     w++;
     minline = w*1000+1;

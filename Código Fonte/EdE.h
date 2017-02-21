@@ -103,7 +103,9 @@ EdE_parameters[3] = PSI;
 //Temporary function to hold msa data for co2 and c4
 vector<double> d_msa(int comp)
 {
+
 vector<double> data(7);
+
 if(comp==1) // CO2
 {
 data[0] = 0.16179E-02; //a111
@@ -114,6 +116,7 @@ data[4] = 0.00000E+00; //b112
 data[5] = 0.00000E+00; //b113
 data[6] = 0.16500E+01; //xlam
 }
+
 if(comp==2) // n-butane
 {
 data[0] = 0.22613E-02; //a111
@@ -124,6 +127,7 @@ data[4] = 0.00000E+00; //b112
 data[5] = 0.00000E+00; //b113
 data[6] = 0.16500E+01; //xlam
 }
+
 return data;
 }
 

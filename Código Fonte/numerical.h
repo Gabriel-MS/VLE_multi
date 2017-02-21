@@ -66,13 +66,13 @@ return sum;
 
 //Trapezoidal method to calculate area of integral, uses discrete data points
 //Outputs area under function AND GIVEN INTERVAL
-double trapezoidal_interval(vector<double>& x, vector<double>& y, int SIZE, int a, int b)
+double trapezoidal_interval(vector<double>& x, vector<double>& y, int a, int b)
 {
 int i = 0;
 double sum = 0;
-double h = (x[SIZE-1]-x[0])/SIZE;
+double h = (x[b]-x[a])/(b-a);
 sum = sum + y[a];
-for(i=a; i<b+1; i++)
+for(i=a+1; i<b; i++)
 {
 sum = sum + 2*y[i];
 }
@@ -101,13 +101,12 @@ return sum;
 
 //Simpson method to calculate area of integral, uses discrete data points
 //Outputs area under function AND GIVEN INTERVAL
-double simpson_interval(vector<double>& x, vector<double>& y, int SIZE, int a, int b)
+double simpson_interval(vector<double>& x, vector<double>& y, int a, int b)
 {
 int i = 0;
-//int SIZE = x.size();
 double sum = 0;
-double h = (x[SIZE-1]-x[0])/SIZE;
-for(i=a; i<b+1; i++)
+double h = (x[b]-x[a])/(b-a);
+for(i=a+1; i<b; i++)
 {
 if(i%2 > 0) sum = sum + 4*y[i];
 else sum = sum + 2*y[i];
@@ -1163,7 +1162,7 @@ double maxwell_cons2(vector<double>& rho, vector<double>& P, double P1)
     Area = Area1 - P1*(rho3-rho1);
     Area = fabs(Area);
 
-    cout << "Area = " << Area << endl;
+    //cout << "Area = " << Area << endl;
 
     return Area;
 }
@@ -1377,11 +1376,12 @@ vector<double> dens_area(vector<double>& V, vector<double>& A, vector<double>& P
 
 //Function to c3culate density of coexistent phases using maxwell construction
 //Input is dimensionless isotherm
-vector<double> dens_maxwell(vector<double>& rho, vector<double>& P, double tol)
+vector<double> dens_maxwell(vector<double>& rho, vector<double>& P, vector<double>& f, double tol)
 {
     int i, SIZE;
-    std::vector<double> dens(3);
+    std::vector<double> dens(7);
     std::vector<double> dPdV(1000), Pf(1000);
+    double f1, f2;
     double rho1, rho2, rho_max, rho_min, P_max, P_min, P0, P1, P2, Pz, u1, u2;
     int max1, min1;
 
@@ -1401,11 +1401,20 @@ vector<double> dens_maxwell(vector<double>& rho, vector<double>& P, double tol)
     P1 = P_max; //range of pressure
     P2 = P_min; //range of pressure
 
+    if (P_min>P_max)
+    {
+        min1 = bin_min_seed(dPdV,max1);
+        rho_min = rho[min1];
+        P_min = P[min1];
+    }
+
     if(P2<0) P2 = 1e-4;
 
-    cout << "before brent" << P1*0.99999 << " / " << P2*1.00001 << endl;
+    //cout << "before brent" << P1*0.99999 << " / " << P2*1.00001 << endl;
 
     //Brent method to use Maxwell Construction Method
+    if(P2>1e-3)
+    {
     Pz = zbrentm(maxwell_cons2, P1*0.99999, P2*1.00001, tol, rho, P);
 
     //Adjust isotherm to find roots to pressure
@@ -1427,10 +1436,22 @@ vector<double> dens_maxwell(vector<double>& rho, vector<double>& P, double tol)
     rho1 = falsi_spline(rho, Pf, rho[0], rho_max, 1e-3);
     rho2 = falsi_spline(rho, Pf, rho_min, rho[700], 1e-3);
 
+    u1 = cspline_deriv1(rho,f,rho1);
+    u2 = cspline_deriv1(rho,f,rho2);
+    f1 = cspline(rho,f,rho1);
+    f2 = cspline(rho,f,rho2);
+    P1 = -f1+rho1*u1;
+    P2 = -f2+rho2*u2;
+    }
+
     //output vector of densities
     dens[0] = rho1;
     dens[1] = rho2;
     dens[2] = Pz;
+    dens[3] = P1;
+    dens[4] = P2;
+    dens[5] = u1;
+    dens[6] = u2;
     return dens;
 }
 
@@ -1493,7 +1514,7 @@ vector<double> dens_maxwell_seed(vector<double>& rho, vector<double>& P, double 
 //Using Newton method
 vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>& P, vector<double>& u, double tol)
 {
-    std::vector<double> dPdrho(1000), Pf1(1000), Pf2(1000), rhov(1000);
+    std::vector<double> dPdrho(1000), Pf1(1000), Pf2(1000), rhov(6);
     int i, max1, min1;
     double rhomax, rhomin, Pmax, Pmin, P1, P2, f1, f2, u1, u2, du1, du2, dP1, dP2, detJ, drho1, drho2;
     double rho1, rho2, area;
@@ -1528,9 +1549,10 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
 
     //cout << "Pmax/min = " << Pmax << " / " << Pmin << endl;
     //cout << "max/min = " << max1 << " / " << min1 << endl;
+    //cout << "rho = " << rhomax << " / " << rhomin << endl;
     //Find initial guess for densities
-    rho1 = falsi_spline(rho, Pf1, rho[0], rhomax, 1e-3);
-    rho2 = falsi_spline(rho, Pf2, rhomin, rho[700], 1e-3);
+    rho1 = falsi_spline(rho, Pf1, rho[0], rhomax, tol);
+    rho2 = falsi_spline(rho, Pf2, rhomin, rho[700], tol);
     //cout << "rho1 = " << rho1 << " / " << rho2 << endl;
 
     //Solve newton-raphson system
@@ -1571,6 +1593,9 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
     rhov[0] = rho1;
     rhov[1] = rho2;
     rhov[2] = P1;
+    rhov[3] = P2;
+    rhov[4] = u1;
+    rhov[5] = u2;
     return rhov;
 }
 
