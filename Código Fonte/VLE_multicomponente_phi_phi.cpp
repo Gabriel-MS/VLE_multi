@@ -898,6 +898,7 @@ if(r_type==1)
 
             for(w=0; w<n; w++)
             {
+/*
                 suml = 0;
                 sums = 0;
 
@@ -993,6 +994,8 @@ if(r_type==1)
             //cout << "w = " << w << " / " << delta_fv(w) << endl;
 
             if(isnan(delta_fv(w)) == 1 || isinf(delta_fv(w)) == 1) delta_fv(w) = 1e-15;
+*/
+            delta_fv(w) = df_calculation(w,n,Iteration,width,Kn,rho_vec,flv,fsv);
             }
 
         //Calcular o novo vetor de f, ajustando com o vetor de delta_f

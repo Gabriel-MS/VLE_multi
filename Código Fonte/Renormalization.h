@@ -8,6 +8,7 @@
 #include <unsupported/Eigen/MatrixFunctions>
 #include <unsupported/Eigen/KroneckerProduct>
 #include "MSA.h"
+#include "numerical.h"
 
 using namespace Eigen;
 
@@ -208,6 +209,108 @@ double helmholtz_recursion_short(int EdE, long double f, long double rho, double
     }
 
    return fr;
+}
+
+double df_calculation(int w, int n, int Iteration, double width, double Kn, vector<double> rho_vec, VectorXd flv, VectorXd fsv)
+{
+    std::vector<double> Glv2(1000), Gsv2(1000);
+    VectorXd Glv(1000), Gsv(1000), argl(1000), args(1000);
+    double suml, sums, aminl, amins, Inl, Ins, rho, al, as, delta_f;
+    int t;
+
+                suml = 0;
+                sums = 0;
+
+                //Iteração 3 - regra do trapézio para cálculo de I
+                t=0;
+                aminl = 0;
+                amins = 0;
+
+                //for(t=0; t<min(w+1,n-w); t++) ORIGINAAAAAAAAAAAL
+                for(t=0; t<min(w+1,n-w); t++)
+                {
+                Glv(t) = (flv(w+t) - 2*flv(w) + flv(w-t))/2;
+                Gsv(t) = (fsv(w+t) - 2*fsv(w) + fsv(w-t))/2;
+
+                Glv2[t] = exp(-Glv(t)/Kn);
+                Gsv2[t] = exp(-Gsv(t)/Kn);
+
+                argl(t) = Glv(t)/Kn;
+                args(t) = Gsv(t)/Kn;
+
+                if(argl(t) < aminl) aminl = argl(t);
+                if(args(t) < amins) aminl = args(t);
+                }
+
+                if(w<(n/2))
+                {
+                suml = 0.5*(exp(-argl(0)+aminl)+exp(-argl(w)+aminl)); //era 0.25
+                sums = 0.5*(exp(-args(0)+amins)+exp(-args(w)+amins));
+                }
+
+                else
+                {
+                suml = 0.5*(exp(-argl(0)+aminl)+exp(-argl(n-w)+aminl));
+                sums = 0.5*(exp(-args(0)+amins)+exp(-args(n-w)+amins));
+                }
+
+                for(t=1; t<min(w+1,n-w); t++)
+                {
+                al = argl(t) - aminl;
+                as = args(t) - amins;
+                if(al<30) suml = suml + exp(-al);
+                if(as<30) sums = sums + exp(-as);
+                }
+
+            Inl = log(width*suml)-aminl;
+            Ins = log(width*sums)-amins;
+
+
+            if(Iteration==2)
+            {
+                if(w<n/2)
+                {
+                    Inl = trapezoidal_interval(rho_vec, Glv2, 0, w);
+                    Ins = trapezoidal_interval(rho_vec, Gsv2, 0, w);
+                }
+
+                else
+                {
+                    Inl = trapezoidal_interval(rho_vec, Glv2, 0, n-w);
+                    Ins = trapezoidal_interval(rho_vec, Gsv2, 0, n-w);
+                }
+
+                //Inl = trapezoidal_rule(rho_vec, Glv2);
+                //Ins = trapezoidal_rule(rho_vec, Gsv2);
+                Inl = log(Inl);
+                Ins = log(Ins);
+            }
+
+            if(Iteration==3)
+            {
+                if(w<n/2)
+                {
+                    Inl = simpson_interval(rho_vec, Glv2, 0, w);
+                    Ins = simpson_interval(rho_vec, Gsv2, 0, w);
+                }
+
+                else
+                {
+                    Inl = simpson_interval(rho_vec, Glv2, 0, n-w);
+                    Ins = simpson_interval(rho_vec, Gsv2, 0, n-w);
+                }
+
+                //Inl = trapezoidal_rule(rho_vec, Glv2);
+                //Ins = trapezoidal_rule(rho_vec, Gsv2);
+                Inl = log(Inl);
+                Ins = log(Ins);
+            }
+
+            delta_f = -Kn*(Ins-Inl);
+
+            if(isnan(delta_f) == 1 || isinf(delta_f) == 1) delta_f = 1e-15;
+
+            return delta_f;
 }
 
 
