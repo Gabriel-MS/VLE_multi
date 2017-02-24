@@ -77,7 +77,7 @@
 	"Gibbs.h"
 	"EdE.h"
 
-1487725952 source:c:\ufrj\atoms\projeto-vle\código fonte\vle_multicomponente_phi_phi.cpp
+1487913354 source:c:\ufrj\atoms\projeto-vle\código fonte\vle_multicomponente_phi_phi.cpp
 	<cmath>
 	<cstdio>
 	<stdio.h>
@@ -200,7 +200,7 @@
 	<vector>
 	<math.h>
 
-1487643785 c:\ufrj\atoms\projeto-vle\código fonte\envelope.h
+1487913354 c:\ufrj\atoms\projeto-vle\código fonte\envelope.h
 	<iostream>
 	"numerical.h"
 	<vector>
