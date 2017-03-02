@@ -233,7 +233,78 @@ vector<double> T_tracer(double T, double dnew, int flag, double rho)
     {
     T = T + 0.01;
 
-    if(isnan(rho)==1) flag=3;
+    if(isnan(rho)==1) flag=5;
+    if(isnan(rho)==1) T = T - 0.02;
+    }
+
+    if(flag==1)
+    {
+
+        if(isnan(rho)==1)
+        {
+            T = T - 0.09;
+            flag = 2;
+        }
+
+        else
+        {
+            T = T + 0.1;
+        }
+
+    }
+
+    if(flag==0)
+    {
+    if(isnan(dnew)==1)
+    {
+        if(isnan(dnew)==1)
+        {
+            T = T - 1.9;
+            flag = 1;
+        }
+
+        else
+        {
+            T = T + 0.1;
+        }
+    }
+
+    else
+    {
+        T = T + 2;
+    }
+
+    }
+
+    out[0] = T;
+    out[1] = flag;
+    return out;
+}
+
+vector<double> T_tracer_CPA(double T, double dnew, int flag, double rho)
+{
+    std::vector<double> out(2);
+
+    if(flag==3)
+    {
+    T = T + 0.001;
+
+    if(isnan(rho)==1) flag=5;
+    if(isnan(rho)==1) T = T - 0.1;
+    }
+
+    if(flag==2)
+    {
+        if(isnan(rho)==1)
+        {
+            T = T - 0.009;
+            flag = 3;
+        }
+
+        else
+        {
+            T = T + 0.01;
+        }
     }
 
     if(flag==1)

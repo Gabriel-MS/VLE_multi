@@ -50,6 +50,7 @@
 		<Unit filename="../Código Fonte/interpolation_util.h" />
 		<Unit filename="../Código Fonte/mixingrules.h" />
 		<Unit filename="../Código Fonte/numerical.h" />
+		<Unit filename="../Planilhas de análise/csv.h" />
 		<Extensions>
 			<code_completion>
 				<search_path add="..\..\Eigen" />

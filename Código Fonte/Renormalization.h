@@ -313,5 +313,94 @@ double df_calculation(int w, int n, int Iteration, double width, double Kn, vect
             return delta_f;
 }
 
+double critical_exponents()
+{
+    double Tc, Pc, rho1c, rho2c, rhoc, uc, beta;
+    cout.precision(10);
+    std::vector<double> exponent(2), T(10), rho1(10), rho2(10), P(10), u(10), lntc(7), lnrhoc(7), lnuc(7), lnpc(7);
+    int stop, w, k, r;
+    std::string fline;
+    int number_lines = 0;
+    w = 0;
+    k = 0;
+    r = 0;
+
+    //Read env data
+    double data[12][5];
+    ifstream file("../Planilhas de análise/env_exponent.csv");
+    cout << "Reading data to calculate critical exponent..." << endl;
+    for(int row = 0; row < 12; ++row)
+    {
+    string line;
+    getline(file, line);
+    if ( !file.good() )
+    break;
+    stringstream iss(line);
+    for (int col = 0; col < 5; ++col)
+    {
+    string val;
+    getline(iss, val, ';');
+    if ( !iss )
+    break;
+    stringstream convertor(val);
+    convertor >> data[row][col];
+    }
+    }
+    file.close();
+
+    //Find critical point
+    for(int i=0; i<10; i++)
+    {
+        //i+1 because first line is header
+    T[i] = data[i+1][0];
+    rho1[i] = data[i+1][1];
+    rho2[i] = data[i+1][2];
+    P[i] = data[i+1][3];
+    u[i] = data[i+1][4];
+    cout << T[i] << endl;
+    }
+
+    Tc = data[11][0];
+    rho1c = data[11][1];
+    rho2c = data[11][2];
+    rhoc = (rho1c+rho2c)/2;
+    Pc = data[11][3];
+    uc = data[11][4];
+
+    cout << "Difference between rho1c and rho2c = " << fabs(rho1c-rho2c) << " / rhoc = " << rhoc << endl;
+    cout << "Tc = " << Tc << endl;
+
+    //Calculate beta exponent
+
+        //1. Between 0.2% and 1.5% below Critical Temperature
+
+        //2. Between 0.95 and 0.99 Tr
+
+        //3. 1K below Tc to Tc
+        for(int i=0; i<9; i++)
+        {
+        lntc[i] = log(fabs(T[i]-Tc)/Tc);
+        lnrhoc[i] = log((rho2[i]-rho1[i])/rhoc);
+        }
+
+    //Calculate delta exponent
+    exponent = linear_regression(lntc, lnrhoc);
+    beta = exponent[0];
+    return beta;
+}
+
+vector<double> estimate_L_phi(int k, double T)
+{
+    //variables
+
+
+    //read experimental data
+
+
+    //compare actual T with
+
+
+
+}
 
 #endif // RENORMALIZATION_H_INCLUDED

@@ -693,6 +693,10 @@ if(EdE != 4)
     cout << "Type of envelope: \n1.Manual \n2.Automatic \n";
     cin >> critical_find;
 
+    int estimation;
+    cout << "Adjust to experimental data estimating L and phi?: \n1.Yes \n2.No \n";
+    cin >> estimation;
+
 
     init_T = T;
     Told = T;
@@ -806,6 +810,8 @@ switch(critical_find)
 
 
     //====================================================================
+    cout << "am = " << am << endl;
+    cout << "bm = " << bm << endl;
     cout << "Before renormalization =======================================\n";
 
 if(r_type==1)
@@ -1039,164 +1045,6 @@ if(r_type==1)
 }
     //====================================================================
 
-
-if(r_type==2 || r_type==3)
-{
-while(rho<=rho_max)
-{
-    V = 1/rho;
-
-    if(EdE==3)
-    {
-    X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
-                     tolX, x, EdE, EdE_parameters, b, tolZ, V, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
-    }
-
-    rho2 = min(rho, rho_max-rho);
-
-    f0 = helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x, sigma, eps, kB);
-    f_original = f0;
-
-    if(EdE != 4)    f0 = f0 + 0.5*am*rho*rho;
-
-    f_old = f0;
-
-    for(i=1;i<9;i=i+1)
-    {
-        K = kB*T/((pow(2,3*i))*pow(L,3));
-
-            if(i==1)
-            {
-            fl_old = f_old;
-            fs_old = f_old;
-            }
-
-        width = (rho2-0)/n;
-        suml = 0;
-        sums = 0;
-        m = n-1;
-
-
-        for(j=0;j<n;j++)
-        {
-
-            var = 0+j*width;
-            rho_plus = rho+var;
-            rho_minus = rho-var;
-
-            if(EdE==3 && i==1)
-            {
-            X_plus = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
-                     tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho_plus, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
-
-            X_minus = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
-                     tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho_minus, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
-            }
-
-
-            if(i==1)
-            {
-            fl_old_p(j) = 0.5*am*(rho_plus)*(rho_plus)+helmholtz_repulsive(EdE, R, T, rho_plus, am, bm, X_plus, x, sigma, eps, kB);
-            fl_oldv(j) = 0.5*am*(rho)*(rho)+helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x, sigma, eps, kB);
-            fl_old_m(j) = 0.5*am*(rho_minus)*(rho_minus)+helmholtz_repulsive(EdE, R, T, rho_minus, am, bm, X_minus, x, sigma, eps, kB);
-
-            fs_old_p(j) = 0.5*am*(rho_plus)*(rho_plus)+helmholtz_repulsive(EdE, R, T, rho_plus, am, bm, X_plus, x, sigma, eps, kB);
-            fs_oldv(j) = 0.5*am*(rho)*(rho)+helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x, sigma, eps, kB);
-            fs_old_m(j) = 0.5*am*(rho_minus)*(rho_minus)+helmholtz_repulsive(EdE, R, T, rho_minus, am, bm, X_minus, x, sigma, eps, kB);
-            }
-
-
-if(r_type==2)
-{
-            fl_plus = helmholtz_recursion_long(EdE, fl_old_p(j), rho_plus, am, T);
-            fl = helmholtz_recursion_long(EdE, fl_oldv(j), rho, am, T);
-            fl_minus = helmholtz_recursion_long(EdE, fl_old_m(j), rho_minus, am, T);
-
-            fs_plus = helmholtz_recursion_short(EdE, fs_old_p(j), rho_plus, am, i, L, phi_r, sr_type, T);
-            fs = helmholtz_recursion_short(EdE, fs_oldv(j), rho, am, i, L, phi_r, sr_type, T);
-            fs_minus = helmholtz_recursion_short(EdE, fs_old_m(j), rho_minus, am, i, L, phi_r, sr_type, T);
-}
-            //if(i!=1)
-            //{
-
-            fl_old_p(j) = fl_plus;
-            fl_oldv(j) = fl;
-            fl_old_m(j) = fl_minus;
-
-            fs_old_p(j) = fs_plus;
-            fs_oldv(j) = fs;
-            fs_old_m(j) = fs_minus;
-            //}
-
-
-if(r_type==3)
-{
-            fl_plus = helmholtz_recursion_long(EdE, fl_old, rho+var, am, T);
-            fl = helmholtz_recursion_long(EdE, fl_old, rho, am, T);
-            fl_minus = helmholtz_recursion_long(EdE, fl_old, rho-var, am, T);
-
-            fs_plus = helmholtz_recursion_short(EdE, fs_old, rho+var, am, i, L, phi_r, sr_type, T);
-            fs = helmholtz_recursion_short(EdE, fs_old, rho, am, i, L, phi_r, sr_type, T);
-            fs_minus = helmholtz_recursion_short(EdE, fs_old, rho-var, am, i, L, phi_r, sr_type, T);
-}
-            Gl = (fl_plus-2*fl+fl_minus)/2;
-            Gs = (fs_plus-2*fs+fs_minus)/2;
-
-            if(j==0 || j==(500-1))
-            {
-            suml = suml + 0.5*exp(-Gl/K);
-            sums = sums + 0.5*exp(-Gs/K);
-            }
-
-            else
-            {
-            suml = suml + exp(-Gl/K);
-            sums = sums + exp(-Gs/K);
-            }
-
-            //cout << "j = " << j << " // fl_plus = " << fl_plus << " // fl = " << fl << " // fs_plus = "
-            //<< fs_plus << " // Gl = " << Gl << " // Gs = " << Gs << endl;
-
-            //cout << "j = " << j << "// rho_minus = " << rho_minus << "// rho_max = " << rho_plus << endl;
-
-        }
-            //fl_old = fl;
-            //fs_old = fs;
-
-        OMEGAl = width*suml;
-        OMEGAs = width*sums;
-
-        delta_f = -K*log(OMEGAs/OMEGAl);
-/*
-        if(rho>=(rho_max/2))
-        {
-            delta_f = 0;
-        }
-*/
-        f = f_old + delta_f;
-
-        f_old = f;
-        //fl_old = f_old;
-        //fs_old = f_old;
-
-        //cout << "i = " << i << " / rho = " << rho << " // f = " << f << " // delta_f = " << delta_f << endl;
-        //" // Is = " << OMEGAs << " // Il = " << OMEGAl << endl;
-    }
-    if(EdE != 4) f = f - 0.5*am*rho*rho;
-
-    rho_vec[w] = rho;
-    f_vec[w] = f;
-    f0_vec[w] = f0-0.5*am*rho*rho;
-
-    //cout << "rho = " << rho << "  //  f = " << f << endl;
-    Not_splined << std::fixed << std::setprecision(15) << rho << ";" << f << ";" << f_original << ";" << T << endl;
-
-    rho = rho+rho_max/1000;
-
-    w++;
-}
-}
-
 rho = 1e-6;
 w=0;
 
@@ -1230,17 +1078,6 @@ for(i=0; i<1000; i++)
     double a, b;
     a = (P_vec[505]-P_vec[495])/(rho_vec_out[505]-rho_vec_out[495]);
     b = P_vec[505]-a*rho_vec_out[505];
-    /*
-    P_vec[496] = cspline(rho_vec_out,P_vec,rho_vec_out[496]);
-    P_vec[497] = cspline(rho_vec_out,P_vec,rho_vec_out[497]);
-    P_vec[498] = cspline(rho_vec_out,P_vec,rho_vec_out[498]);
-    P_vec[499] = cspline(rho_vec_out,P_vec,rho_vec_out[499]);
-    P_vec[500] = cspline(rho_vec_out,P_vec,rho_vec_out[500]);
-    P_vec[501] = cspline(rho_vec_out,P_vec,rho_vec_out[501]);
-    P_vec[502] = cspline(rho_vec_out,P_vec,rho_vec_out[502]);
-    P_vec[503] = cspline(rho_vec_out,P_vec,rho_vec_out[503]);
-    P_vec[504] = cspline(rho_vec_out,P_vec,rho_vec_out[504]);
-    */
     P_vec[496] = a*rho_vec_out[496] + b;
     P_vec[497] = a*rho_vec_out[497] + b;
     P_vec[498] = a*rho_vec_out[498] + b;
@@ -1303,7 +1140,10 @@ k++;
 
     case 2: //Find critical point automatically
     ofstream Envelope("../Planilhas de análise/env.csv");
+    ofstream envelope_exponent("../Planilhas de análise/env_exponent.csv");
     Envelope << "T" << ";" << "rho1" << ";" << "rho2" << ";" << "P" << ";" << "u" << ";" << "delta_P" << ";" << "delta_u" << endl;
+    envelope_exponent << "T" << ";" << "rho1" << ";" << "rho2" << ";" << "P" << ";" << "u" << endl;
+    double Tcritical, Pcritical, rhocritical1, rhocritical2, rhocritical, beta;
     int counter;
     double Tnew;
     double drho_new, drho_old;
@@ -1407,6 +1247,8 @@ while(T<=Tnew)
 
 
     //====================================================================
+    cout << "am = " << am << endl;
+    cout << "bm = " << bm << endl;
     cout << "Before renormalization =======================================\n";
 
 if(r_type==1)
@@ -1640,164 +1482,6 @@ if(r_type==1)
 }
     //====================================================================
 
-
-if(r_type==2 || r_type==3)
-{
-while(rho<=rho_max)
-{
-    V = 1/rho;
-
-    if(EdE==3)
-    {
-    X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
-                     tolX, x, EdE, EdE_parameters, b, tolZ, V, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
-    }
-
-    rho2 = min(rho, rho_max-rho);
-
-    f0 = helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x, sigma, eps, kB);
-    f_original = f0;
-
-    if(EdE != 4)    f0 = f0 + 0.5*am*rho*rho;
-
-    f_old = f0;
-
-    for(i=1;i<9;i=i+1)
-    {
-        K = kB*T/((pow(2,3*i))*pow(L,3));
-
-            if(i==1)
-            {
-            fl_old = f_old;
-            fs_old = f_old;
-            }
-
-        width = (rho2-0)/n;
-        suml = 0;
-        sums = 0;
-        m = n-1;
-
-
-        for(j=0;j<n;j++)
-        {
-
-            var = 0+j*width;
-            rho_plus = rho+var;
-            rho_minus = rho-var;
-
-            if(EdE==3 && i==1)
-            {
-            X_plus = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
-                     tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho_plus, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
-
-            X_minus = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
-                     tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho_minus, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
-            }
-
-
-            if(i==1)
-            {
-            fl_old_p(j) = 0.5*am*(rho_plus)*(rho_plus)+helmholtz_repulsive(EdE, R, T, rho_plus, am, bm, X_plus, x, sigma, eps, kB);
-            fl_oldv(j) = 0.5*am*(rho)*(rho)+helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x, sigma, eps, kB);
-            fl_old_m(j) = 0.5*am*(rho_minus)*(rho_minus)+helmholtz_repulsive(EdE, R, T, rho_minus, am, bm, X_minus, x, sigma, eps, kB);
-
-            fs_old_p(j) = 0.5*am*(rho_plus)*(rho_plus)+helmholtz_repulsive(EdE, R, T, rho_plus, am, bm, X_plus, x, sigma, eps, kB);
-            fs_oldv(j) = 0.5*am*(rho)*(rho)+helmholtz_repulsive(EdE, R, T, rho, am, bm, X, x, sigma, eps, kB);
-            fs_old_m(j) = 0.5*am*(rho_minus)*(rho_minus)+helmholtz_repulsive(EdE, R, T, rho_minus, am, bm, X_minus, x, sigma, eps, kB);
-            }
-
-
-if(r_type==2)
-{
-            fl_plus = helmholtz_recursion_long(EdE, fl_old_p(j), rho_plus, am, T);
-            fl = helmholtz_recursion_long(EdE, fl_oldv(j), rho, am, T);
-            fl_minus = helmholtz_recursion_long(EdE, fl_old_m(j), rho_minus, am, T);
-
-            fs_plus = helmholtz_recursion_short(EdE, fs_old_p(j), rho_plus, am, i, L, phi_r, sr_type, T);
-            fs = helmholtz_recursion_short(EdE, fs_oldv(j), rho, am, i, L, phi_r, sr_type, T);
-            fs_minus = helmholtz_recursion_short(EdE, fs_old_m(j), rho_minus, am, i, L, phi_r, sr_type, T);
-}
-            //if(i!=1)
-            //{
-
-            fl_old_p(j) = fl_plus;
-            fl_oldv(j) = fl;
-            fl_old_m(j) = fl_minus;
-
-            fs_old_p(j) = fs_plus;
-            fs_oldv(j) = fs;
-            fs_old_m(j) = fs_minus;
-            //}
-
-
-if(r_type==3)
-{
-            fl_plus = helmholtz_recursion_long(EdE, fl_old, rho+var, am, T);
-            fl = helmholtz_recursion_long(EdE, fl_old, rho, am, T);
-            fl_minus = helmholtz_recursion_long(EdE, fl_old, rho-var, am, T);
-
-            fs_plus = helmholtz_recursion_short(EdE, fs_old, rho+var, am, i, L, phi_r, sr_type, T);
-            fs = helmholtz_recursion_short(EdE, fs_old, rho, am, i, L, phi_r, sr_type, T);
-            fs_minus = helmholtz_recursion_short(EdE, fs_old, rho-var, am, i, L, phi_r, sr_type, T);
-}
-            Gl = (fl_plus-2*fl+fl_minus)/2;
-            Gs = (fs_plus-2*fs+fs_minus)/2;
-
-            if(j==0 || j==(500-1))
-            {
-            suml = suml + 0.5*exp(-Gl/K);
-            sums = sums + 0.5*exp(-Gs/K);
-            }
-
-            else
-            {
-            suml = suml + exp(-Gl/K);
-            sums = sums + exp(-Gs/K);
-            }
-
-            //cout << "j = " << j << " // fl_plus = " << fl_plus << " // fl = " << fl << " // fs_plus = "
-            //<< fs_plus << " // Gl = " << Gl << " // Gs = " << Gs << endl;
-
-            //cout << "j = " << j << "// rho_minus = " << rho_minus << "// rho_max = " << rho_plus << endl;
-
-        }
-            //fl_old = fl;
-            //fs_old = fs;
-
-        OMEGAl = width*suml;
-        OMEGAs = width*sums;
-
-        delta_f = -K*log(OMEGAs/OMEGAl);
-/*
-        if(rho>=(rho_max/2))
-        {
-            delta_f = 0;
-        }
-*/
-        f = f_old + delta_f;
-
-        f_old = f;
-        //fl_old = f_old;
-        //fs_old = f_old;
-
-        //cout << "i = " << i << " / rho = " << rho << " // f = " << f << " // delta_f = " << delta_f << endl;
-        //" // Is = " << OMEGAs << " // Il = " << OMEGAl << endl;
-    }
-    if(EdE != 4) f = f - 0.5*am*rho*rho;
-
-    rho_vec[w] = rho;
-    f_vec[w] = f;
-    f0_vec[w] = f0-0.5*am*rho*rho;
-
-    //cout << "rho = " << rho << "  //  f = " << f << endl;
-    Not_splined << std::fixed << std::setprecision(15) << rho << ";" << f << ";" << f_original << ";" << T << endl;
-
-    rho = rho+rho_max/1000;
-
-    w++;
-}
-}
-
 rho = 1e-6;
 w=0;
 
@@ -1871,18 +1555,26 @@ for(i=0;i<1000;i++)
         u_env[i] = u_vec_e(i);
     }
 
-cout << "T = " << T << endl;
-cout << "=======================================\n" << endl;
-
-        k++;
-        g++;
-
         std::vector<double> dta(6), out(2);
         dta = dens_newt(rho_vec_out,f_vec_out,P_vec,u_vec,1e-5);
 
         cout << "\n" << dta[0] << " / " << dta[1] << " / " << dta[2] << " / " << dta[3] << " / " << dta[4] << endl;
-
         T = T/bm/R*am;
+        cout << "T = " << T << endl;
+        cout << "=======================================\n" << endl;
+
+        if(estimation==1)
+        {
+
+        }
+
+        k++;
+        g++;
+
+        if(flag==6)
+        {
+        envelope_exponent << T << ";" << dta[0] << ";" << dta[1] << ";" << dta[2] << ";" << dta[4] << endl;
+        }
 
         if(isnan(dta[1])==0)
         {
@@ -1898,17 +1590,62 @@ cout << "=======================================\n" << endl;
         }
         counter++;
 
+        if(EdE==3 && flag<5)
+        {
+        out = T_tracer_CPA(T,drho_new,flag,dta[1]);
+        T = out[0];
+        flag = out[1];
+        }
+
+        if(EdE!=3 && flag<5)
+        {
         out = T_tracer(T,drho_new,flag,dta[1]);
         T = out[0];
         flag = out[1];
+        }
 
         drho_old = drho_new;
 
         Tnew = T;
 
-        if(flag==3) T = Tnew+1;
+        if(flag==6)
+        {
+        cout << "\nflag 6" << endl;
+        if(T>=Tcritical) flag=7;
+        T = T + 0.1;
+        Tnew = T;
+        cout << "T / Tcritical / flag = " << T << " / " << Tcritical << " / " << flag << endl;
+        Pcritical = dta[2];
+        rhocritical1 = dta[0];
+        rhocritical2 = dta[1];
+        rhocritical = (rhocritical1+rhocritical2)/2;
+        }
+
+        if(flag==5)
+        {
+        cout << "\nflag 5" << endl;
+        Tcritical = T;
+        cout << "Tcritical = " << Tcritical << endl;
+        flag = 6;
+        T = T - 1;
+        }
+
+        if(flag==7)
+        {
+        cout << "\nflag 7" << endl;
+        T = Tnew+1;
+        beta = critical_exponents();
+        cout << "beta = " << beta << endl;
+
+        ofstream out_simulation("simulation_record.csv", fstream::app);
+        out_simulation << EdE << ";" << cp[0] << ";" << Tcritical << ";" << Pcritical << ";" << rhocritical << ";"
+                       << beta  << ";" << L << ";" << phi_r << endl;
+        }
+
 }
     break;
+
+
 
 }
 

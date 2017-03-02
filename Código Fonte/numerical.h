@@ -654,8 +654,8 @@ for(i=0;i<1000;i++)
 
     else
     {
-    rho_liq = rho_liq + drhol/10;
-    rho_vap = rho_vap + drhov/10;
+    rho_liq = rho_liq + drhol/5; //ERA 10
+    rho_vap = rho_vap + drhov/5; //ERA 10
     }
 
     fliq = cspline(rho2,f2,rho_liq);
@@ -1632,8 +1632,8 @@ vector<double> dens_newt_seed(vector<double>& rho, vector<double>& f, vector<dou
     drho2 = -du1/detJ*(P1-P2)+dP1/detJ*(u1-u2);
     drho1 = -du2/detJ*(P1-P2)+dP2/detJ*(u1-u2);
 
-    rho1 = rho1 + drho1/10;
-    rho2 = rho2 + drho2/10;
+    rho1 = rho1 + drho1/2;
+    rho2 = rho2 + drho2/2;
     //cout << "drho = " << drho1 << " / " << drho2 << endl;
     }
 
@@ -1651,6 +1651,37 @@ vector<double> dens_newt_seed(vector<double>& rho, vector<double>& f, vector<dou
     rhov[2] = P1;
     return rhov;
 }
+
+vector<double> linear_regression(vector<double>& x, vector<double>& y)
+{
+    int SIZE, i;
+    SIZE = x.size();
+    double a, b, sumXY, sumX, sumY, sumX2, sumY2;
+    std::vector<double> coef(2);
+    sumXY = 0;
+    sumX = 0;
+    sumY = 0;
+    sumY2 = 0;
+    sumX2 = 0;
+
+    for(i=0; i<SIZE; i++)
+    {
+        sumXY = sumXY + x[i]*y[i];
+        sumX  = sumX  + x[i];
+        sumY  = sumY  + y[i];
+        sumY2 = sumY2 + y[i]*y[i];
+        sumX2 = sumX2 + x[i]*x[i];
+    }
+
+    a = (SIZE*sumXY-sumX*sumY)/(SIZE*sumX2-pow(sumX,2));
+    b = (sumY-a*sumX)/SIZE;
+
+    coef[0] = a;
+    coef[1] = b;
+
+    return coef;
+}
+
 
 
 #endif // NUMERICAL_H_INCLUDED
