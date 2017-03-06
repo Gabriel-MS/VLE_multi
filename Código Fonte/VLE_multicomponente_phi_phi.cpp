@@ -686,7 +686,7 @@ if(EdE != 4)
     cin >> step;
 
     int env_type;
-    cout << "\nEnvelope type: \n1. Maxwell \n2. Area (not working) \n3.Newton \n4.Maxwell + Newton\n";
+    cout << "\nEnvelope type: \n1. Maxwell \n2. Area (not working) \n3.Newton \n4.Maxwell + Newton \n5.Faster Newton\n";
     cin >> env_type;
 
     int critical_find;
@@ -774,6 +774,7 @@ switch(critical_find)
         sig12 = 0.5*(sig1+sig2)*(1.0-l12);
         bm = (pi/6)*pow(sig12,3.0);
         am = pow((a(0)*a(1)),0.5)*(1.0-k12);
+        /*
         cout << "sig1 = " << sig1 << endl;
         cout << "sig2 = " << sig2 << endl;
         cout << "sig12 = " << sig12 << endl;
@@ -782,10 +783,14 @@ switch(critical_find)
         cout << "cnst = " << cnst << endl;
         cout << "bm = " << bm << endl;
         cout << "am = " << am << endl;
+        */
 
         zeta_squared = pow(lambda,2)*pow(sigma,2)/5;
 
         rho_max = 6/(pi*pow(sigma,3))/NA;
+
+        //DIMENSIONLESS
+        rho_max = rho_max*bm;
 
         phi_r = zeta_squared*10;
     }
@@ -808,10 +813,15 @@ switch(critical_find)
     final_T = final_T_original*bm*R/am;
     step = step_original*bm*R/am;
 
+    if(EdE==4)
+    {
+        T = T/bm;
+        final_T = final_T/bm;
+        step = step/bm;
+    }
+
 
     //====================================================================
-    cout << "am = " << am << endl;
-    cout << "bm = " << bm << endl;
     cout << "Before renormalization =======================================\n";
 
 if(r_type==1)
@@ -877,7 +887,17 @@ if(r_type==1)
         Kn = T/pow(2,3*i)/(pow(L,3)/bm*6.023e23);
 
 
-        if(EdE == 4) Kn = R*T/((pow(2,3*i))*L);
+        //DIMENSIONLESS FOR MSA!!!!!
+        if(EdE==4)
+        {
+        T = T/R*am;
+
+        Kn = R*T/((pow(2,3*i))*L);
+        Kn = Kn/am*bm;
+
+        T = T*R/am;
+        }
+
         //cout << "Kn = " << Kn << endl;
         //cout << "fv before = " << fv(201) << endl;
         //Kn = kB*T*NA/((pow(2,3*i))*L*b(0));
@@ -893,8 +913,8 @@ if(r_type==1)
 
         for(w=0; w<n; w++)
         {
-        flv(w) = helmholtz_recursion_long(EdE, fv(w), rho_vector(w), am, T);
-        fsv(w) = helmholtz_recursion_short(EdE, fv(w), rho_vector(w), am, i, L, phi_r, sr_type, T);
+        flv(w) = helmholtz_recursion_long(EdE, fv(w), rho_vector(w), am, bm, R, T);
+        fsv(w) = helmholtz_recursion_short(EdE, fv(w), rho_vector(w), am, bm, i, L, phi_r, sr_type, R, T);
         rho = rho + rho_max/n;
         }
 
@@ -912,109 +932,17 @@ if(r_type==1)
 
             for(w=0; w<n; w++)
             {
-/*
-                suml = 0;
-                sums = 0;
-
-                //Iteração 3 - regra do trapézio para cálculo de I
-                t=0;
-                aminl = 0;
-                amins = 0;
-
-                //for(t=0; t<min(w+1,n-w); t++) ORIGINAAAAAAAAAAAL
-                for(t=0; t<min(w+1,n-w); t++)
+                if(EdE != 4) delta_fv(w) = df_calculation(w,n,Iteration,width,Kn,rho_vec,flv,fsv);
+                if(EdE == 4)
                 {
-                Glv(t) = (flv(w+t) - 2*flv(w) + flv(w-t))/2;
-                Gsv(t) = (fsv(w+t) - 2*fsv(w) + fsv(w-t))/2;
-
-                Glv2[t] = exp(-Glv(t)/Kn);
-                Gsv2[t] = exp(-Gsv(t)/Kn);
-
-                argl(t) = Glv(t)/Kn;
-                args(t) = Gsv(t)/Kn;
-
-                if(argl(t) < aminl) aminl = argl(t);
-                if(args(t) < amins) aminl = args(t);
+                    if(w<n/2) delta_fv(w) = df_calculation(w,n,Iteration,width,Kn,rho_vec,flv,fsv);
                 }
-
-                rho = rho_vector(w);
-                rho2 = min(rho,(rho_max-rho));
-
-                if(w<(n/2))
-                {
-                suml = 0.5*(exp(-argl(0)+aminl)+exp(-argl(w)+aminl)); //era 0.25
-                sums = 0.5*(exp(-args(0)+amins)+exp(-args(w)+amins));
-                }
-
-                else
-                {
-                suml = 0.5*(exp(-argl(0)+aminl)+exp(-argl(n-w)+aminl));
-                sums = 0.5*(exp(-args(0)+amins)+exp(-args(n-w)+amins));
-                }
-
-                for(t=1; t<min(w+1,n-w); t++)
-                {
-                al = argl(t) - aminl;
-                as = args(t) - amins;
-                if(al<30) suml = suml + exp(-al);
-                if(as<30) sums = sums + exp(-as);
-                }
-
-            Inl = log(width*suml)-aminl;
-            Ins = log(width*sums)-amins;
-
-            //cout << "suml = " << suml << " | width = " << width << " | Inl = " << Inl << endl;
-            if(Iteration==2)
-            {
-                if(w<n/2)
-                {
-                    Inl = trapezoidal_interval(rho_vec, Glv2, 0, w);
-                    Ins = trapezoidal_interval(rho_vec, Gsv2, 0, w);
-                }
-
-                else
-                {
-                    Inl = trapezoidal_interval(rho_vec, Glv2, 0, n-w);
-                    Ins = trapezoidal_interval(rho_vec, Gsv2, 0, n-w);
-                }
-
-                //Inl = trapezoidal_rule(rho_vec, Glv2);
-                //Ins = trapezoidal_rule(rho_vec, Gsv2);
-                Inl = log(Inl);
-                Ins = log(Ins);
-            }
-
-            if(Iteration==3)
-            {
-                if(w<n/2)
-                {
-                    Inl = simpson_interval(rho_vec, Glv2, 0, w);
-                    Ins = simpson_interval(rho_vec, Gsv2, 0, w);
-                }
-
-                else
-                {
-                    Inl = simpson_interval(rho_vec, Glv2, 0, n-w);
-                    Ins = simpson_interval(rho_vec, Gsv2, 0, n-w);
-                }
-
-                //Inl = trapezoidal_rule(rho_vec, Glv2);
-                //Ins = trapezoidal_rule(rho_vec, Gsv2);
-                Inl = log(Inl);
-                Ins = log(Ins);
-            }
-
-            delta_fv(w) = -Kn*(Ins-Inl);
-            //cout << "w = " << w << " / " << delta_fv(w) << endl;
-
-            if(isnan(delta_fv(w)) == 1 || isinf(delta_fv(w)) == 1) delta_fv(w) = 1e-15;
-*/
-            delta_fv(w) = df_calculation(w,n,Iteration,width,Kn,rho_vec,flv,fsv);
             }
 
         //Calcular o novo vetor de f, ajustando com o vetor de delta_f
         fv.array() = fv.array() + delta_fv.array();
-        cout << "i = " << i << " / f 201 = " << fv(201) << " / delta 201 --> " << delta_fv(201) << endl;
+        cout << "i = " << i << " / Kn = " << Kn*am/bm << " / f 60 = " << fv(60)*am/bm << " / delta 60 --> "
+             << delta_fv(60)*am/bm << endl;
         //cin >> stop;
     }
 
@@ -1033,9 +961,20 @@ if(r_type==1)
     f_vec[w] = fv(w);
 
     //DIMENSIONLESS!!!************************************************************
+    if(EdE != 4)
+    {
     f_vec[w] = fv(w)*am/bm/bm;
     f0_vec[w] = f0_vec[w]*am/bm/bm;
     rho_vec[w] = rho_vec[w]/bm;
+    }
+
+    if(EdE == 4)
+    {
+    f_vec[w] = fv(w)*am/bm;
+    f0_vec[w] = f0_vec[w]*am/bm;
+    rho_vec[w] = rho_vec[w]/bm;
+    }
+
 
     //cout << "rho = " << rho_vector(w) << "  //  f = " << fv(w) << endl;
     Not_splined << std::fixed << std::setprecision(15) << rho_vector(w) << ";" << fv(w) << ";" << f_originalv(w) << ";"
@@ -1095,28 +1034,21 @@ for(i=0; i<1000; i++)
 //        << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T << endl;
 
         //DIMENSIONLESS!!!************************************************************
+ if(EdE!=4)
+ {
  Renorm << std::fixed << std::setprecision(15) << rho_vec_out[i] << ";" << f_vec_out[i] << ";"
         << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i]<< ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T*am/bm/R << endl;
+ }
+
+ if(EdE==4)
+ {
+ Renorm << std::fixed << std::setprecision(15) << rho_vec_out[i] << ";" << f_vec_out[i] << ";"
+        << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i]<< ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T*am/R << endl;
+ }
+
 }
 
 //=============================================================
-
-
-for(i=0;i<1000;i++)
-    {
-        P_vec_e(i) = bm*bm*P_vec[i]/am;
-        u_vec_e(i) = bm*u_vec[i]/am;
-        rho_vec_out_e(i) = bm*rho_vec_out[i];
-        f_vec_e(i) = -P_vec_e(i) + rho_vec_out_e(i)*u_vec_e(i);
-
-        V_vec[i] = 1/rho_vec_out[i];
-        A_vec[i] = f_vec_out[i]/rho_vec_out[i];
-
-        P_env[i] = P_vec_e(i);
-        rho_env[i] = rho_vec_out_e(i);
-        f_env[i] = f_vec_e(i);
-        u_env[i] = u_vec_e(i);
-    }
 
 cout << "T = " << T << endl;
 cout << "=======================================\n" << endl;
@@ -1126,7 +1058,6 @@ k++;
         T = T + step;
         g++;
 }
-
 
     envelope_tracer(1e-5,env_type);
 
@@ -1211,18 +1142,13 @@ while(T<=Tnew)
         sig12 = 0.5*(sig1+sig2)*(1.0-l12);
         bm = (pi/6)*pow(sig12,3.0);
         am = pow((a(0)*a(1)),0.5)*(1.0-k12);
-        cout << "sig1 = " << sig1 << endl;
-        cout << "sig2 = " << sig2 << endl;
-        cout << "sig12 = " << sig12 << endl;
-        cout << "b(0) = " << b(0) << endl;
-        cout << "b(1) = " << b(1) << endl;
-        cout << "cnst = " << cnst << endl;
-        cout << "bm = " << bm << endl;
-        cout << "am = " << am << endl;
 
         zeta_squared = pow(lambda,2)*pow(sigma,2)/5;
 
         rho_max = 6/(pi*pow(sigma,3))/NA;
+
+        //DIMENSIONLESS
+        rho_max = rho_max*bm;
 
         phi_r = zeta_squared*10;
     }
@@ -1247,8 +1173,13 @@ while(T<=Tnew)
 
 
     //====================================================================
-    cout << "am = " << am << endl;
-    cout << "bm = " << bm << endl;
+    if(EdE==4)
+    {
+        T = T/bm;
+        final_T = final_T/bm;
+        step = step/bm;
+    }
+
     cout << "Before renormalization =======================================\n";
 
 if(r_type==1)
@@ -1313,11 +1244,16 @@ if(r_type==1)
         //DIMENSIONLESS!!!************************************************************
         Kn = T/pow(2,3*i)/(pow(L,3)/bm*6.023e23);
 
+        //DIMENSIONLESS FOR MSA!!!!!
+        if(EdE==4)
+        {
+        T = T/R*am;
 
-        if(EdE == 4) Kn = R*T/((pow(2,3*i))*L);
-        //cout << "Kn = " << Kn << endl;
-        //cout << "fv before = " << fv(201) << endl;
-        //Kn = kB*T*NA/((pow(2,3*i))*L*b(0));
+        Kn = R*T/((pow(2,3*i))*L);
+        Kn = Kn/am*bm;
+
+        T = T*R/am;
+        }
 
         //Preparar vetores f_l e f_s
         rho = 1e-6;
@@ -1330,8 +1266,8 @@ if(r_type==1)
 
         for(w=0; w<n; w++)
         {
-        flv(w) = helmholtz_recursion_long(EdE, fv(w), rho_vector(w), am, T);
-        fsv(w) = helmholtz_recursion_short(EdE, fv(w), rho_vector(w), am, i, L, phi_r, sr_type, T);
+        flv(w) = helmholtz_recursion_long(EdE, fv(w), rho_vector(w), am, bm, R, T);
+        fsv(w) = helmholtz_recursion_short(EdE, fv(w), rho_vector(w), am, bm, i, L, phi_r, sr_type, R, T);
         rho = rho + rho_max/n;
         }
 
@@ -1349,104 +1285,11 @@ if(r_type==1)
 
             for(w=0; w<n; w++)
             {
-/*
-                suml = 0;
-                sums = 0;
-
-                //Iteração 3 - regra do trapézio para cálculo de I
-                t=0;
-                aminl = 0;
-                amins = 0;
-
-                //for(t=0; t<min(w+1,n-w); t++) ORIGINAAAAAAAAAAAL
-                for(t=0; t<min(w+1,n-w); t++)
+                if(EdE != 4) delta_fv(w) = df_calculation(w,n,Iteration,width,Kn,rho_vec,flv,fsv);
+                if(EdE == 4)
                 {
-                Glv(t) = (flv(w+t) - 2*flv(w) + flv(w-t))/2;
-                Gsv(t) = (fsv(w+t) - 2*fsv(w) + fsv(w-t))/2;
-
-                Glv2[t] = exp(-Glv(t)/Kn);
-                Gsv2[t] = exp(-Gsv(t)/Kn);
-
-                argl(t) = Glv(t)/Kn;
-                args(t) = Gsv(t)/Kn;
-
-                if(argl(t) < aminl) aminl = argl(t);
-                if(args(t) < amins) aminl = args(t);
+                    if(w<n/2) delta_fv(w) = df_calculation(w,n,Iteration,width,Kn,rho_vec,flv,fsv);
                 }
-
-                rho = rho_vector(w);
-                rho2 = min(rho,(rho_max-rho));
-
-                if(w<(n/2))
-                {
-                suml = 0.5*(exp(-argl(0)+aminl)+exp(-argl(w)+aminl)); //era 0.25
-                sums = 0.5*(exp(-args(0)+amins)+exp(-args(w)+amins));
-                }
-
-                else
-                {
-                suml = 0.5*(exp(-argl(0)+aminl)+exp(-argl(n-w)+aminl));
-                sums = 0.5*(exp(-args(0)+amins)+exp(-args(n-w)+amins));
-                }
-
-                for(t=1; t<min(w+1,n-w); t++)
-                {
-                al = argl(t) - aminl;
-                as = args(t) - amins;
-                if(al<30) suml = suml + exp(-al);
-                if(as<30) sums = sums + exp(-as);
-                }
-
-            Inl = log(width*suml)-aminl;
-            Ins = log(width*sums)-amins;
-
-            //cout << "suml = " << suml << " | width = " << width << " | Inl = " << Inl << endl;
-            if(Iteration==2)
-            {
-                if(w<n/2)
-                {
-                    Inl = trapezoidal_interval(rho_vec, Glv2, 0, w);
-                    Ins = trapezoidal_interval(rho_vec, Gsv2, 0, w);
-                }
-
-                else
-                {
-                    Inl = trapezoidal_interval(rho_vec, Glv2, 0, n-w);
-                    Ins = trapezoidal_interval(rho_vec, Gsv2, 0, n-w);
-                }
-
-                //Inl = trapezoidal_rule(rho_vec, Glv2);
-                //Ins = trapezoidal_rule(rho_vec, Gsv2);
-                Inl = log(Inl);
-                Ins = log(Ins);
-            }
-
-            if(Iteration==3)
-            {
-                if(w<n/2)
-                {
-                    Inl = simpson_interval(rho_vec, Glv2, 0, w);
-                    Ins = simpson_interval(rho_vec, Gsv2, 0, w);
-                }
-
-                else
-                {
-                    Inl = simpson_interval(rho_vec, Glv2, 0, n-w);
-                    Ins = simpson_interval(rho_vec, Gsv2, 0, n-w);
-                }
-
-                //Inl = trapezoidal_rule(rho_vec, Glv2);
-                //Ins = trapezoidal_rule(rho_vec, Gsv2);
-                Inl = log(Inl);
-                Ins = log(Ins);
-            }
-
-            delta_fv(w) = -Kn*(Ins-Inl);
-            //cout << "w = " << w << " / " << delta_fv(w) << endl;
-
-            if(isnan(delta_fv(w)) == 1 || isinf(delta_fv(w)) == 1) delta_fv(w) = 1e-15;
-*/
-            delta_fv(w) = df_calculation(w,n,Iteration,width,Kn,rho_vec,flv,fsv);
             }
 
         //Calcular o novo vetor de f, ajustando com o vetor de delta_f
@@ -1470,9 +1313,19 @@ if(r_type==1)
     f_vec[w] = fv(w);
 
     //DIMENSIONLESS!!!************************************************************
+    if(EdE != 4)
+    {
     f_vec[w] = fv(w)*am/bm/bm;
     f0_vec[w] = f0_vec[w]*am/bm/bm;
     rho_vec[w] = rho_vec[w]/bm;
+    }
+
+    if(EdE == 4)
+    {
+    f_vec[w] = fv(w)*am/bm;
+    f0_vec[w] = f0_vec[w]*am/bm;
+    rho_vec[w] = rho_vec[w]/bm;
+    }
 
     //cout << "rho = " << rho_vector(w) << "  //  f = " << fv(w) << endl;
     Not_splined << std::fixed << std::setprecision(15) << rho_vector(w) << ";" << fv(w) << ";" << f_originalv(w) << ";"
@@ -1528,12 +1381,19 @@ for(i=0; i<1000; i++)
 
 for(i=0; i<1000; i++)
 {
-// Renorm << std::fixed << std::setprecision(15) << rho_vec_out[i] << ";" << f_vec_out[i] << ";"
-//        << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T << endl;
 
-        //DIMENSIONLESS!!!************************************************************
- Renorm << std::fixed << std::setprecision(15) << rho_vec_out[i] << ";" << f_vec_out[i] << ";"
+    if(EdE!=4)
+    {
+    Renorm << std::fixed << std::setprecision(15) << rho_vec_out[i] << ";" << f_vec_out[i] << ";"
         << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i]<< ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T*am/bm/R << endl;
+    }
+
+    if(EdE==4)
+    {
+    Renorm << std::fixed << std::setprecision(15) << rho_vec_out[i] << ";" << f_vec_out[i] << ";"
+        << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i]<< ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T*am/R << endl;
+    }
+
 }
 
 //=============================================================
@@ -1560,6 +1420,7 @@ for(i=0;i<1000;i++)
 
         cout << "\n" << dta[0] << " / " << dta[1] << " / " << dta[2] << " / " << dta[3] << " / " << dta[4] << endl;
         T = T/bm/R*am;
+        if(EdE==4) T = T*bm;
         cout << "T = " << T << endl;
         cout << "=======================================\n" << endl;
 
@@ -1643,6 +1504,7 @@ for(i=0;i<1000;i++)
         }
 
 }
+
     break;
 
 

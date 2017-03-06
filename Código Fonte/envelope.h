@@ -209,6 +209,11 @@ file.close();
         zero = dens_newt(rho,f,P,u,tol);
         cout << "newton = " << T << " / " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
         break;
+
+    case 5: //Faster Newton
+        zero = dens_newt5(rho,f,P,u,tol);
+        cout << "newton = " << T << " / " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
+        break;
     }
 
 

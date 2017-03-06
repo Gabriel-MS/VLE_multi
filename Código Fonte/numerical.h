@@ -1601,6 +1601,96 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
 
 //Function to calculate phase coexistence densities
 //Using Newton method
+vector<double> dens_newt5(vector<double>& rho, vector<double>& f, vector<double>& P, vector<double>& u, double tol)
+{
+    std::vector<double> dPdrho(1000), Pf1(1000), Pf2(1000), rhov(6);
+    int i, max1, min1;
+    double rhomax, rhomin, Pmax, Pmin, P1, P2, f1, f2, u1, u2, du1, du2, dP1, dP2, detJ, drho1, drho2;
+    double rho1, rho2, area;
+
+    //Calculating vector with first derivatives
+    dPdrho = fin_diff_1_vec(rho,P);
+
+    //Find max and min pressure of isotherm inside binodal curve
+    max1 = bin_max(dPdrho);
+    min1 = bin_min(dPdrho);
+    rhomax = rho[max1];
+    rhomin = rho[min1];
+    Pmax = P[max1];
+    Pmin = P[min1];
+
+    if (Pmin>Pmax)
+    {
+        min1 = bin_min_seed(dPdrho,max1);
+        rhomin = rho[min1];
+        Pmin = P[min1];
+    }
+
+    if (Pmin<0) Pmin=1e-3;
+
+    for(i=0; i<1000; i++)
+    {
+        if(Pmin<0) Pf1[i] = P[i] + Pmin;
+        else Pf1[i] = P[i] - Pmin;
+
+        Pf2[i] = P[i] - Pmax;
+    }
+
+    //cout << "Pmax/min = " << Pmax << " / " << Pmin << endl;
+    //cout << "max/min = " << max1 << " / " << min1 << endl;
+    //cout << "rho = " << rhomax << " / " << rhomin << endl;
+    //Find initial guess for densities
+    rho1 = falsi_spline(rho, Pf1, rho[0], rhomax, tol);
+    rho2 = falsi_spline(rho, Pf2, rhomin, rho[700], tol);
+    //cout << "rho1 = " << rho1 << " / " << rho2 << endl;
+
+    //Solve newton-raphson system
+    drho1 = tol+1;
+    int counter = 0;
+    while(drho1>tol || drho2>tol)
+    {
+    f1 = cspline(rho,f,rho1);
+    f2 = cspline(rho,f,rho2);
+    u1 = cspline_deriv1(rho,f,rho1);
+    u2 = cspline_deriv1(rho,f,rho2);
+    P1 = -f1+rho1*u1;
+    P2 = -f2+rho2*u2;
+
+    du1 = cspline_deriv1(rho,u,rho1);
+    du2 = cspline_deriv1(rho,u,rho2);
+    dP1 = cspline_deriv1(rho,P,rho1);
+    dP2 = cspline_deriv1(rho,P,rho2);
+    detJ = -dP2*du1+dP1*du2;
+
+    drho2 = -du1/detJ*(P1-P2)+dP1/detJ*(u1-u2);
+    drho1 = -du2/detJ*(P1-P2)+dP2/detJ*(u1-u2);
+
+    rho1 = rho1 + drho1/2;
+    rho2 = rho2 + drho2/2;
+    //cout << "drho = " << drho1 << " / " << drho2 << endl;
+    }
+
+    f1 = cspline(rho,f,rho1);
+    f2 = cspline(rho,f,rho2);
+    u1 = cspline_deriv1(rho,f,rho1);
+    u2 = cspline_deriv1(rho,f,rho2);
+    P1 = -f1+rho1*u1;
+    P2 = -f2+rho2*u2;
+    //area = maxwell_cons(rho,P,P1);
+    //cout << "area newt = " << area << endl;
+
+    rhov[0] = rho1;
+    rhov[1] = rho2;
+    rhov[2] = P1;
+    rhov[3] = P2;
+    rhov[4] = u1;
+    rhov[5] = u2;
+    return rhov;
+}
+
+
+//Function to calculate phase coexistence densities
+//Using Newton method
 vector<double> dens_newt_seed(vector<double>& rho, vector<double>& f, vector<double>& P, vector<double>& u, double tol, vector<double>& seed)
 {
     std::vector<double> dPdrho(1000), Pf1(1000), Pf2(1000), rhov(1000);
@@ -1656,7 +1746,7 @@ vector<double> linear_regression(vector<double>& x, vector<double>& y)
 {
     int SIZE, i;
     SIZE = x.size();
-    double a, b, sumXY, sumX, sumY, sumX2, sumY2;
+    double a, b, sumXY, sumX, sumY, sumX2, sumY2, r, r2;
     std::vector<double> coef(2);
     sumXY = 0;
     sumX = 0;
@@ -1666,18 +1756,29 @@ vector<double> linear_regression(vector<double>& x, vector<double>& y)
 
     for(i=0; i<SIZE; i++)
     {
+        cout << "x / y = " << x[i] << " / " << y[i] << endl;
+    }
+
+    for(i=0; i<SIZE; i++)
+    {
         sumXY = sumXY + x[i]*y[i];
         sumX  = sumX  + x[i];
         sumY  = sumY  + y[i];
         sumY2 = sumY2 + y[i]*y[i];
         sumX2 = sumX2 + x[i]*x[i];
+    cout << "SUM = " << sumXY << " / " << sumX << " / " << sumY << " / " << sumY2 << " / " << sumX2 << endl;
     }
 
     a = (SIZE*sumXY-sumX*sumY)/(SIZE*sumX2-pow(sumX,2));
     b = (sumY-a*sumX)/SIZE;
+    r = (SIZE*sumXY-sumX*sumY)/(pow(SIZE*sumX2-pow(sumX,2),0.5)*pow(SIZE*sumY2-pow(sumY,2),0.5));
+    r2 = pow(r,2);
 
+    cout << "a / b = " << a << " / " << b << endl;
+    cout << "R2 = " << r2 << endl;
     coef[0] = a;
     coef[1] = b;
+    coef[2] = r2;
 
     return coef;
 }
