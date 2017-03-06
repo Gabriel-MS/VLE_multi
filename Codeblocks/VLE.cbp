@@ -31,12 +31,26 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add directory="C:/UFRJ/ATOMS/Eigen/eigen-eigen-07105f7124f9" />
 		</Compiler>
+		<ResourceCompiler>
+			<Add directory="C:/UFRJ/ATOMS/Eigen/eigen-eigen-07105f7124f9" />
+		</ResourceCompiler>
+		<Linker>
+			<Add directory="C:/UFRJ/ATOMS/Eigen/eigen-eigen-07105f7124f9" />
+		</Linker>
 		<Unit filename="../Código Fonte/Association.h" />
 		<Unit filename="../Código Fonte/EdE.h" />
 		<Unit filename="../Código Fonte/Gibbs.h" />
+		<Unit filename="../Código Fonte/MSA.h" />
+		<Unit filename="../Código Fonte/Numeric.h" />
+		<Unit filename="../Código Fonte/Renormalization.h" />
 		<Unit filename="../Código Fonte/VLE_multicomponente_phi_phi.cpp" />
+		<Unit filename="../Código Fonte/envelope.h" />
+		<Unit filename="../Código Fonte/interpolation_util.h" />
 		<Unit filename="../Código Fonte/mixingrules.h" />
+		<Unit filename="../Código Fonte/numerical.h" />
+		<Unit filename="../Planilhas de análise/csv.h" />
 		<Extensions>
 			<code_completion>
 				<search_path add="..\..\Eigen" />
