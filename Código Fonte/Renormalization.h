@@ -380,7 +380,7 @@ double critical_exponents()
     }
     }
     file.close();
-
+/*
     //Read env data for delta
     ifstream rfile("../Planilhas de análise/Renormalization.csv");
     std::string rfline;
@@ -413,7 +413,7 @@ double critical_exponents()
     }
     }
     file.close();
-
+*/
     //Find critical point to calculate beta
     for(int i=0; i<10; i++)
     {
