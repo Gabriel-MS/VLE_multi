@@ -504,7 +504,7 @@ void beta_exponent(double *beta)
 {
     double Tc, Pc, rho1c, rho2c, rhoc, uc, r2beta, delta, r2delta, beta2;
     cout.precision(10);
-    std::vector<double> exponent(3), T(10), rho1(10), rho2(10), P(10), u(10), lntc, lnrhoc, lnuc, lnpc;
+    std::vector<double> exponent(3), T(10), rho1(10), rho2(10), P(10), u(10), lntc(7), lnrhoc(7), lnuc(7), lnpc(7);
     int stop, w, k, r;
     std::string fline;
     int number_lines = 0;
