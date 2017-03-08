@@ -295,7 +295,7 @@ vector<double> T_tracer_CPA(double T, double dnew, int flag, double rho)
     T = T + 0.001;
 
     if(isnan(rho)==1) flag=5;
-    if(isnan(rho)==1) T = T - 0.1;
+    if(isnan(rho)==1) T = T - 0.002;
     }
 
     if(flag==2)

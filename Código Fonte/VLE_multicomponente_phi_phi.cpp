@@ -693,9 +693,15 @@ if(EdE != 4)
     cout << "Type of envelope: \n1.Manual \n2.Automatic \n";
     cin >> critical_find;
 
+    /*
     int estimation;
     cout << "Adjust to experimental data estimating L and phi?: \n1.Yes \n2.No \n";
     cin >> estimation;
+    */
+
+    int exponents;
+    cout << "Calculate beta and delta critical exponents?: \n1.Yes \n2.No \n";
+    cin >> exponents;
 
 
     init_T = T;
@@ -1072,9 +1078,10 @@ k++;
     case 2: //Find critical point automatically
     ofstream Envelope("../Planilhas de análise/env.csv");
     ofstream envelope_exponent("../Planilhas de análise/env_exponent.csv");
+    ofstream crit_isot("../Planilhas de análise/crit_isotherm.csv");
     Envelope << "T" << ";" << "rho1" << ";" << "rho2" << ";" << "P" << ";" << "u" << ";" << "delta_P" << ";" << "delta_u" << endl;
     envelope_exponent << "T" << ";" << "rho1" << ";" << "rho2" << ";" << "P" << ";" << "u" << endl;
-    double Tcritical, Pcritical, rhocritical1, rhocritical2, rhocritical, beta;
+    double Tcritical, Pcritical, rhocritical1, rhocritical2, rhocritical, ucritical;
     int counter;
     double Tnew;
     double drho_new, drho_old;
@@ -1424,11 +1431,6 @@ for(i=0;i<1000;i++)
         cout << "T = " << T << endl;
         cout << "=======================================\n" << endl;
 
-        if(estimation==1)
-        {
-
-        }
-
         k++;
         g++;
 
@@ -1473,13 +1475,17 @@ for(i=0;i<1000;i++)
         {
         cout << "\nflag 6" << endl;
         if(T>=Tcritical) flag=7;
+        cout << "T / Tcritical / flag = " << T << " / " << Tcritical << " / " << flag << endl;
+            if(T==Tcritical)
+            {
+            Pcritical = dta[2];
+            rhocritical1 = dta[0];
+            rhocritical2 = dta[1];
+            rhocritical = (rhocritical1+rhocritical2)/2;
+            ucritical = dta[4];
+            }
         T = T + 0.1;
         Tnew = T;
-        cout << "T / Tcritical / flag = " << T << " / " << Tcritical << " / " << flag << endl;
-        Pcritical = dta[2];
-        rhocritical1 = dta[0];
-        rhocritical2 = dta[1];
-        rhocritical = (rhocritical1+rhocritical2)/2;
         }
 
         if(flag==5)
@@ -1493,14 +1499,29 @@ for(i=0;i<1000;i++)
 
         if(flag==7)
         {
+        T = T-0.1; //From flag 6
+
+            for(int l=0; l<n; l++)
+            {
+            crit_isot << std::fixed << std::setprecision(15) << rho_vec_out[l] << ";" << f_vec_out[l] << ";"
+                      << f0_vec_out[l] << ";" << u_vec[l] << ";" << P_vec[l]<< ";" << u_vec_0[l] << ";" << P_vec_0[l] << ";" << T << endl;
+            }
+
         cout << "\nflag 7" << endl;
         T = Tnew+1;
-        beta = critical_exponents();
-        cout << "beta = " << beta << endl;
+
+        double b_crit;
+
+            if(exponents==1)
+            {
+            //double beta_crit = critical_exponents(EdE);
+            beta_exponent(&b_crit);
+            cout << "beta out of critical = " << b_crit << endl;
+            }
 
         ofstream out_simulation("simulation_record.csv", fstream::app);
         out_simulation << EdE << ";" << cp[0] << ";" << Tcritical << ";" << Pcritical << ";" << rhocritical << ";"
-                       << beta  << ";" << L << ";" << phi_r << endl;
+                       << ucritical << ";" << b_crit << ";" << L << ";" << phi_r << endl;
         }
 
 }

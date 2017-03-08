@@ -1747,7 +1747,7 @@ vector<double> linear_regression(vector<double>& x, vector<double>& y)
     int SIZE, i;
     SIZE = x.size();
     double a, b, sumXY, sumX, sumY, sumX2, sumY2, r, r2;
-    std::vector<double> coef(2);
+    std::vector<double> coef(3);
     sumXY = 0;
     sumX = 0;
     sumY = 0;
@@ -1783,6 +1783,42 @@ vector<double> linear_regression(vector<double>& x, vector<double>& y)
     return coef;
 }
 
+double linear_regression_angular(vector<double>& x, vector<double>& y)
+{
+    int SIZE, i;
+    SIZE = x.size();
+    double a, b, sumXY, sumX, sumY, sumX2, sumY2, r, r2;
+    std::vector<double> coef(3);
+    sumXY = 0;
+    sumX = 0;
+    sumY = 0;
+    sumY2 = 0;
+    sumX2 = 0;
 
+    for(i=0; i<SIZE; i++)
+    {
+        cout << "x / y = " << x[i] << " / " << y[i] << endl;
+    }
+
+    for(i=0; i<SIZE; i++)
+    {
+        sumXY = sumXY + x[i]*y[i];
+        sumX  = sumX  + x[i];
+        sumY  = sumY  + y[i];
+        sumY2 = sumY2 + y[i]*y[i];
+        sumX2 = sumX2 + x[i]*x[i];
+    cout << "SUM = " << sumXY << " / " << sumX << " / " << sumY << " / " << sumY2 << " / " << sumX2 << endl;
+    }
+
+    a = (SIZE*sumXY-sumX*sumY)/(SIZE*sumX2-pow(sumX,2));
+    b = (sumY-a*sumX)/SIZE;
+    r = (SIZE*sumXY-sumX*sumY)/(pow(SIZE*sumX2-pow(sumX,2),0.5)*pow(SIZE*sumY2-pow(sumY,2),0.5));
+    r2 = pow(r,2);
+
+    cout << "a / b = " << a << " / " << b << endl;
+    cout << "R2 = " << r2 << endl;
+
+    return a;
+}
 
 #endif // NUMERICAL_H_INCLUDED
