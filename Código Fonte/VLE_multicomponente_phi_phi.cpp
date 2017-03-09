@@ -550,19 +550,23 @@ if(Renormalization==1)
     ofstream Renorm;
     ofstream Not_splined;
     ofstream Envelope;
+    ofstream dfnout;
     //ofstream before_renorm;
     //ofstream after_renorm;
 
     Renorm.open("../Planilhas de análise/Renormalization.csv");
     Not_splined.open("../Planilhas de análise/Renormalization_not_splined.csv");
+    dfnout.open("dfn_msa_out.csv");
     //before_renorm.open("../Planilhas de análise/before_renorm.csv");
     //after_renorm.open("../Planilhas de análise/after_renorm.csv");
     Envelope.open("../Planilhas de análise/Envelope.csv");
 
+    //Output files' headers
     Not_splined << "Density" << ";" << "f" << ";" << "f0" << ";" << "u" << ";" << "P" << ";" << "T" << endl;
     //before_renorm << "Density" << ";" << "f" << ";" << "flv+" << ";" << "flv-" << ";" << "f0a" << ";" << "T" << endl;
     Renorm << "Density" << ";" << "f" << ";" << "f0" << ";" << "u" << ";" << "P" << ";" << "u_0" << ";" << "P_0" << ";" << "T" << endl;
     Envelope << "rho" << ";" << "rho_l" << ";" << "P_l" << ";" << "rho_v" << ";" << "P_v" << endl;
+    dfnout << "i" << ";" << "rho" << ";" << "f" << ";" << "delta_f" << endl;
     //after_renorm << "Density" << ";" << "f_before" << ";" << "f_after" << ";" << ";" << ";" << "T" << endl;
 
     int i, j, n, k, w, t;
@@ -686,7 +690,7 @@ if(EdE != 4)
     cin >> step;
 
     int env_type;
-    cout << "\nEnvelope type: \n1. Maxwell \n2. Area (not working) \n3.Newton \n4.Maxwell + Newton \n5.Faster Newton\n";
+    cout << "\nEnvelope type: \n1. Maxwell \n2. Area (not working) \n3.Newton \n4.Maxwell + Newton \n5.Faster Newton \n6.Newton seed\n";
     cin >> env_type;
 
     int critical_find;
@@ -942,14 +946,22 @@ if(r_type==1)
                 if(EdE == 4)
                 {
                     if(w<n/2) delta_fv(w) = df_calculation(w,n,Iteration,width,Kn,rho_vec,flv,fsv);
+                    else delta_fv(w) = 1e-15;
                 }
             }
+
 
         //Calcular o novo vetor de f, ajustando com o vetor de delta_f
         fv.array() = fv.array() + delta_fv.array();
         cout << "i = " << i << " / Kn = " << Kn*am/bm << " / f 60 = " << fv(60)*am/bm << " / delta 60 --> "
              << delta_fv(60)*am/bm << endl;
         //cin >> stop;
+        /*
+        for(w=0; w<n; w++)
+        {
+            dfnout << i << ";" << rho_vector(w)/bm << ";" << fv(w)*am/bm << ";" << delta_fv(w)*am/bm << endl;
+        }
+        */
     }
 
     rho = 1e-6;
@@ -1004,12 +1016,32 @@ for(w=0; w<1000; w++) //FAAAAAAAAAAAAAAAALSOOOOOOOOO
     //rho_vec_out[0] = 1e-6*bm;
 }
 
+    if(EdE!=4) T = T*am/bm/R;
+    if(EdE==4) T = T*am/R;
+
+for(w=0; w<n; w++)
+{
+    f_vec[w] = f_vec[w] - rho_vec[w]*R*T*(log(rho_vec[w])-1);
+    f0_vec[w] = f0_vec[w] - rho_vec[w]*R*T*(log(rho_vec[w])-1);
+}
+
 f_vec_out = cspline_vec(rho_vec, f_vec, rho_vec_out);
 f0_vec_out = cspline_vec(rho_vec, f0_vec, rho_vec_out);
 
 u_vec = cspline_deriv1_vec(rho_vec, f_vec, rho_vec_out);
 u_vec_0 = cspline_deriv1_vec(rho_vec, f0_vec, rho_vec_out);
 
+//Add ideal gas contribution before cubic spline
+
+for(w=0; w<n; w++)
+{
+    f_vec_out[w] = f_vec_out[w] + rho_vec_out[w]*R*T*(log(rho_vec_out[w])-1);
+    f0_vec_out[w] = f0_vec_out[w] + rho_vec_out[w]*R*T*(log(rho_vec_out[w])-1);
+    u_vec[w] = u_vec[w] + R*T*(log(rho_vec_out[w]));
+    u_vec_0[w] = u_vec_0[w] + R*T*(log(rho_vec_out[w]));
+}
+    if(EdE!=4) T = T/am*bm*R;
+    if(EdE==4) T = T/am*R;
 
 for(i=0; i<1000; i++)
 {
@@ -1056,7 +1088,8 @@ for(i=0; i<1000; i++)
 
 //=============================================================
 
-cout << "T = " << T << endl;
+if(EdE==4) cout << "T = " << T*am/R << endl;
+if(EdE!=4) cout << "T = " << T*am/bm/R << endl;
 cout << "=======================================\n" << endl;
 
 k++;

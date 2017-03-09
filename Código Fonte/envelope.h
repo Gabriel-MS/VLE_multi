@@ -113,12 +113,11 @@ file.close();
     }
 }
 
-
 void envelope_tracer(double tol, int choice)
 {
 cout.precision(10);
 std::vector<double> rho(1000), P(1000), V(1000), A(1000), Pa(1000), f(1000), u(1000), zero(6), zerom(7);
-std::vector<double> zerom_last(3), zero_last(3);
+std::vector<double> zerom_last(3), zero_last(6);
 int stop, w, k, r;
 std::string fline;
 int number_lines = 0;
@@ -214,8 +213,15 @@ file.close();
         zero = dens_newt5(rho,f,P,u,tol);
         cout << "newton = " << T << " / " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
         break;
+
+    case 6: //Newton seed
+        if(w==0) zero = dens_newt(rho,f,P,u,tol);
+        else zero = dens_newt_seed(rho,f,P,u,tol,zero_last);
+        cout << "newton seed= " << T << " / " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
+        break;
     }
 
+    for(int j=0; j<4; j++) zero_last[j] = zero[j];
 
     //zero = dens_area(V, A, P);
     //cout << "area = " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
