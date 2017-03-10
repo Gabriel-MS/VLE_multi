@@ -694,7 +694,7 @@ if(EdE != 4)
     cin >> env_type;
 
     int critical_find;
-    cout << "Type of envelope: \n1.Manual \n2.Automatic \n";
+    cout << "Type of envelope: \n1.Manual \n2.Automatic \n3.Find Tc fast \n";
     cin >> critical_find;
 
     /*
@@ -702,6 +702,10 @@ if(EdE != 4)
     cout << "Adjust to experimental data estimating L and phi?: \n1.Yes \n2.No \n";
     cin >> estimation;
     */
+
+    int max_renorm;
+    if(EdE==4) max_renorm = 6;
+    if(EdE!=4) max_renorm = 9;
 
     int exponents;
     cout << "Calculate beta and delta critical exponents?: \n1.Yes \n2.No \n";
@@ -1109,6 +1113,474 @@ k++;
  //==============================================================================================================//
 
     case 2: //Find critical point automatically
+    {
+    ofstream Envelope("../Planilhas de análise/env.csv");
+    ofstream envelope_exponent("../Planilhas de análise/env_exponent.csv");
+    ofstream crit_isot("../Planilhas de análise/crit_isotherm.csv");
+    Envelope << "T" << ";" << "rho1" << ";" << "rho2" << ";" << "P" << ";" << "u" << ";" << "delta_P" << ";" << "delta_u" << endl;
+    envelope_exponent << "T" << ";" << "rho1" << ";" << "rho2" << ";" << "P" << ";" << "u" << endl;
+    double Tcritical, Pcritical, rhocritical1, rhocritical2, rhocritical, ucritical;
+    int counter;
+    double Tnew;
+    double drho_new, drho_old;
+    counter = 0;
+
+    Tnew = T;
+
+while(T<=Tnew)
+{
+    cout << "BEGIN==============================================================\n";
+    //Recalculating Temperature-dependent parameters
+
+    //DIMENSIONLESS!!!************************************************************
+    //T = T_original + g*step_original;
+    //final_T = final_T_original;
+    //step = step_original;
+
+    cout << "T = " << T << endl;
+    if(EdE==1)
+    {
+        if(Tc_virtual[0] != 0)
+        {
+        Tr = T*Tc_virtual.asDiagonal().inverse().diagonal(); //Vetor com temperaturas reduzidas virtuais
+        alfa = alfa_function(EdE, nc, Tr, omega_virtual, a0, c1);
+        a = a_function(nc, R, EdE_parameters, omega_virtual, Tc_virtual, Pc_virtual, alfa, EdE, a0);
+        b = b_function(nc, R, EdE_parameters, omega_virtual, Tc_virtual, Pc_virtual, alfa, bCPA, EdE);
+        }
+
+        else
+        {
+        Tr = T*(Tc.asDiagonal().inverse().diagonal()); //Vetor com temperaturas reduzidas virtuais
+        alfa = alfa_function(EdE, nc, Tr, omega, a0, c1);
+        a = a_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, EdE, a0);
+        b = b_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, bCPA, EdE);
+        }
+    }
+
+    else
+    {
+    Tr = T*(Tc.asDiagonal().inverse().diagonal()); //Vetor com temperaturas reduzidas virtuais
+    alfa = alfa_function(EdE, nc, Tr, omega, a0, c1);
+    a = a_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, EdE, a0);
+    b = b_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, bCPA, EdE);
+    }
+
+    bm = b_mixing_rules_function(nc, b, x, MR);
+    am = a_mixing_rules_function(nc, MR, a, x, k12, bl, b, T, q, r, Aij, R, alfa_NRTL, EdE, G_ex_model);
+
+    if(EdE==4)
+    {
+        eps = 8.75;
+        lambda = 1.65;
+        sigma = 4.86e-10;
+        L = 0.8e-4; //omega
+        pi = 3.14159265359796;
+        NA = 6.023e23;
+        cnst = pi/6;
+        l12 = 0;
+
+        a = a_function_msa(nc, R, EdE_parameters, omega, Tc, Pc, alfa, EdE, a0, T);
+        b = b_function_msa(nc, R, EdE_parameters, omega, Tc, Pc, alfa, bCPA, EdE, T);
+
+        sig1 = pow((b(0)/cnst),(1.0/3.0));
+        sig2 = pow((b(1)/cnst),(1.0/3.0));
+        sig12 = 0.5*(sig1+sig2)*(1.0-l12);
+        bm = (pi/6)*pow(sig12,3.0);
+        am = pow((a(0)*a(1)),0.5)*(1.0-k12);
+
+        zeta_squared = pow(lambda,2)*pow(sigma,2)/5;
+
+        rho_max = 6/(pi*pow(sigma,3))/NA;
+
+        //DIMENSIONLESS
+        rho_max = rho_max*bm;
+
+        phi_r = zeta_squared*10;
+    }
+
+    E_row = ((E_row.array().log())*Told/T).exp();
+    E_col = ((E_col.array().log())*Told/T).exp();
+    E_auto = ((E_auto.array().log())*Told/T).exp();
+
+    Told = T;
+
+    rho = 1e-6;
+
+    //DIMENSIONLESS!!!************************************************************
+    rho = 1e-6*bm;
+
+    w = 0;
+
+    //DIMENSIONLESS!!!************************************************************
+    T = T*bm*R/am;
+    final_T = final_T*bm*R/am;
+    step = step*bm*R/am;
+
+
+    //====================================================================
+    if(EdE==4)
+    {
+        T = T/bm;
+        final_T = final_T/bm;
+        step = step/bm;
+    }
+
+    cout << "Before renormalization =======================================\n";
+
+if(r_type==1)
+{
+    //Calcular vetor de f em f0 com um cálculo
+    rho = 1e-6;
+
+    //DIMENSIONLESS!!!************************************************************
+    rho = 1e-6*bm;
+
+
+    for(k=0; k<n; k++)
+    {
+    rho_vec[k] = double(k)/n/bm;
+    rho_vector(k) = double(k)/n/bm;
+    rho_vec[0] = 1e-6;
+    rho_vector(0) = 1e-6;
+
+    //NON BONDED FRACTION DIMENSIONAL**************************
+    T = T/bm/R*am;
+
+    if(EdE==3) X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
+                     tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho_vector(k), deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
+
+    T = T*bm*R/am;
+    //*********************************************************
+
+
+    //DIMENSIONLESS!!!************************************************************
+    rho_vec[k] = rho_vec[k]*bm;
+    rho_vector(k) = rho_vector(k)*bm;
+    rho_vec[0] = rho_vec[0]*bm;
+    rho_vector(0) = rho_vector(0)*bm;
+
+    fv(k) = helmholtz_repulsive(EdE, R, T, rho_vector(k), am, bm, X, x, sigma, eps, kB);
+    //cout << "rho / fv = " << rho_vec[k] << " / " << fv(k) << " / "  << X(0) << endl;
+
+    //DIMENSIONLESS!!!************************************************************
+    //if(EdE != 4) fv(k) = fv(k) + 0.5*am*rho_vector(k)*rho_vector(k);
+    if(EdE != 4) fv(k) = fv(k) + 0.5*rho_vector(k)*rho_vector(k);
+    //DIMENSIONLESS!!!************************************************************
+
+    f_originalv(k) = fv(k);
+
+    //DIMENSIONLESS!!!************************************************************
+    //if(EdE != 4) f_originalv(k) = fv(k) - 0.5*am*rho_vector(k)*rho_vector(k);
+    if(EdE != 4) f_originalv(k) = fv(k) - 0.5*rho_vector(k)*rho_vector(k);
+    //DIMENSIONLESS!!!************************************************************
+
+
+    f0_vec[k] = f_originalv(k);
+    f_before(k) = fv(k);
+    rho = rho + rho_max/n;
+    }
+
+    //Iteração principal - o n
+    for(i=1; i<max_renorm; i++) //i começando em 1
+    {
+        //Calcular K
+        Kn = kB*T/((pow(2,3*i))*pow(L,3));
+
+        //DIMENSIONLESS!!!************************************************************
+        Kn = T/pow(2,3*i)/(pow(L,3)/bm*6.023e23);
+
+        //DIMENSIONLESS FOR MSA!!!!!
+        if(EdE==4)
+        {
+        T = T/R*am;
+
+        Kn = R*T/((pow(2,3*i))*L);
+        Kn = Kn/am*bm;
+
+        T = T*R/am;
+        }
+
+        //Preparar vetores f_l e f_s
+        rho = 1e-6;
+
+        //DIMENSIONLESS!!!************************************************************
+        rho = 1e-6*bm;
+
+        if(EdE==3) X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
+                     tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
+
+        for(w=0; w<n; w++)
+        {
+        flv(w) = helmholtz_recursion_long(EdE, fv(w), rho_vector(w), am, bm, R, T);
+        fsv(w) = helmholtz_recursion_short(EdE, fv(w), rho_vector(w), am, bm, i, L, phi_r, sr_type, R, T);
+        rho = rho + rho_max/n;
+        }
+
+        //cout << "flv before 201 / 201-100 = " << flv(201) << " / " << flv(201-100) << endl;
+        //cout << "fsv before 201 / 201-100 = " << fsv(201) << " / " << fsv(201-100) << endl;
+
+            //Iteração 2 - calcular os valores para f no i atual
+            rho = 1e-6;
+
+            //DIMENSIONLESS!!!************************************************************
+            rho = 1e-6*bm;
+
+            w = 0;
+            width = rho_max/n;
+
+            for(w=0; w<n; w++)
+            {
+                if(EdE != 4) delta_fv(w) = df_calculation(w,n,Iteration,width,Kn,rho_vec,flv,fsv);
+                if(EdE == 4)
+                {
+                    if(w<n/2) delta_fv(w) = df_calculation(w,n,Iteration,width,Kn,rho_vec,flv,fsv);
+                }
+            }
+
+        //Calcular o novo vetor de f, ajustando com o vetor de delta_f
+        fv.array() = fv.array() + delta_fv.array();
+        cout << "i = " << i << " / f 201 = " << fv(201) << " / delta 201 --> " << delta_fv(201) << endl;
+        //cin >> stop;
+    }
+
+    rho = 1e-6;
+
+    //DIMENSIONLESS!!!************************************************************
+    rho = 1e-6*bm;
+
+    for(w=0; w<n; w++)
+    {
+    //DIMENSIONLESS!!!************************************************************
+    //if(EdE != 4) fv(w) = fv(w) - 0.5*am*rho_vector(w)*rho_vector(w);
+    if(EdE != 4) fv(w) = fv(w) - 0.5*rho_vector(w)*rho_vector(w);
+    //DIMENSIONLESS!!!************************************************************
+
+    f_vec[w] = fv(w);
+
+    //DIMENSIONLESS!!!************************************************************
+    if(EdE != 4)
+    {
+    f_vec[w] = fv(w)*am/bm/bm;
+    f0_vec[w] = f0_vec[w]*am/bm/bm;
+    rho_vec[w] = rho_vec[w]/bm;
+    }
+
+    if(EdE == 4)
+    {
+    f_vec[w] = fv(w)*am/bm;
+    f0_vec[w] = f0_vec[w]*am/bm;
+    rho_vec[w] = rho_vec[w]/bm;
+    }
+
+    //cout << "rho = " << rho_vector(w) << "  //  f = " << fv(w) << endl;
+    Not_splined << std::fixed << std::setprecision(15) << rho_vector(w) << ";" << fv(w) << ";" << f_originalv(w) << ";"
+                << T << endl;
+    rho = rho + rho_max/n;
+    }
+}
+    //====================================================================
+
+rho = 1e-6;
+w=0;
+
+
+for(w=0; w<1000; w++) //FAAAAAAAAAAAAAAAALSOOOOOOOOO
+{
+    rho_vec_out[w] = double(w)/1000/bm;
+    rho_vec_out[0] = 1e-6;
+
+    //DIMENSIONLESS!!!************************************************************
+    //rho_vec_out[w] = double(w)/1000/bm*bm;
+    //rho_vec_out[0] = 1e-6*bm;
+}
+
+f_vec_out = cspline_vec(rho_vec, f_vec, rho_vec_out);
+f0_vec_out = cspline_vec(rho_vec, f0_vec, rho_vec_out);
+
+u_vec = cspline_deriv1_vec(rho_vec, f_vec, rho_vec_out);
+u_vec_0 = cspline_deriv1_vec(rho_vec, f0_vec, rho_vec_out);
+
+
+for(i=0; i<1000; i++)
+{
+    P_vec[i] = -f_vec_out[i] + rho_vec_out[i]*u_vec[i];
+    P_vec_0[i] = -f0_vec_out[i] + rho_vec_out[i]*u_vec_0[i];
+
+    //Renorm << std::fixed << std::setprecision(15) << rho_vec_out[i] << ";" << f_vec_out[i] << ";"
+    //       << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T << endl;
+}
+
+    double a, b;
+    a = (P_vec[505]-P_vec[495])/(rho_vec_out[505]-rho_vec_out[495]);
+    b = P_vec[505]-a*rho_vec_out[505];
+    P_vec[496] = a*rho_vec_out[496] + b;
+    P_vec[497] = a*rho_vec_out[497] + b;
+    P_vec[498] = a*rho_vec_out[498] + b;
+    P_vec[499] = a*rho_vec_out[499] + b;
+    P_vec[500] = a*rho_vec_out[500] + b;
+    P_vec[501] = a*rho_vec_out[501] + b;
+    P_vec[502] = a*rho_vec_out[502] + b;
+    P_vec[503] = a*rho_vec_out[503] + b;
+    P_vec[504] = a*rho_vec_out[504] + b;
+    //cout << "a = " << a << " / " << b << P_vec[500] << endl;
+
+for(i=0; i<1000; i++)
+{
+
+    if(EdE!=4)
+    {
+    Renorm << std::fixed << std::setprecision(15) << rho_vec_out[i] << ";" << f_vec_out[i] << ";"
+        << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i]<< ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T*am/bm/R << endl;
+    }
+
+    if(EdE==4)
+    {
+    Renorm << std::fixed << std::setprecision(15) << rho_vec_out[i] << ";" << f_vec_out[i] << ";"
+        << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i]<< ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T*am/R << endl;
+    }
+
+}
+
+//=============================================================
+
+
+for(i=0;i<1000;i++)
+    {
+        P_vec_e(i) = bm*bm*P_vec[i]/am;
+        u_vec_e(i) = bm*u_vec[i]/am;
+        rho_vec_out_e(i) = bm*rho_vec_out[i];
+        f_vec_e(i) = -P_vec_e(i) + rho_vec_out_e(i)*u_vec_e(i);
+
+        V_vec[i] = 1/rho_vec_out[i];
+        A_vec[i] = f_vec_out[i]/rho_vec_out[i];
+
+        P_env[i] = P_vec_e(i);
+        rho_env[i] = rho_vec_out_e(i);
+        f_env[i] = f_vec_e(i);
+        u_env[i] = u_vec_e(i);
+    }
+
+        std::vector<double> dta(6), out(2);
+        dta = dens_newt(rho_vec_out,f_vec_out,P_vec,u_vec,1e-5);
+
+        cout << "\n" << dta[0] << " / " << dta[1] << " / " << dta[2] << " / " << dta[3] << " / " << dta[4] << endl;
+        T = T/bm/R*am;
+        if(EdE==4) T = T*bm;
+        cout << "T = " << T << endl;
+        cout << "=======================================\n" << endl;
+
+        k++;
+        g++;
+
+        if(flag==6)
+        {
+        envelope_exponent << T << ";" << dta[0] << ";" << dta[1] << ";" << dta[2] << ";" << dta[4] << endl;
+        }
+
+        if(isnan(dta[1])==0)
+        {
+        Envelope << T << ";" << dta[0] << ";" << dta[1] << ";" << dta[2] << ";" << dta[4] << ";" << fabs(dta[3]-dta[2])
+                 << ";" << fabs(dta[4]-dta[5]) << endl;
+        }
+
+        drho_new = fabs(dta[0]-dta[1]);
+
+        if(counter!=0)
+        {
+        if(drho_new>drho_old) flag=1;
+        }
+        counter++;
+
+        if(EdE==3 && flag<5)
+        {
+        out = T_tracer_CPA(T,drho_new,flag,dta[1]);
+        T = out[0];
+        flag = out[1];
+        }
+
+        if(EdE!=3 && flag<5)
+        {
+        out = T_tracer(T,drho_new,flag,dta[1]);
+        T = out[0];
+        flag = out[1];
+        }
+
+        drho_old = drho_new;
+
+        Tnew = T;
+
+        if(flag==6)
+        {
+        cout << "\nflag 6" << endl;
+        if(T>=Tcritical) flag=7;
+        cout << "T / Tcritical / flag = " << T << " / " << Tcritical << " / " << flag << endl;
+            if(T==Tcritical)
+            {
+            Pcritical = dta[2];
+            rhocritical1 = dta[0];
+            rhocritical2 = dta[1];
+            rhocritical = (rhocritical1+rhocritical2)/2;
+            ucritical = dta[4];
+            }
+        T = T + 0.1;
+        Tnew = T;
+        }
+
+        if(flag==5)
+        {
+        cout << "\nflag 5" << endl;
+        Tcritical = T;
+        cout << "Tcritical = " << Tcritical << endl;
+        flag = 6;
+        T = T - 1;
+        }
+
+        if(flag==7)
+        {
+        T = T-0.1; //From flag 6
+
+            for(int l=0; l<n; l++)
+            {
+            crit_isot << std::fixed << std::setprecision(15) << rho_vec_out[l] << ";" << f_vec_out[l] << ";"
+                      << f0_vec_out[l] << ";" << u_vec[l] << ";" << P_vec[l]<< ";" << u_vec_0[l] << ";" << P_vec_0[l] << ";" << T << endl;
+            }
+
+        cout << "\nflag 7" << endl;
+        T = Tnew+1;
+
+        double b_crit;
+
+            if(exponents==1)
+            {
+            //double beta_crit = critical_exponents(EdE);
+            beta_exponent(&b_crit);
+            cout << "beta out of critical = " << b_crit << endl;
+            }
+
+        ofstream out_simulation("simulation_record.csv", fstream::app);
+        out_simulation << EdE << ";" << cp[0] << ";" << Tcritical << ";" << Pcritical << ";" << rhocritical << ";"
+                       << ucritical << ";" << b_crit << ";" << L << ";" << phi_r << endl;
+        }
+
+}
+
+    }
+    break;
+
+    //***************************************************************************
+    //
+    //
+    //                  FIND TC FAST BELOW
+    //                  FIND TC FAST BELOW
+    //                  FIND TC FAST BELOW
+    //
+    //
+    //****************************************************************************
+
+
+
+    case 3: //Find critical point using inflexion
+    {
     ofstream Envelope("../Planilhas de análise/env.csv");
     ofstream envelope_exponent("../Planilhas de análise/env_exponent.csv");
     ofstream crit_isot("../Planilhas de análise/crit_isotherm.csv");
@@ -1456,9 +1928,6 @@ for(i=0;i<1000;i++)
     }
 
         std::vector<double> dta(6), out(2);
-        dta = dens_newt(rho_vec_out,f_vec_out,P_vec,u_vec,1e-5);
-
-        cout << "\n" << dta[0] << " / " << dta[1] << " / " << dta[2] << " / " << dta[3] << " / " << dta[4] << endl;
         T = T/bm/R*am;
         if(EdE==4) T = T*bm;
         cout << "T = " << T << endl;
@@ -1467,78 +1936,69 @@ for(i=0;i<1000;i++)
         k++;
         g++;
 
-        if(flag==6)
+        std::vector<double> d1P(1000);
+        d1P = fin_diff_1_vec(rho_vec_out, P_vec);
+        int inflex;
+        for(w=1; w<475; w++)
         {
-        envelope_exponent << T << ";" << dta[0] << ";" << dta[1] << ";" << dta[2] << ";" << dta[4] << endl;
-        }
-
-        if(isnan(dta[1])==0)
-        {
-        Envelope << T << ";" << dta[0] << ";" << dta[1] << ";" << dta[2] << ";" << dta[4] << ";" << fabs(dta[3]-dta[2])
-             << ";" << fabs(dta[4]-dta[5]) << endl;
-        }
-
-        drho_new = fabs(dta[0]-dta[1]);
-
-        if(counter!=0)
-        {
-        if(drho_new>drho_old) flag=1;
-        }
-        counter++;
-
-        if(EdE==3 && flag<5)
-        {
-        out = T_tracer_CPA(T,drho_new,flag,dta[1]);
-        T = out[0];
-        flag = out[1];
-        }
-
-        if(EdE!=3 && flag<5)
-        {
-        out = T_tracer(T,drho_new,flag,dta[1]);
-        T = out[0];
-        flag = out[1];
-        }
-
-        drho_old = drho_new;
-
-        Tnew = T;
-
-        if(flag==6)
-        {
-        cout << "\nflag 6" << endl;
-        if(T>=Tcritical) flag=7;
-        cout << "T / Tcritical / flag = " << T << " / " << Tcritical << " / " << flag << endl;
-            if(T==Tcritical)
+            if(d1P[w] < 0)
             {
+                inflex = 1; //Isotherm has inflexion point
+                w = 1000;
+            }
+
+            else inflex = 0; //Isotherm does not have inflexion point
+        }
+
+        if(flag==6)
+        {
+            dta = dens_newt(rho_vec_out,f_vec_out,P_vec,u_vec,1e-5);
+            cout << "\n" << dta[0] << " / " << dta[1] << " / " << dta[2] << " / " << dta[3] << " / " << dta[4] << endl;
+
+            Tcritical = T;
             Pcritical = dta[2];
             rhocritical1 = dta[0];
             rhocritical2 = dta[1];
             rhocritical = (rhocritical1+rhocritical2)/2;
             ucritical = dta[4];
-            }
-        T = T + 0.1;
-        Tnew = T;
+            flag = 7;
         }
 
-        if(flag==5)
+        if(inflex==1)
         {
-        cout << "\nflag 5" << endl;
-        Tcritical = T;
-        cout << "Tcritical = " << Tcritical << endl;
-        flag = 6;
-        T = T - 1;
+            switch(flag)
+            {
+                case 0: T = T + 1;
+                break;
+
+                case 1: T = T + 0.1;
+                break;
+
+                case 2: T = T + 0.01;
+                break;
+
+                case 3: T = T + 0.001;
+            }
+            Tnew = T;
         }
+
+        if(inflex==0)
+        {
+            out = T_tracer_inflexion(EdE, T, flag);
+            T = out[0];
+            flag = out[1];
+        }
+
 
         if(flag==7)
         {
-        T = T-0.1; //From flag 6
 
-            for(int l=0; l<n; l++)
-            {
-            crit_isot << std::fixed << std::setprecision(15) << rho_vec_out[l] << ";" << f_vec_out[l] << ";"
-                      << f0_vec_out[l] << ";" << u_vec[l] << ";" << P_vec[l]<< ";" << u_vec_0[l] << ";" << P_vec_0[l] << ";" << T << endl;
-            }
+
+        for(int l=0; l<n; l++)
+        {
+        crit_isot << std::fixed << std::setprecision(15) << rho_vec_out[l] << ";" << f_vec_out[l] << ";"
+                  << f0_vec_out[l] << ";" << u_vec[l] << ";" << P_vec[l]<< ";" << u_vec_0[l] << ";" << P_vec_0[l] << ";" << T << endl;
+        }
 
         cout << "\nflag 7" << endl;
         T = Tnew+1;
@@ -1559,6 +2019,7 @@ for(i=0;i<1000;i++)
 
 }
 
+    }
     break;
 
 

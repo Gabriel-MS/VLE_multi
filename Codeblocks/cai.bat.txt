@@ -1,0 +1,29 @@
+VLE.exe < Cai_2n_methane.txt
+cd ../PLANIL~1
+rename env.csv env_2n_methane.csv
+cd ../CODEBL~1
+
+VLE.exe < Cai_2n1_methane.txt
+cd ../PLANIL~1
+rename env.csv env_2n1_methane.csv
+cd ../CODEBL~1
+
+VLE.exe < Cai_2n_propane.txt
+cd ../PLANIL~1
+rename env.csv env_2n_propane.csv
+cd ../CODEBL~1
+
+VLE.exe < Cai_2n1_propane.txt
+cd ../PLANIL~1
+rename env.csv env_2n1_propane.csv
+cd ../CODEBL~1
+
+VLE.exe < Cai_2n_octane.txt
+cd ../PLANIL~1
+rename env.csv env_2n_octane.csv
+cd ../CODEBL~1
+
+VLE.exe < Cai_2n1_octane.txt
+cd ../PLANIL~1
+rename env.csv env_2n1_octane.csv
+cd ../CODEBL~1

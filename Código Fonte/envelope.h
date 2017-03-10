@@ -362,5 +362,49 @@ vector<double> T_tracer_CPA(double T, double dnew, int flag, double rho)
     return out;
 }
 
+vector<double> T_tracer_inflexion(int EdE, double T, int flag)
+{
+    std::vector<double> out(2);
+    double Temp;
+
+    switch(flag)
+    {
+        case 0:
+        Temp = T - 0.9;
+        flag = 1;
+            break;
+
+        case 1:
+        Temp = T - 0.09;
+        flag = 2;
+            break;
+
+        case 2:
+        if(EdE==3)
+        {
+            Temp = T - 0.009;
+            flag = 3;
+        }
+
+        else
+        {
+            Temp = T - 0.01;
+            flag = 6;
+        }
+            break;
+
+        case 3:
+        Temp = T - 0.001;
+        flag = 6;
+            break;
+
+    }
+
+    out[0] = Temp;
+    out[1] = flag;
+
+    return out;
+}
+
 
 #endif // ENVELOPE_H_INCLUDED

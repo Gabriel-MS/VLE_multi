@@ -189,11 +189,12 @@ vector<double> fin_diff_2_vec(const vector<double>& x, const vector<double>& y)
 int SIZE, i;
 SIZE = x.size();
 std::vector<double> y2(SIZE); //Vector to output first derivatives
-y2[0] = (y[1]- 2*y[0])/(pow(x[1]-x[0],2)); //Wrong, fix
-for(i=1; i<SIZE; i++)
+y2[0] = (y[2] - 2*y[1] + y[0])/(pow(x[1]-x[0],2)); //Wrong, fix
+for(i=1; i<SIZE-1; i++)
 {
 y2[i] = (y[i+1]-2*y[i]+y[i-1])/(pow(x[i]-x[i-1],2));
 }
+y2[SIZE-1] = (y[SIZE-1] - 2*y[SIZE-2] + y[SIZE-3])/(pow(x[SIZE-2]-x[SIZE-3],2));
 return y2;
 }
 
@@ -1558,7 +1559,7 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
     //Solve newton-raphson system
     drho1 = tol+1;
     int counter = 0;
-    while(drho1>tol || drho2>tol)
+    while(fabs(drho1)>tol || fabs(drho2)>tol)
     {
     f1 = cspline(rho,f,rho1);
     f2 = cspline(rho,f,rho2);
@@ -1604,7 +1605,7 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
 vector<double> dens_newt5(vector<double>& rho, vector<double>& f, vector<double>& P, vector<double>& u, double tol)
 {
     std::vector<double> dPdrho(1000), Pf1(1000), Pf2(1000), rhov(6);
-    int i, max1, min1;
+    int i, max1, min1, max_b, min_a;
     double rhomax, rhomin, Pmax, Pmin, P1, P2, f1, f2, u1, u2, du1, du2, dP1, dP2, detJ, drho1, drho2;
     double rho1, rho2, area;
 
@@ -1618,6 +1619,12 @@ vector<double> dens_newt5(vector<double>& rho, vector<double>& f, vector<double>
     rhomin = rho[min1];
     Pmax = P[max1];
     Pmin = P[min1];
+
+    max_b = max1-200;
+    min_a = min1+200;
+    if(max_b-200 < 0) max_b = 0;
+
+
 
     if (Pmin>Pmax)
     {
@@ -1647,7 +1654,7 @@ vector<double> dens_newt5(vector<double>& rho, vector<double>& f, vector<double>
     //Solve newton-raphson system
     drho1 = tol+1;
     int counter = 0;
-    while(drho1>tol || drho2>tol)
+    while(fabs(drho1)>tol || fabs(drho2)>tol)
     {
     f1 = cspline(rho,f,rho1);
     f2 = cspline(rho,f,rho2);
