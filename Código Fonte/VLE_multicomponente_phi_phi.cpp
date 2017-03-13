@@ -2112,6 +2112,18 @@ for(i=0;i<1000;i++)
         envelope_exponent2.close();
         crit_isot.close();
 
+        //Clean Data
+        Envelope.open("../Planilhas de análise/env.csv", std::fstream::out | std::fstream::trunc);
+        envelope_exponent.open("../Planilhas de análise/env_exponent.csv", std::fstream::out | std::fstream::trunc);
+        envelope_exponent2.open("../Planilhas de análise/env_exponent2.csv", std::fstream::out | std::fstream::trunc);
+        crit_isot.open("../Planilhas de análise/crit_isotherm.csv", std::fstream::out | std::fstream::trunc);
+
+        //Close again
+        Envelope.close();
+        envelope_exponent.close();
+        envelope_exponent2.close();
+        crit_isot.close();
+
     }
 
         L = L + step_L;
