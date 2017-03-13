@@ -500,9 +500,9 @@ double critical_exponents(int EdE)
     return beta2;
 }
 
-void beta_exponent(double *beta)
+void beta_exponent(double *beta, double Tc, double rhoc)
 {
-    double Tc, Pc, rho1c, rho2c, rhoc, uc, r2beta, delta, r2delta, beta2;
+    double Pc, rho1c, rho2c, uc, r2beta, delta, r2delta, beta2;
     cout.precision(10);
     std::vector<double> exponent(3), T(10), rho1(10), rho2(10), P(10), u(10), lntc(7), lnrhoc(7), lnuc(7), lnpc(7);
     int stop, w, k, r;
@@ -581,10 +581,10 @@ void beta_exponent(double *beta)
     u[i] = data[i+1][4];
     }
 
-    Tc = data[11][0];
+    //Tc = data[11][0];
     rho1c = data[11][1];
     rho2c = data[11][2];
-    rhoc = (rho1c+rho2c)/2;
+    //rhoc = (rho1c+rho2c)/2;
     Pc = data[11][3];
     uc = data[11][4];
 
@@ -651,6 +651,204 @@ void beta_exponent(double *beta)
 
     cout << "almost out of beta exponents void = " << beta << endl;
 }
+
+void beta_exponent2(double *beta, double Tc, double rhoc)
+{
+    double r2beta, delta, r2delta, beta2;
+    cout.precision(10);
+    std::vector<double> exponent(3), T(14), rho1(14), rho2(14), P(14), u(14), lntc(14), lnrhoc(14), lnuc(14), lnpc(14);
+    int stop, w, k, r;
+    std::string fline;
+    int number_lines = 0;
+    w = 0;
+    k = 0;
+    r = 0;
+
+    cout << "inside beta exponent calculation" << endl;
+
+    //Read env data for beta
+    double data[15][5];
+    ifstream file("../Planilhas de análise/env_exponent2.csv");
+    cout << "Reading data to calculate critical exponent beta..." << endl;
+    for(int row = 0; row < 15; ++row)
+    {
+    string line;
+    getline(file, line);
+    if ( !file.good() )
+    break;
+    stringstream iss(line);
+    for (int col = 0; col < 5; ++col)
+    {
+    string val;
+    getline(iss, val, ';');
+    if ( !iss )
+    break;
+    stringstream convertor(val);
+    convertor >> data[row][col];
+    }
+    }
+    file.close();
+/*
+    //Read env data for delta
+    ifstream rfile("../Planilhas de análise/Renormalization.csv");
+    std::string rfline;
+    int nlines = 0;
+    while (std::getline(rfile, rfline))
+    {
+        ++nlines;
+    }
+
+    rfile.close();
+
+    file.open("../Planilhas de análise/Renormalization.csv");
+    double data_delta[nlines][8];
+    cout << "Reading data to calculate critical exponent delta..." << endl;
+    for(int row = 0; row < nlines; ++row)
+    {
+    string line;
+    getline(file, line);
+    if ( !file.good() )
+    break;
+    stringstream iss(line);
+    for (int col = 0; col < 8; ++col)
+    {
+    string val;
+    getline(iss, val, ';');
+    if ( !iss )
+    break;
+    stringstream convertor(val);
+    convertor >> data_delta[row][col];
+    }
+    }
+    file.close();
+*/
+    //Find critical point to calculate beta
+    for(int i=0; i<14; i++)
+    {
+    //i+1 because first line is header
+    T[i] = data[i+1][0];
+    rho1[i] = data[i+1][1];
+    rho2[i] = data[i+1][2];
+    P[i] = data[i+1][3];
+    u[i] = data[i+1][4];
+    }
+
+    //Tc = data[14][0];
+    //rho1c = data[14][1];
+    //rho2c = data[14][2];
+    //rhoc = (rho1c+rho2c)/2;
+    //Pc = data[14][3];
+    //uc = data[14][4];
+
+    cout << "beta exponents 2" << endl;
+    cout << "Tc = " << Tc << endl;
+    cout << "rhoc = " << rhoc << endl;
+
+    //Calculate beta exponent
+
+        //1. Between 0.2% and 1.5% below Critical Temperature
+
+        //2. Between 0.95 and 0.99 Tr
+
+        //3. 1K below Tc to Tc
+        for(int i=0; i<14; i++)
+        {
+        lntc[i] = log(fabs(T[i]-Tc)/Tc);
+        lnrhoc[i] = log((rho2[i]-rho1[i])/rhoc);
+        }
+
+    (*beta) = linear_regression_angular(lntc, lnrhoc);
+
+    cout << "beta inside 2 = " << beta << endl;
+    cout << "r2beta inside 2 = " << r2beta << endl;
+
+    //Calculate delta exponent
+    /*
+        //Find data between 0.1 and 0.4 |delta_rho/rhoc|
+        int ibegin, iend;
+        ibegin = nlines-999;
+        iend = nlines;
+        for(int i=nlines-999; i<nlines; i++)
+        {
+        rho_d[i-nlines+999] = data_delta[i][0];
+        u_d[i-nlines+999] = data_delta[i][3];
+        drhoc[i-nlines+999] = abs(rho_d[i-nlines+999]-rhoc)/rhoc;
+        cout << " i / rho / u = " << i-nlines+999 << " / " << rho_d[i-nlines+999] << " / "
+             << u_d[i-nlines+999] << " / " << drhoc[i-nlines+999] << endl;
+        }
+
+        //Select data of interest
+        int ln_size = 0;
+        for(int i=0; i<999; i++)
+        {
+        if(drhoc[i]>=0.1 && drhoc[i]<=0.3) ++ln_size;
+        }
+
+        std::vector<double> lndrhoc, lnduc;
+
+        for(int i=0; i<1000; i++)
+        {
+        if(drhoc[i]>=0.1 && drhoc[i]<=0.3) lndrhoc[i] = log(abs(drhoc[i]/rhoc));
+        if(drhoc[i]>=0.1 && drhoc[i]<=0.3) lnduc[i] = log(abs(u_d[i]-uc/uc));
+        cout << "drhoc / ln = " << drhoc[i] << " / " << lndrhoc[i] << endl;
+        }
+
+        exponent = linear_regression(lndrhoc, lnduc);
+        delta = exponent[0];
+        r2delta = exponent[2];
+
+        cout << "delta = " << delta << " / " << r2delta << " / " << beta << " / " << r2beta;
+    */
+
+    cout << "almost out of beta exponents2 void = " << beta << endl;
+}
+
+void delta_exponent(double *delta, double rhoc, double uc)
+{
+    std::vector<double> u(1000), rho(1000), drho(1000);
+    std::vector<double> lndrhoc, lnduc;
+
+    //Read env data for beta
+    double data[1000][8];
+    ifstream file("../Planilhas de análise/crit_isotherm.csv");
+    cout << "Reading data to calculate critical exponent delta..." << endl;
+    for(int row = 0; row < 1000; ++row)
+    {
+    string line;
+    getline(file, line);
+    if ( !file.good() )
+    break;
+    stringstream iss(line);
+    for (int col = 0; col < 8; ++col)
+    {
+    string val;
+    getline(iss, val, ';');
+    if ( !iss )
+    break;
+    stringstream convertor(val);
+    convertor >> data[row][col];
+    }
+    }
+    file.close();
+
+    for(int i=0; i<1000; i++)
+    {
+    rho[i] = data[i][0];
+    u[i] = data[i][3];
+    drho[i] = fabs((rho[i]-rhoc)/rhoc);
+
+        if(drho[i]>=0.1 && drho[i]<=0.3)
+        {
+        lndrhoc.push_back(log(drho[i]));
+        lnduc.push_back(log(fabs((u[i]-uc)/uc)));
+        }
+    }
+
+    (*delta) = linear_regression_angular(lndrhoc, lnduc);
+
+    cout << "delta inside = " << delta << endl;
+}
+
 
 vector<double> estimate_L_phi(int k, double T)
 {

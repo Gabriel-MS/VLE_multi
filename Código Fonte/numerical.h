@@ -953,6 +953,7 @@ do
 {
  pmax_cond = dP_dV[i];
  i++;
+//cout << i << endl;
 }while(pmax_cond>0);
     return i-1;
 }
@@ -966,6 +967,7 @@ do
 {
  pmin_cond = dP_dV[j];
  j--;
+//cout << j << endl;
 //cout << "j = " << j << " / pmin = " << pmin_cond << " / rho = " << rho_vec_out[j] << endl;
 }while(pmin_cond>0);
     return j+1;
@@ -1008,6 +1010,53 @@ double falsi_spline(vector<double>& x, vector<double>& y, double a, double b, do
 
     return c;
 }
+
+//Uses Secant method with cubic spline interpolation to find root in given interval
+double secant_spline(vector<double>& x, vector<double>& y, double a, double b, double tol)
+{
+    double c, yc, c_new, yc_new, c_old, yc_old;
+    int i;
+    yc = tol+1;
+
+    c_old = a;
+    yc_old = cspline(x,y,a);
+    c = (a+b)/2;
+    yc = cspline(x,y,c);
+
+    while( fabs(yc_new)>tol )
+    {
+    c_new = c - yc*(c_old-c)/(yc_old-yc);
+    yc_new = cspline(x,y,yc_new);
+
+    c = c_new;
+    yc = yc_new;
+    c_old = c;
+    yc_old = yc;
+    }
+
+    return c;
+}
+
+//Uses Secant method with cubic spline interpolation to find root in given interval
+double newton_spline(vector<double>& x, vector<double>& y, double c, double ans, double tol)
+{
+    double F, dF, Fold, yc;
+    int i;
+    F = tol+1;
+    dF = 1000;
+
+    while( fabs(F)>tol )
+    {
+        Fold = F;
+        c = c - F/dF;
+        yc = cspline(x,y,c);
+        F = fabs(yc-ans);
+        dF = F-Fold;
+    }
+
+    return c;
+}
+
 
 //Calculates Area of given isotherm (helmholtz energy density f, density rho and chemical potential u)
 //All inputs should be provided dimensionless
@@ -1533,6 +1582,7 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
 
     if (Pmin>Pmax)
     {
+        cout << "entered min seed " << Pmin << " / " << Pmax << endl;
         min1 = bin_min_seed(dPdrho,max1);
         rhomin = rho[min1];
         Pmin = P[min1];
@@ -1552,14 +1602,15 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
     //cout << "max/min = " << max1 << " / " << min1 << endl;
     //cout << "rho = " << rhomax << " / " << rhomin << endl;
     //Find initial guess for densities
-    rho1 = falsi_spline(rho, Pf1, rho[0], rhomax, tol);
-    rho2 = falsi_spline(rho, Pf2, rhomin, rho[700], tol);
-    //cout << "rho1 = " << rho1 << " / " << rho2 << endl;
+    rho1 = falsi_spline(rho, Pf1, rho[0], rhomax, 1e-3);
+    //cout << "rho1 = " << rho1 << endl;
+    rho2 = falsi_spline(rho, Pf2, rhomin, rho[700], 1e-3);
+    //cout << "rho2 = " << rho2 << endl;
 
     //Solve newton-raphson system
     drho1 = tol+1;
     int counter = 0;
-    while(fabs(drho1)>tol || fabs(drho2)>tol)
+    while((fabs(drho1)>tol || fabs(drho2)>tol) && (fabs(Pmax-Pmin)>1e-3))
     {
     f1 = cspline(rho,f,rho1);
     f2 = cspline(rho,f,rho2);
@@ -1579,8 +1630,15 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
 
     rho1 = rho1 + drho1/10;
     rho2 = rho2 + drho2/10;
-    //cout << "drho = " << drho1 << " / " << drho2 << endl;
+    //cout << "drho = " << rho1 << " / " << rho2 << endl;
     }
+
+    if(fabs(Pmax-Pmin)<1e-4)
+    {
+        rho1 = (rhomax+rhomin)/2;
+        rho2 = rho1;
+    }
+
 
     f1 = cspline(rho,f,rho1);
     f2 = cspline(rho,f,rho2);
@@ -1590,6 +1648,7 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
     P2 = -f2+rho2*u2;
     //area = maxwell_cons(rho,P,P1);
     //cout << "area newt = " << area << endl;
+
 
     rhov[0] = rho1;
     rhov[1] = rho2;
@@ -1802,10 +1861,12 @@ double linear_regression_angular(vector<double>& x, vector<double>& y)
     sumY2 = 0;
     sumX2 = 0;
 
+    /*
     for(i=0; i<SIZE; i++)
     {
         cout << "x / y = " << x[i] << " / " << y[i] << endl;
     }
+    */
 
     for(i=0; i<SIZE; i++)
     {
@@ -1814,7 +1875,7 @@ double linear_regression_angular(vector<double>& x, vector<double>& y)
         sumY  = sumY  + y[i];
         sumY2 = sumY2 + y[i]*y[i];
         sumX2 = sumX2 + x[i]*x[i];
-    cout << "SUM = " << sumXY << " / " << sumX << " / " << sumY << " / " << sumY2 << " / " << sumX2 << endl;
+    //cout << "SUM = " << sumXY << " / " << sumX << " / " << sumY << " / " << sumY2 << " / " << sumX2 << endl;
     }
 
     a = (SIZE*sumXY-sumX*sumY)/(SIZE*sumX2-pow(sumX,2));
@@ -1822,8 +1883,8 @@ double linear_regression_angular(vector<double>& x, vector<double>& y)
     r = (SIZE*sumXY-sumX*sumY)/(pow(SIZE*sumX2-pow(sumX,2),0.5)*pow(SIZE*sumY2-pow(sumY,2),0.5));
     r2 = pow(r,2);
 
-    cout << "a / b = " << a << " / " << b << endl;
-    cout << "R2 = " << r2 << endl;
+    //cout << "a / b = " << a << " / " << b << endl;
+    //cout << "R2 = " << r2 << endl;
 
     return a;
 }

@@ -1553,7 +1553,7 @@ for(i=0;i<1000;i++)
             if(exponents==1)
             {
             //double beta_crit = critical_exponents(EdE);
-            beta_exponent(&b_crit);
+            beta_exponent(&b_crit, Tcritical, rhocritical);
             cout << "beta out of critical = " << b_crit << endl;
             }
 
@@ -1580,15 +1580,34 @@ for(i=0;i<1000;i++)
 
 
     case 3: //Find critical point using inflexion
+        int estim_L;
+        double step_L, final_L, T_original2, Tnew_original;
+        cout << "range L parameter? \n 1.Yes\n 2.No \n If yes, give step value after answer, and then, final L" << endl;
+        cin >> estim_L;
+        cin >> step_L;
+        cin >> final_L;
+        if(estim_L!=1) final_L = L;
+        T_original2 = T;
+        Tnew_original = final_T;
+
+        while(L<=final_L)
+        {
+        T = T_original2;
+        flag = 0;
+
     {
     ofstream Envelope("../Planilhas de análise/env.csv");
     ofstream envelope_exponent("../Planilhas de análise/env_exponent.csv");
+    ofstream envelope_exponent2("../Planilhas de análise/env_exponent2.csv");
     ofstream crit_isot("../Planilhas de análise/crit_isotherm.csv");
     Envelope << "T" << ";" << "rho1" << ";" << "rho2" << ";" << "P" << ";" << "u" << ";" << "delta_P" << ";" << "delta_u" << endl;
     envelope_exponent << "T" << ";" << "rho1" << ";" << "rho2" << ";" << "P" << ";" << "u" << endl;
+    envelope_exponent2 << "T" << ";" << "rho1" << ";" << "rho2" << ";" << "P" << ";" << "u" << endl;
     double Tcritical, Pcritical, rhocritical1, rhocritical2, rhocritical, ucritical;
-    int counter;
+    int counter, o;
+    int exp_ok = 0;
     double Tnew;
+    double b_crit, b_crit2, d_crit;
     double drho_new, drho_old;
     counter = 0;
 
@@ -1964,7 +1983,7 @@ for(i=0;i<1000;i++)
             flag = 7;
         }
 
-        if(inflex==1)
+        if(inflex==1 && flag<5)
         {
             switch(flag)
             {
@@ -1982,17 +2001,81 @@ for(i=0;i<1000;i++)
             Tnew = T;
         }
 
-        if(inflex==0)
+        if(inflex==0 && flag<5)
         {
             out = T_tracer_inflexion(EdE, T, flag);
             T = out[0];
             flag = out[1];
         }
 
+        if(flag==9)
+        {
+            dta = dens_newt(rho_vec_out,f_vec_out,P_vec,u_vec,1e-5);
+            cout << "\n" << dta[0] << " / " << dta[1] << " / " << dta[2] << " / " << dta[3] << " / " << dta[4] << endl;
+            if(dta[0] > 0) envelope_exponent2 << T << ";" << dta[0] << ";" << dta[1] << ";" << dta[2] << ";" << dta[4] << endl;
+
+            if(T>=0.998*Tcritical)
+            {
+                cout << "will calculate beta2!" << endl;
+                exp_ok = 2;
+                T = Tnew*10;
+            }
+
+            cout << "\nflag 9 | " << " T = " << T << " / Tc = " << Tcritical << " \ " << exponents << "\ " << exp_ok << endl;
+
+            if(exponents==1 && exp_ok==2)
+            {
+            //double beta_crit = critical_exponents(EdE);
+            beta_exponent2(&b_crit2, Tcritical, rhocritical);
+            cout << "beta2 out of critical = " << b_crit2 << endl;
+            T = Tnew+1;
+            }
+
+
+            T = T + 0.001*Tcritical;
+            cout << "fnew T to calculate beta 2 = " << T << endl;
+            o++;
+        }
+
+        if(flag==8)
+        {
+
+            dta = dens_newt(rho_vec_out,f_vec_out,P_vec,u_vec,1e-5);
+            cout << "\n" << dta[0] << " / " << dta[1] << " / " << dta[2] << " / " << dta[3] << " / " << dta[4] << endl;
+            if(dta[0] > 0) envelope_exponent << T << ";" << dta[0] << ";" << dta[1] << ";" << dta[2] << ";" << dta[4] << endl;
+
+
+            if(T>=Tcritical)
+            {
+                cout << "will calculate beta!" << endl;
+                exp_ok = 1;
+                T = Tnew*10;
+            }
+
+            cout << "\nflag 8 | " << " T = " << T << " / Tc = " << Tcritical << " \ " << exponents << "\ " << exp_ok << endl;
+
+            if(exponents==1 && exp_ok==1)
+            {
+            //double beta_crit = critical_exponents(EdE);
+            beta_exponent(&b_crit,Tcritical,rhocritical);
+            cout << "beta out of critical = " << b_crit << endl;
+            T = Tnew+1;
+            flag = 9;
+            Tnew = 1e5;
+            }
+
+            T = T + 0.1;
+
+            if(flag == 9)
+            {
+                T = T - 0.1;
+                T = 0.985*Tcritical;
+                cout << "first T to calculate beta 2 = " << T << endl;
+            }
+        }
 
         if(flag==7)
         {
-
 
         for(int l=0; l<n; l++)
         {
@@ -2001,25 +2084,38 @@ for(i=0;i<1000;i++)
         }
 
         cout << "\nflag 7" << endl;
-        T = Tnew+1;
+        flag = 8;
 
-        double b_crit;
+            Tcritical = T;
+            Pcritical = dta[2];
+            rhocritical1 = dta[0];
+            rhocritical2 = dta[1];
+            rhocritical = (rhocritical1+rhocritical2)/2;
+            ucritical = dta[4];
 
-            if(exponents==1)
-            {
-            //double beta_crit = critical_exponents(EdE);
-            beta_exponent(&b_crit);
-            cout << "beta out of critical = " << b_crit << endl;
-            }
+        delta_exponent(&d_crit, rhocritical, ucritical);
+        cout << "delta out of critical = " << d_crit << endl;
+        cin >> g;
 
-        ofstream out_simulation("simulation_record.csv", fstream::app);
-        out_simulation << EdE << ";" << cp[0] << ";" << Tcritical << ";" << Pcritical << ";" << rhocritical << ";"
-                       << ucritical << ";" << b_crit << ";" << L << ";" << phi_r << endl;
+        T = T - 1;
+        Tnew = 2*T;
         }
 
+
 }
+         ofstream out_simulation("record.csv", fstream::app);
+         out_simulation << EdE << ";" << cp[0] << ";" << Tcritical << ";" << Pcritical << ";" << rhocritical << ";"
+                        << ucritical << ";" << b_crit << ";" << b_crit2 << ";" << d_crit << ";" << L << ";" << phi_r << endl;
+
+        Envelope.close();
+        envelope_exponent.close();
+        envelope_exponent2.close();
+        crit_isot.close();
 
     }
+
+        L = L + step_L;
+        }
     break;
 
 
