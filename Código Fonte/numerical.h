@@ -1565,7 +1565,7 @@ vector<double> dens_maxwell_seed(vector<double>& rho, vector<double>& P, double 
 vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>& P, vector<double>& u, double tol)
 {
     std::vector<double> dPdrho(1000), Pf1(1000), Pf2(1000), rhov(6);
-    int i, max1, min1;
+    int i, max1, min1, min2;
     double rhomax, rhomin, Pmax, Pmin, P1, P2, f1, f2, u1, u2, du1, du2, dP1, dP2, detJ, drho1, drho2;
     double rho1, rho2, area;
 
@@ -1579,10 +1579,11 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
     rhomin = rho[min1];
     Pmax = P[max1];
     Pmin = P[min1];
+    min2 = min1+50;
 
     if (Pmin>Pmax)
     {
-        cout << "entered min seed " << Pmin << " / " << Pmax << endl;
+        //cout << "entered min seed " << Pmin << " / " << Pmax << endl;
         min1 = bin_min_seed(dPdrho,max1);
         rhomin = rho[min1];
         Pmin = P[min1];
@@ -1598,13 +1599,20 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
         Pf2[i] = P[i] - Pmax;
     }
 
+    while(Pf2[min1]*Pf2[min2]>0)
+    {
+        min2 = min2 + 10;
+        //cout << "min2 = " << min2 << endl;
+    }
+
     //cout << "Pmax/min = " << Pmax << " / " << Pmin << endl;
     //cout << "max/min = " << max1 << " / " << min1 << endl;
     //cout << "rho = " << rhomax << " / " << rhomin << endl;
+    //cout << "0 / max / min / 700 = " << rho[0] << " / " << rhomax << " / " << rhomin << " / " << rho[700] << endl;
     //Find initial guess for densities
     rho1 = falsi_spline(rho, Pf1, rho[0], rhomax, 1e-3);
     //cout << "rho1 = " << rho1 << endl;
-    rho2 = falsi_spline(rho, Pf2, rhomin, rho[700], 1e-3);
+    rho2 = falsi_spline(rho, Pf2, rhomin, rho[min2], 1e-3);
     //cout << "rho2 = " << rho2 << endl;
 
     //Solve newton-raphson system
@@ -1633,11 +1641,13 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
     //cout << "drho = " << rho1 << " / " << rho2 << endl;
     }
 
-    if(fabs(Pmax-Pmin)<1e-4)
+
+    if(fabs(Pmax-Pmin)<1e-3)
     {
         rho1 = (rhomax+rhomin)/2;
         rho2 = rho1;
     }
+
 
 
     f1 = cspline(rho,f,rho1);

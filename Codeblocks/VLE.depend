@@ -77,7 +77,7 @@
 	"Gibbs.h"
 	"EdE.h"
 
-1489382183 source:c:\ufrj\atoms\projeto-vle\código fonte\vle_multicomponente_phi_phi.cpp
+1491442690 source:c:\ufrj\atoms\projeto-vle\código fonte\vle_multicomponente_phi_phi.cpp
 	<cmath>
 	<cstdio>
 	<stdio.h>
@@ -183,7 +183,7 @@
 	<vector>
 	<algorithm>
 
-1489366357 c:\ufrj\atoms\projeto-vle\código fonte\numerical.h
+1490668830 c:\ufrj\atoms\projeto-vle\código fonte\numerical.h
 	<cstdio>
 	<cstdlib>
 	<cmath>

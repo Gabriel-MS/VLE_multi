@@ -97,6 +97,7 @@ output << "Component " << i+1 << " = " << cp[i] << endl;
 
 //Variáveis------------------------------------------------------------------------
 VectorXd Tc(nc), Pc(nc), omega(nc), r(nc), q(nc), q_prime(nc), q_(nc), A(nc), B(nc), C(nc), CT(nc), Psat(nc);
+VectorXd L_rg(nc), phi_rg(nc); //Renormalization
 VectorXd Tr(nc), alfa(nc), a(nc), b(nc), EdE_parameters(nc), K(nc), Kx(nc), one(nc);
 VectorXd omega_virtual(nc), Tc_virtual(nc), Pc_virtual(nc);
 VectorXd ln10(nc), logPsat(nc), lnPsat(nc), x(nc), y(nc), phi_liquid_phase(nc), phi_vapor_phase(nc);
@@ -109,6 +110,7 @@ VectorXd u_liquid(nc), u_vapor(nc), cond_u(nc);
 double tol_u, max_cond_u, u_liquid1, u_vapor1;
 int combining_rule, assoc_scheme;
 double Tc_a[nc], Pc_a[nc], omega_a[nc], r_a[nc], q_a[nc], q__a[nc], A_a[nc], B_a[nc], C_a[nc]; //Vetores em C++ apenas para gravar valores do arquivo
+double L_a[nc], phi_a[nc]; //Renormalization
 double E_a[nc], beta_a[nc], a0_a[nc], bCPA_a[nc], c1_a[nc];
 double Tc_v[nc], Pc_v [nc], omega_v[nc];
 double P, T, R, Pnew, sumKx, al, bl, av, bv, Ey;
@@ -198,6 +200,8 @@ beta_a[n] = prop[row][17];
 Tc_v[n] = prop[row][18];
 Pc_v[n] = prop[row][19];
 omega_v[n] = prop[row][20];
+L_a[n] = prop[row][21];
+phi_a[n] = prop[row][22];
 }
 
 //Reading C++ vectors into Eigen type vectors
@@ -259,6 +263,8 @@ beta[n] = beta_a[n];
 Tc_virtual[n] = Tc_v[n];
 Pc_virtual[n] = Pc_v[n];
 omega_virtual[n] = omega_v[n];
+L_rg[n] = L_a[n];
+phi_rg[n] = phi_a[n];
 }
 
 //--------------------------------------------------------------------------------
@@ -551,12 +557,16 @@ if(Renormalization==1)
     ofstream Not_splined;
     ofstream Envelope;
     ofstream dfnout;
+    ofstream xpp_out;
+    ofstream xpu_out;
     //ofstream before_renorm;
     //ofstream after_renorm;
 
     Renorm.open("../Planilhas de análise/Renormalization.csv");
     Not_splined.open("../Planilhas de análise/Renormalization_not_splined.csv");
     dfnout.open("dfn_msa_out.csv");
+    xpp_out.open("xpp.csv");
+    xpu_out.open("xpu.csv");
     //before_renorm.open("../Planilhas de análise/before_renorm.csv");
     //after_renorm.open("../Planilhas de análise/after_renorm.csv");
     Envelope.open("../Planilhas de análise/Envelope.csv");
@@ -728,8 +738,22 @@ if(EdE != 4)
 switch(critical_find)
 {
     case 1: //Use designated final temperature and steps
-    while(T<=final_T)
+while(T<=final_T)
 {
+    int p=0;
+
+    for(x(0)=0.005; x(0)<=1.000; x(0) = x(0) + 0.005)
+    {
+    cout << "x0 = " << x(0) << endl;
+
+    if(cp[0]==cp[1]) x(0) = 1; //If both components are equal, then consider pure component
+
+    x(1) = 1 - x(0);
+    //RG parameters
+    L = x(0)*pow(L_rg(0),3)+x(1)*pow(L_rg(1),3);
+    L = pow(L,1/3);
+    phi_r = x(0)*phi_rg(0) + x(1)*phi_rg(1);
+
     cout << "BEGIN==============================================================\n";
     //Recalculating Temperature-dependent parameters
 
@@ -874,14 +898,17 @@ if(r_type==1)
     //cout << "rho / fv = " << rho_vec[k] << " / " << fv(k) << " / "  << X(0) << endl;
 
     //DIMENSIONLESS!!!************************************************************
-    //if(EdE != 4) fv(k) = fv(k) + 0.5*am*rho_vector(k)*rho_vector(k);
+    ////////if(EdE != 4) fv(k) = fv(k) + 0.5*am*rho_vector(k)*rho_vector(k);
+
     if(EdE != 4) fv(k) = fv(k) + 0.5*rho_vector(k)*rho_vector(k);
     //DIMENSIONLESS!!!************************************************************
 
     f_originalv(k) = fv(k);
 
     //DIMENSIONLESS!!!************************************************************
-    //if(EdE != 4) f_originalv(k) = fv(k) - 0.5*am*rho_vector(k)*rho_vector(k);
+    /////////////if(EdE != 4) f_originalv(k) = fv(k) - 0.5*am*rho_vector(k)*rho_vector(k);
+
+
     if(EdE != 4) f_originalv(k) = fv(k) - 0.5*rho_vector(k)*rho_vector(k);
     //DIMENSIONLESS!!!************************************************************
 
@@ -976,7 +1003,9 @@ if(r_type==1)
     for(w=0; w<n; w++)
     {
     //DIMENSIONLESS!!!************************************************************
-    //if(EdE != 4) fv(w) = fv(w) - 0.5*am*rho_vector(w)*rho_vector(w);
+    /////////////if(EdE != 4) fv(w) = fv(w) - 0.5*am*rho_vector(w)*rho_vector(w);
+
+
     if(EdE != 4) fv(w) = fv(w) - 0.5*rho_vector(w)*rho_vector(w);
     //DIMENSIONLESS!!!************************************************************
 
@@ -1023,6 +1052,7 @@ for(w=0; w<1000; w++) //FAAAAAAAAAAAAAAAALSOOOOOOOOO
     if(EdE!=4) T = T*am/bm/R;
     if(EdE==4) T = T*am/R;
 
+//Subtract ideal gas contribution before cubic spline
 for(w=0; w<n; w++)
 {
     f_vec[w] = f_vec[w] - rho_vec[w]*R*T*(log(rho_vec[w])-1);
@@ -1035,8 +1065,7 @@ f0_vec_out = cspline_vec(rho_vec, f0_vec, rho_vec_out);
 u_vec = cspline_deriv1_vec(rho_vec, f_vec, rho_vec_out);
 u_vec_0 = cspline_deriv1_vec(rho_vec, f0_vec, rho_vec_out);
 
-//Add ideal gas contribution before cubic spline
-
+//Add ideal gas contribution after cubic spline
 for(w=0; w<n; w++)
 {
     f_vec_out[w] = f_vec_out[w] + rho_vec_out[w]*R*T*(log(rho_vec_out[w])-1);
@@ -1079,7 +1108,7 @@ for(i=0; i<1000; i++)
  if(EdE!=4)
  {
  Renorm << std::fixed << std::setprecision(15) << rho_vec_out[i] << ";" << f_vec_out[i] << ";"
-        << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i]<< ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T*am/bm/R << endl;
+        << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T*am/bm/R << endl;
  }
 
  if(EdE==4)
@@ -1096,11 +1125,43 @@ if(EdE==4) cout << "T = " << T*am/R << endl;
 if(EdE!=4) cout << "T = " << T*am/bm/R << endl;
 cout << "=======================================\n" << endl;
 
-k++;
+    //****************************START WRITING FILE WITH f function of mole fraction of density*****************
+    if(p<1)
+    {
+        xpp_out << ";"; //Cell A1 clear
+        xpu_out << ";"; //Cell A1 clear
 
-        T = T + step;
-        g++;
-}
+        //Write density values on first line
+        for(int i=0; i<1000; i++)
+        {
+        xpp_out << rho_vec_out[i]*bm << ";";//Handle P with mole fraction and density
+        xpu_out << rho_vec_out[i]*bm << ";";//Handle u with mole fraction and density
+        }
+
+        xpp_out << endl; //Jump to next line, start mole fractions P and u
+        xpu_out << endl; //Jump to next line, start mole fractions P and u
+    }
+
+
+    xpp_out << x(0) << ";"; //Write mole fraction on first column
+    xpu_out << x(0) << ";"; //Write mole fraction on first column
+
+    for(i=0; i<1000; i++)
+    {
+        xpp_out << P_vec[i] << ";";//Handle P with mole fraction and density
+        xpu_out << u_vec[i] << ";";//Handle u with mole fraction and density
+    }
+        xpp_out << endl; //Jump to next line, next mole fraction
+        xpu_out << endl; //Jump to next line, next mole fraction
+    //****************************END WRITING FILE WITH f function of mole fraction of density*****************
+
+k++;
+p++;
+
+    } //end for x loop
+    T = T + step;
+    g++;
+} //end while T loop
 
     envelope_tracer(1e-5,env_type);
 
