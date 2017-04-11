@@ -53,6 +53,11 @@ using namespace Eigen; //Biblioteca para trabalhar com matrizes e vetores
 int main()
 {
 
+//double aaa;
+//aaa = fugacity_renormalized(1,0.5,1,0.0000651244168963985,8.314e-6,273.15);
+
+
+
 //Arquivo de saída dos dados--------------------------------------------------------------------------
 ofstream output("../Planilhas de análise/Output.csv");
 output << "Dados da simulação \n -------------------------------------------------------------------------------------" << endl;
@@ -124,6 +129,17 @@ double G_ex;
 VectorXd Tsat(nc), Alog10P(nc), gama(nc), ln_gama(nc);
 double init_T, final_T, step, BETCR, init_P, final_P, Pold;
 int max_num_iter, counter, stop, Renormalization, sr_type, r_type, Iteration;
+
+        double** d2P; //Second derivative 2d array
+        d2P = new double *[200];
+        for(int k = 0; k <200; k++)
+            d2P[k] = new double[1000];
+
+        double** d2u; //Second derivative 2d array
+        d2u = new double *[200];
+        for(int k = 0; k <200; k++)
+            d2u[k] = new double[1000];
+
 //--------------------------------------------------------------------------------
 max_num_iter = 500;
 
@@ -565,8 +581,8 @@ if(Renormalization==1)
     Renorm.open("../Planilhas de análise/Renormalization.csv");
     Not_splined.open("../Planilhas de análise/Renormalization_not_splined.csv");
     dfnout.open("dfn_msa_out.csv");
-    xpp_out.open("xpp.csv");
-    xpu_out.open("xpu.csv");
+    xpp_out.open("../Planilhas de análise/xpp.csv");
+    xpu_out.open("../Planilhas de análise/xpu.csv");
     //before_renorm.open("../Planilhas de análise/before_renorm.csv");
     //after_renorm.open("../Planilhas de análise/after_renorm.csv");
     Envelope.open("../Planilhas de análise/Envelope.csv");
@@ -742,7 +758,7 @@ while(T<=final_T)
 {
     int p=0;
 
-    for(x(0)=0.005; x(0)<=1.000; x(0) = x(0) + 0.005)
+    for(x(0)=0.000; x(0)<=1.001; x(0) = x(0) + 0.005)
     {
     cout << "x0 = " << x(0) << endl;
 
@@ -1151,8 +1167,8 @@ cout << "=======================================\n" << endl;
         xpp_out << P_vec[i] << ";";//Handle P with mole fraction and density
         xpu_out << u_vec[i] << ";";//Handle u with mole fraction and density
     }
-        xpp_out << endl; //Jump to next line, next mole fraction
-        xpu_out << endl; //Jump to next line, next mole fraction
+        xpp_out << bm << endl; //Jump to next line, next mole fraction
+        xpu_out << bm << endl; //Jump to next line, next mole fraction
     //****************************END WRITING FILE WITH f function of mole fraction of density*****************
 
 k++;
@@ -1162,8 +1178,16 @@ p++;
     T = T + step;
     g++;
 } //end while T loop
+    if(cp[0] != cp[1])
+    {
+        d2Pgen(d2P);
+        d2ugen(d2u);
 
-    envelope_tracer(1e-5,env_type);
+        T = T_original;
+        Renormalization=2;
+        EdE = 5;
+    }
+    else envelope_tracer(1e-5,env_type);
 
     break;
 
@@ -2471,11 +2495,11 @@ for(i=0;i<(4*nc);i++)
 
     phase = 1;
     phi_liquid_phase = fugacity_function(nc, phase, al, bl, a, b, R, T, P, tolZl, EdE_parameters, MR, q_prime, r, Aij, x, q, EdE,
-                                         alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1);
+                                         alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1, d2P, d2u);
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
-                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1);
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u);
 
 
 K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
@@ -2525,7 +2549,7 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
-                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1);
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u);
 
 
     K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
@@ -2925,11 +2949,11 @@ for(i=0;i<(4*nc);i++)
 
     phase = 1;
     phi_liquid_phase = fugacity_function(nc, phase, al, bl, a, b, R, T, P, tolZl, EdE_parameters, MR, q_prime, r, Aij, x, q, EdE,
-                                         alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1);
+                                         alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1, d2P, d2u);
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
-                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1);
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u);
 
 
 K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
@@ -2980,7 +3004,7 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
-                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1);
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u);
 
 
     K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
@@ -3385,16 +3409,16 @@ for(i=0;i<(4*nc);i++)
     X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3);
     phase = 1;
     phi_liquid_phase = fugacity_function(nc, phase, al, bl, a, b, R, T, P, tolZl, EdE_parameters, MR, q_prime, r, Aij, x, q, EdE,
-                                         alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1);
+                                         alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1, d2P, d2u);
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
-                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1);
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u);
 
 
 K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
 Kx = (x.asDiagonal())*K;
-
+//cout << "Kx = " << Kx << endl;
     for(i=0; i<nc; i++)
     {
          one(i) = 1;
@@ -3440,7 +3464,7 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
-                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1);
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u);
 
 
     K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;

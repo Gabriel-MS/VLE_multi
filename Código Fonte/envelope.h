@@ -8,6 +8,147 @@
 #include <sstream>
 
 using namespace std;
+/*
+void envelope_mix_vle(double tol, int choice)
+{
+cout.precision(10);
+std::vector<double> rho(1000), P(1000), V(1000), A(1000), Pa(1000), f(1000), u(1000), zero(6), zerom(7), x(200);
+std::vector<double> zerom_last(3), zero_last(6);
+int stop, w, k, r;
+std::string fline;
+int number_linesp = 0;
+int number_linesu = 0;
+double T, u1, u2;
+w = 0;
+k = 0;
+
+ofstream Envelope("../Planilhas de análise/vle.csv");
+ifstream filep("../Planilhas de análise/xpp.csv");
+ifstream fileu("../Planilhas de análise/xpp.csv");
+Envelope << "T" << ";" << "P" << ";" << "x" << ";" << "y" << endl;
+
+
+while (std::getline(filep, fline))
+        ++number_linesp;
+        cout << "number of lines in file xpp: " << number_linesp << endl;
+        filep.close();
+
+while (std::getline(fileu, fline))
+        ++number_linesu;
+        cout << "number of lines in file xuu: " << number_linesu << endl;
+        fileu.close();
+
+
+    cout << "BEGIN VLE======================" << endl;
+
+    //Reading Data Bank for p
+    double datap[201][1001];
+    double datau[201][1001];
+
+    filep.open("../Planilhas de análise/xpp.csv");
+    for(int row = 0; row < number_linesp; ++row)
+    {
+    string line;
+    getline(filep, line);
+    if ( !filep.good() )
+    break;
+    stringstream iss(line);
+    for (int col = 0; col < 1001; ++col)
+    {
+    string val;
+    getline(iss, val, ';');
+    if ( !iss )
+    break;
+    stringstream convertor(val);
+    convertor >> datap[row][col];
+    }
+    }
+    filep.close();
+
+    fileu.open("../Planilhas de análise/xpu.csv");
+    for(int row = 0; row < number_linesp; ++row)
+    {
+    string line;
+    getline(fileu, line);
+    if ( !fileu.good() )
+    break;
+    stringstream iss(line);
+    for (int col = 0; col < 1001; ++col)
+    {
+    string val;
+    getline(iss, val, ';');
+    if ( !iss )
+    break;
+    stringstream convertor(val);
+    convertor >> datau[row][col];
+    }
+    }
+    fileu.close();
+
+    for(int i=0; i<200; i++)
+    {
+        for(int j=0; j<1000; j++)
+        {
+        x[i] = datap[i+1][0];
+        if(i<1) rhob[i] = datap[0][j+1];
+        P[i][j] = datap[i][j];
+        u[i][j] = datau[i][j];
+        }
+    }
+    //cout << " rho = " << rho[0] << " / " << rho[500] << " / " << rho[999] << endl;
+    //cout << " f = " << f[0] << " / " << f[500] << " / " << f[999] << endl;
+    //cout << " P = " << P[0] << " / " << P[500] << " / " << P[999] << endl;
+    //cout << " u = " << u[0] << " / " << u[500] << " / " << u[999] << endl;
+
+    switch(choice)
+    {
+    case 1: //Maxwell
+        //zerom = dens_maxwell(rho, P, f, tol);
+        //cout << "maxwell = " << T << " / " << zerom[0] << " / " << zerom[1] << " / " << zerom[2] << endl;
+        break;
+
+    case 2: //Area
+        break;
+
+    case 3: //Newton
+        zero = dens_newt(rho,f,P,u,tol);
+        cout << "newton = " << T << " / " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
+        break;
+
+    case 4: //Maxwell + Newton
+        //zerom = dens_maxwell(rho, P, f, tol);
+        //cout << "maxwell = " << T << " / " << zerom[0] << " / " << zerom[1] << " / " << zerom[2] << endl;
+        //zero = dens_newt(rho,f,P,u,tol);
+        //cout << "newton = " << T << " / " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
+        break;
+
+    case 5: //Faster Newton
+        /zero = dens_newt5(rho,f,P,u,tol);
+        //cout << "newton = " << T << " / " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
+        break;
+
+    case 6: //Newton seed
+        /if(w==0) zero = dens_newt(rho,f,P,u,tol);
+        //else zero = dens_newt_seed(rho,f,P,u,tol,zero_last);
+        //cout << "newton seed= " << T << " / " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
+        break;
+    }
+
+    for(int j=0; j<4; j++) zero_last[j] = zero[j];
+
+    //zero = dens_area(V, A, P);
+    //cout << "area = " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
+    Envelope << T << ";" << zero[0] << ";" << zero[1] << ";" << zero[2] << ";" << zero[4] << ";" << fabs(zero[3]-zero[2])
+             << ";" << fabs(zero[4]-zero[5]) << endl;
+    Envelope_max << T << ";" << zerom[0] << ";" << zerom[1] << ";" << zerom[2] << ";" << zerom[3] << ";" << zerom[4] << ";"
+                 << zerom[5] << ";" << zerom[6] << ";" << fabs(zerom[3]-zerom[4]) << ";" << fabs(zerom[5]-zerom[6]) << ";" << endl;
+
+    w++;
+    minline = w*1000+1;
+    maxline = minline+999;
+    }
+}
+*/
 
 void envelope_tracer_seed(double tol, int choice)
 {

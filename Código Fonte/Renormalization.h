@@ -9,6 +9,8 @@
 #include <unsupported/Eigen/KroneckerProduct>
 #include "MSA.h"
 #include "numerical.h"
+#include "bicubic.h"
+#include "math.h"
 
 using namespace Eigen;
 
@@ -849,7 +851,6 @@ void delta_exponent(double *delta, double rhoc, double uc)
     cout << "delta inside = " << delta << endl;
 }
 
-
 vector<double> estimate_L_phi(int k, double T)
 {
     //variables
@@ -863,5 +864,371 @@ vector<double> estimate_L_phi(int k, double T)
 
 
 }
+
+double fugacity_renormalized(int phase, double xint, double Pint, double bm, double R, double T, double **d2p, double **d2u)
+{
+    std::vector<double> rho(1000), P(1000), V(1000), A(1000), Pa(1000), f(1000), u(1000), x(200);
+    std::vector<double> Pvec(1000), Pfvec(1000);
+    std::string fline;
+    int number_linesp = 0;
+    int number_linesu = 0;
+    double rho_out, uint, ures, Z, lnphi, phi, rhoint;
+
+    ifstream filep("../Planilhas de análise/xpp.csv");
+    ifstream fileu("../Planilhas de análise/xpu.csv");
+
+    while (std::getline(filep, fline))
+        ++number_linesp;
+        filep.close();
+
+    while (std::getline(fileu, fline))
+        ++number_linesu;
+        fileu.close();
+
+    //Reading Data Bank for p and u
+    double **datap;
+    datap = new double *[201];
+    for(int k = 0; k <201; k++)
+        datap[k] = new double[1001];
+
+    double **datau;
+    datau = new double *[201];
+    for(int k = 0; k <201; k++)
+        datau[k] = new double[1001];
+
+    double **Pmat;
+    Pmat = new double *[200];
+    for(int k = 0; k <200; k++)
+        Pmat[k] = new double[1000];
+
+    double **umat;
+    umat = new double *[200];
+    for(int k = 0; k <200; k++)
+        umat[k] = new double[1000];
+
+    filep.open("../Planilhas de análise/xpp.csv");
+    for(int row = 0; row < 201; ++row)
+    {
+    string line;
+    getline(filep, line);
+    if ( !filep.good() )
+    break;
+    stringstream iss(line);
+    for (int col = 0; col < 1001; ++col)
+    {
+    string val;
+    getline(iss, val, ';');
+    if ( !iss )
+    break;
+    stringstream convertor(val);
+    convertor >> datap[row][col];
+    }
+    }
+    filep.close();
+
+    fileu.open("../Planilhas de análise/xpu.csv");
+    for(int row = 0; row < 201; ++row)
+    {
+    string line;
+    getline(fileu, line);
+    if ( !fileu.good() )
+    break;
+    stringstream iss(line);
+    for (int col = 0; col < 1001; ++col)
+    {
+    string val;
+    getline(iss, val, ';');
+    if ( !iss )
+    break;
+    stringstream convertor(val);
+    convertor >> datau[row][col];
+    }
+    }
+    fileu.close();
+
+    for(int i=0; i<200; i++)
+    {
+        x[i] = datap[i+1][0];
+        for(int j=0; j<1000; j++)
+        {
+        if(i<1) rho[j] = datap[0][j+1];
+        Pmat[i][j] = datap[i+1][j+1];
+        umat[i][j] = datau[i+1][j+1];
+        }
+
+    }
+    cout << "data read: " << x[0] << " " << x[199] << endl;
+    cout << "data read: " << rho[0] << " " << rho[999] << endl;
+
+    //Adjusting parameters to splin2
+    int n1 = x.size();
+    int n2 = rho.size();
+    double x1a[n1], x2a[n2];
+
+    for(int i=0;i<n1;i++)
+    {
+        x1a[i] = x[i];
+    }
+
+    for(int i=0;i<n2;i++)
+    {
+        x2a[i] = rho[i];
+    }
+
+    //Interpolating isotherm for given x
+    double Pvint;
+    //Pvec[0] = bicubic_s_int(x,rho,xint,0.0005,Pmat);
+
+    splin2(x1a,x2a,Pmat,d2p,n1,n2,xint,0.0005,&Pvint);
+    Pvec[0] = Pvint;
+
+
+    //Pfvec[0] = Pvec[0] - Pint;
+    for(int i=1;i<200;i++)
+    {
+        rhoint = rho[i];
+        rhoint = double(i)/200;
+
+        splin2(x1a,x2a,Pmat,d2p,n1,n2,xint,rhoint,&Pvint);
+        //cout << "try " << Pvec[i] << endl;
+        Pvec[i] = Pvint;
+
+        //Pvec[i] = bicubic_s_int(x,rho,xint,rhoint,Pmat);
+        Pfvec[i] = Pvec[i] - Pint;
+        //cout << "interpolation: " << i << " x " << xint << " rho " << rhoint << " " << rhoint/bm
+        //     << " P " << Pvec[i] << " Pf " << Pfvec[i] << endl;
+    }
+    cout << "interpolated: x = " << xint << endl;
+
+    //Bracketing the real densities at given P
+    int max1 = 0;
+    int min1 = 900;
+    int max2 = max1+1;
+    int min2 = min1-1;
+    while(Pfvec[max1]*Pfvec[max2]>0)
+    max2 = max2+5;
+    if(max2-10<0) max1 = 0;
+    else max1 = max2-10;
+
+    while(Pfvec[min1]*Pfvec[min2]>0)
+    min2 = min2-5;
+    min1 = min2+10;
+    cout << "bracketed: " << min1 << " " << min2 << " " << max1 << " " << max2 << endl;
+
+    //Calculate coexistence densities in interpolated isotherm for given P
+    double rho_vap = falsi_spline(rho, Pfvec, rho[max1], rho[max2], 1e-5);
+    double rho_liq = falsi_spline(rho, Pfvec, rho[min1], rho[min2], 1e-5);
+    cout << "densities found: " << rho_vap/bm << " " << rho_liq/bm << endl;
+
+    //Select desired density
+    if(phase==1) rho_out = rho_liq;
+    if(phase==2) rho_out = rho_vap;
+
+    //Interpolate chemical potential, calculate residual
+    //uint = bicubic_s_int(x,rho,xint,rho_out,umat);
+
+    splin2(x1a,x2a,umat,d2u,n1,n2,xint,rho_out,&uint);
+
+    ures = uint - R*T*log(rho_out/bm); //Use bm because throughout the function rho is adimensional
+    cout << "chemical potential: " << uint << " ures: " << ures << " bm: "  << bm << endl;
+
+    //Calculate Z
+    Z = Pint/(R*T*(rho_out/bm));
+    cout << "Z: " << Z << " T: " << T << " P: " << Pint << " R: " << R << " rho_out/bm: " << rho_out/bm << endl;
+
+    //Calculate phi
+    lnphi = ures/R/T - log(Z);
+    phi = exp(lnphi);
+
+    cout << phase << "  phi: " << phi << " " << lnphi << endl;
+    //delete[] datap;
+    //delete[] datau;
+    //delete[] Pmat;
+    //delete[] umat;
+
+        for(int i=0; i<201; i++)
+        {
+        delete[] datap[i];
+        delete[] datau[i];
+        }
+        for(int i=0; i<200; i++)
+        {
+        delete[] Pmat[i];
+        delete[] umat[i];
+        }
+        delete[] datap;
+        delete[] datau;
+        delete[] Pmat;
+        delete[] umat;
+
+    return phi;
+}
+
+void d2Pgen(double **d2y)
+{
+    std::vector<double> rho(1000), x(200);
+    std::string fline;
+    int number_linesp = 0;
+
+    ifstream filep("../Planilhas de análise/xpp.csv");
+
+    while (std::getline(filep, fline))
+        ++number_linesp;
+        filep.close();
+
+    //Reading Data Bank for p and u
+    double **datap;
+    datap = new double *[201];
+    for(int k = 0; k <201; k++)
+        datap[k] = new double[1001];
+
+    double **Pmat;
+    Pmat = new double *[200];
+    for(int k = 0; k <200; k++)
+        Pmat[k] = new double[1000];
+
+    filep.open("../Planilhas de análise/xpp.csv");
+    for(int row = 0; row < 201; ++row)
+    {
+    string line;
+    getline(filep, line);
+    if ( !filep.good() )
+    break;
+    stringstream iss(line);
+    for (int col = 0; col < 1001; ++col)
+    {
+    string val;
+    getline(iss, val, ';');
+    if ( !iss )
+    break;
+    stringstream convertor(val);
+    convertor >> datap[row][col];
+    }
+    }
+    filep.close();
+
+    for(int i=0; i<200; i++)
+    {
+        x[i] = datap[i+1][0];
+        for(int j=0; j<1000; j++)
+        {
+        if(i<1) rho[j] = datap[0][j+1];
+        Pmat[i][j] = datap[i+1][j+1];
+        }
+
+    }
+
+    //Adjusting parameters to splie2
+    int n1 = x.size();
+    int n2 = rho.size();
+    double x1a[n1], x2a[n2];
+
+    for(int i=0;i<n1;i++)
+    {
+        x1a[i] = x[i];
+    }
+
+    for(int i=0;i<n2;i++)
+    {
+        x2a[i] = rho[i];
+    }
+
+    splie2(x1a,x2a,n1,n2,Pmat,d2y);
+
+        for(int i=0; i<201; i++)
+        {
+        delete[] datap[i];
+        }
+        for(int i=0; i<200; i++)
+        {
+        delete[] Pmat[i];
+        }
+        delete[] datap;
+        delete[] Pmat;
+}
+
+void d2ugen(double **d2y)
+{
+    std::vector<double> rho(1000), x(200);
+    std::string fline;
+    int number_linesu = 0;
+
+    ifstream fileu("../Planilhas de análise/xpu.csv");
+
+    while (std::getline(fileu, fline))
+        ++number_linesu;
+        fileu.close();
+
+    //Reading Data Bank for p and u
+    double **datau;
+    datau = new double *[201];
+    for(int k = 0; k <201; k++)
+        datau[k] = new double[1001];
+
+    double **umat;
+    umat = new double *[200];
+    for(int k = 0; k <200; k++)
+        umat[k] = new double[1000];
+
+    fileu.open("../Planilhas de análise/xpu.csv");
+    for(int row = 0; row < 201; ++row)
+    {
+    string line;
+    getline(fileu, line);
+    if ( !fileu.good() )
+    break;
+    stringstream iss(line);
+    for (int col = 0; col < 1001; ++col)
+    {
+    string val;
+    getline(iss, val, ';');
+    if ( !iss )
+    break;
+    stringstream convertor(val);
+    convertor >> datau[row][col];
+    }
+    }
+    fileu.close();
+
+    for(int i=0; i<200; i++)
+    {
+        x[i] = datau[i+1][0];
+        for(int j=0; j<1000; j++)
+        {
+        if(i<1) rho[j] = datau[0][j+1];
+        umat[i][j] = datau[i+1][j+1];
+        }
+
+    }
+
+    //Adjusting parameters to splie2
+    int n1 = x.size();
+    int n2 = rho.size();
+    double x1a[n1], x2a[n2];
+
+    for(int i=0;i<n1;i++)
+    {
+        x1a[i] = x[i];
+    }
+
+    for(int i=0;i<n2;i++)
+    {
+        x2a[i] = rho[i];
+    }
+
+    splie2(x1a,x2a,n1,n2,umat,d2y);
+
+        for(int i=0; i<201; i++)
+        {
+        delete[] datau[i];
+        }
+        for(int i=0; i<200; i++)
+        {
+        delete[] umat[i];
+        }
+        delete[] datau;
+        delete[] umat;
+}
+
 
 #endif // RENORMALIZATION_H_INCLUDED

@@ -10,6 +10,8 @@
 #include "Gibbs.h"
 #include "mixingrules.h"
 #include "Association.h"
+#include "bicubic.h"
+#include "Renormalization.h"
 #include <vector>
 
 using namespace Eigen;
@@ -47,6 +49,16 @@ switch(EdE)
         pre_Tr = (-Tr.array().pow(0.5))+1;
         omega2 = omega.array().pow(2);
         alfa_termo1 = c1;
+        pre_alfa = (alfa_termo1 * pre_Tr.transpose());
+        pre_alfa2 = 1 + pre_alfa.diagonal().array();
+        //pre_alfa = 1 + ((omega.array()*1.574 - 0.176*omega.array().pow(2) + 0.480) * pre_Tr.asDiagonal()).diagonal();
+        alfa = pre_alfa2.array().pow(2);
+        break;
+
+    case 5: //SRK
+        pre_Tr = (-Tr.array().pow(0.5))+1;
+        omega2 = omega.array().pow(2);
+        alfa_termo1 = 0.48 + omega.array()*1.574 - 0.176*omega2.array();
         pre_alfa = (alfa_termo1 * pre_Tr.transpose());
         pre_alfa2 = 1 + pre_alfa.diagonal().array();
         //pre_alfa = 1 + ((omega.array()*1.574 - 0.176*omega.array().pow(2) + 0.480) * pre_Tr.asDiagonal()).diagonal();
@@ -91,6 +103,14 @@ VectorXd EdE_parameters_function(int EdE)
         OMEGA = 0;
         PSI = 0;
         break;
+
+    case 5: //SRK
+        sigma = 1;
+        epsilon = 0;
+        OMEGA = 0.08664;
+        PSI = 0.42748;
+        break;
+
 	}
 EdE_parameters[0] = sigma;
 EdE_parameters[1] = epsilon;
@@ -98,37 +118,6 @@ EdE_parameters[2] = OMEGA;
 EdE_parameters[3] = PSI;
 
 	return EdE_parameters;
-}
-
-//Temporary function to hold msa data for co2 and c4
-vector<double> d_msa(int comp)
-{
-
-vector<double> data(7);
-
-if(comp==1) // CO2
-{
-data[0] = 0.16179E-02; //a111
-data[1] = 0.22172E+01; //a112
-data[2] = 0.20000E+01; //a113
-data[3] = 0.13311E-04; //b111
-data[4] = 0.00000E+00; //b112
-data[5] = 0.00000E+00; //b113
-data[6] = 0.16500E+01; //xlam
-}
-
-if(comp==2) // n-butane
-{
-data[0] = 0.22613E-02; //a111
-data[1] = 0.36637E+01; //a112
-data[2] = 0.20000E+01; //a113
-data[3] = 0.36177E-04; //b111
-data[4] = 0.00000E+00; //b112
-data[5] = 0.00000E+00; //b113
-data[6] = 0.16500E+01; //xlam
-}
-
-return data;
 }
 
 //Function to calculate ai to msa model
@@ -264,6 +253,27 @@ switch(EdE)
     a(0) = (a111 + pow((a112/500),a113));
     a(1) = (a221 + pow((a222/500),a223));
     break;
+
+    case 5: //SRK
+    sigma = EdE_parameters[0];
+    epsilon = EdE_parameters[1];
+    OMEGA = EdE_parameters[2];
+    PSI = EdE_parameters[3];
+
+    pre_a = PSI*R*R*alfa.array();
+    Tc2 = (Tc.array().pow(2))/1000; //sem essa divisão, o valor extrapola o limite superior
+    pre_a2 = (Tc2.asDiagonal())*pre_a;
+    a = (Pc.asDiagonal().inverse())*pre_a2;
+    a = a.array()*1000;
+
+    pre_a = (PSI*R*R*alfa.array());
+    Tc2 = (Tc.array().pow(2))/1000; //sem essa divisão, o valor extrapola o limite superior
+    //pre_a2 = ;
+    a = 1000*((Pc.asDiagonal().inverse())*((Tc2.asDiagonal()*pre_a))).array();
+    //a = a.array()*1000;
+    //cin>> sigma;
+
+    break;
 }
 
     return a;
@@ -310,6 +320,11 @@ case 4: //MSA
     b223 = msa_data[5];
     b(0) = b221 + b222/500 + b223/pow(500,2);
     b(1) = b221 + b222/500 + b223/pow(500,2);
+
+case 5: //SRK
+    pre_b = OMEGA*R*Tc.array();
+    b = pre_b.transpose()*Pc.asDiagonal().inverse();
+    break;
 }
 
     return b;
@@ -963,7 +978,7 @@ return X;
 VectorXd fugacity_function(int nc, int phase, double am, double bm, VectorXd a, VectorXd b, double R, double T, double P,
                            double tolZ, VectorXd EdE_parameters, int MR, VectorXd q_prime, VectorXd r, MatrixXd A, VectorXd x,
                            VectorXd qUNIQUAC, int EdE, MatrixXd alfa_NRTL, int G_ex_model, double k12, VectorXd X, double tolV,
-                           double V, VectorXd n_v, double Vt, double *Z_phase, double *u_phase)
+                           double V, VectorXd n_v, double Vt, double *Z_phase, double *u_phase, double **d2p, double **d2u)
 {
     //Variables-----------------------------------------------------------------------
     int d;
@@ -1379,6 +1394,7 @@ d = 0;
     //==============================================================================================================
 
     case 3: //CPA
+    {
     int i, j, nc4;
     nc4 = 4*nc;
     double Z_assoc, Z_SRK, Z_CPA, p_dlng_dp, h, Fn, f, fV, D_T, FB, FD, Bcpa, eta, g, u_assoc_4, n_t;
@@ -1653,8 +1669,15 @@ PSI = EdE_parameters[3];
      cout << "ln_phi_phys3 = " << ln_phi_phys3.transpose() << endl;
      cout << "ln_phi = " << ln_phi.transpose() << endl;
      cout << "phi = " << phi.transpose() << endl;
-     */
+     */}
      break;
+
+
+    case 5: //SRK+RG
+    cout<< "T enter: " << T << endl;
+    {phi(0) = fugacity_renormalized(phase,x(0),P,bm,R,T,d2p,d2u);
+    phi(1) = fugacity_renormalized(phase,x(1),P,bm,R,T,d2p,d2u);}
+    break;
 
     }
 

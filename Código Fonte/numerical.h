@@ -1764,7 +1764,6 @@ vector<double> dens_newt5(vector<double>& rho, vector<double>& f, vector<double>
     return rhov;
 }
 
-
 //Function to calculate phase coexistence densities
 //Using Newton method
 vector<double> dens_newt_seed(vector<double>& rho, vector<double>& f, vector<double>& P, vector<double>& u, double tol, vector<double>& seed)

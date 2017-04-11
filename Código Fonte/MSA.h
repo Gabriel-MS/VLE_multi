@@ -7,6 +7,37 @@
 
 using namespace std;
 
+//Temporary function to hold msa data for co2 and c4
+vector<double> d_msa(int comp)
+{
+
+vector<double> data(7);
+
+if(comp==1) // CO2
+{
+data[0] = 0.16179E-02; //a111
+data[1] = 0.22172E+01; //a112
+data[2] = 0.20000E+01; //a113
+data[3] = 0.13311E-04; //b111
+data[4] = 0.00000E+00; //b112
+data[5] = 0.00000E+00; //b113
+data[6] = 0.16500E+01; //xlam
+}
+
+if(comp==2) // n-butane
+{
+data[0] = 0.22613E-02; //a111
+data[1] = 0.36637E+01; //a112
+data[2] = 0.20000E+01; //a113
+data[3] = 0.36177E-04; //b111
+data[4] = 0.00000E+00; //b112
+data[5] = 0.00000E+00; //b113
+data[6] = 0.16500E+01; //xlam
+}
+
+return data;
+}
+
 double script_f(double tstar, double y, double xlam)
 {
 std::complex<double> l, fj, f1j, m, m1, s, s1, s2, fi, f1i, ej, e1j, e2j, n, n1, a, a1, sum1, sum2, cj, c1;
