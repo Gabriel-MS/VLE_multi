@@ -129,6 +129,7 @@ double G_ex;
 VectorXd Tsat(nc), Alog10P(nc), gama(nc), ln_gama(nc);
 double init_T, final_T, step, BETCR, init_P, final_P, Pold;
 int max_num_iter, counter, stop, Renormalization, sr_type, r_type, Iteration;
+std::vector<double> rho_rv(1000), x_rv(200);
 
         double** d2P; //Second derivative 2d array
         d2P = new double *[200];
@@ -139,6 +140,16 @@ int max_num_iter, counter, stop, Renormalization, sr_type, r_type, Iteration;
         d2u = new double *[200];
         for(int k = 0; k <200; k++)
             d2u[k] = new double[1000];
+
+        double **Pmat;
+        Pmat = new double *[200];
+        for(int k = 0; k <200; k++)
+            Pmat[k] = new double[1000];
+
+        double **umat;
+        umat = new double *[200];
+        for(int k = 0; k <200; k++)
+            umat[k] = new double[1000];
 
 //--------------------------------------------------------------------------------
 max_num_iter = 500;
@@ -180,8 +191,21 @@ cout << "\nChoose the Model: \n 1.Soave-Redlich-Kwong \n 2.Peng-Robinson \n 3.CP
 cin >> EdE;
 output << "Equation of state = " << EdE << endl;
 
-cout << "\nConsider Renormalization? \n 1.Yes \n 2.No " << endl;
+cout << "\nConsider Renormalization? \n 1.Yes \n 2.No \n 3.Use renormalized data from previous simulation" << endl;
 cin >> Renormalization;
+
+if(Renormalization==3)
+{
+    d2Pgen(d2P);
+    d2ugen(d2u);
+    renorm_mat_reader(Pmat,umat);
+    rho_rv = renorm_rhovec();
+    x_rv = renorm_xvec();
+    EdE = 5;
+    Renormalization = 2;
+}
+
+
 
 if(Renormalization==1)
 {
@@ -767,9 +791,8 @@ while(T<=final_T)
     x(1) = 1 - x(0);
     //RG parameters
     L = x(0)*pow(L_rg(0),3)+x(1)*pow(L_rg(1),3);
-    L = pow(L,1/3);
+    L = pow(L,(1./3.));
     phi_r = x(0)*phi_rg(0) + x(1)*phi_rg(1);
-
     cout << "BEGIN==============================================================\n";
     //Recalculating Temperature-dependent parameters
 
@@ -1182,6 +1205,9 @@ p++;
     {
         d2Pgen(d2P);
         d2ugen(d2u);
+        renorm_mat_reader(Pmat,umat);
+        rho_rv = renorm_rhovec();
+        x_rv = renorm_xvec();
 
         T = T_original;
         Renormalization=2;
@@ -2495,11 +2521,13 @@ for(i=0;i<(4*nc);i++)
 
     phase = 1;
     phi_liquid_phase = fugacity_function(nc, phase, al, bl, a, b, R, T, P, tolZl, EdE_parameters, MR, q_prime, r, Aij, x, q, EdE,
-                                         alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1, d2P, d2u);
+                                         alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1, d2P, d2u, x_rv, rho_rv,
+                                         Pmat, umat);
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
-                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u);
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u, x_rv, rho_rv,
+                                        Pmat, umat);
 
 
 K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
@@ -2549,7 +2577,8 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
-                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u);
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u, x_rv, rho_rv,
+                                         Pmat, umat);
 
 
     K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
@@ -2949,11 +2978,13 @@ for(i=0;i<(4*nc);i++)
 
     phase = 1;
     phi_liquid_phase = fugacity_function(nc, phase, al, bl, a, b, R, T, P, tolZl, EdE_parameters, MR, q_prime, r, Aij, x, q, EdE,
-                                         alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1, d2P, d2u);
+                                         alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1, d2P, d2u, x_rv, rho_rv,
+                                         Pmat, umat);
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
-                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u);
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u, x_rv, rho_rv,
+                                         Pmat, umat);
 
 
 K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
@@ -3004,7 +3035,8 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
-                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u);
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u, x_rv, rho_rv,
+                                         Pmat, umat);
 
 
     K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
@@ -3409,16 +3441,18 @@ for(i=0;i<(4*nc);i++)
     X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3);
     phase = 1;
     phi_liquid_phase = fugacity_function(nc, phase, al, bl, a, b, R, T, P, tolZl, EdE_parameters, MR, q_prime, r, Aij, x, q, EdE,
-                                         alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1, d2P, d2u);
+                                         alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1, d2P, d2u, x_rv, rho_rv,
+                                         Pmat, umat);
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
-                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u);
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u, x_rv, rho_rv,
+                                         Pmat, umat);
 
 
 K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
 Kx = (x.asDiagonal())*K;
-//cout << "Kx = " << Kx << endl;
+
     for(i=0; i<nc; i++)
     {
          one(i) = 1;
@@ -3464,7 +3498,8 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
-                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u);
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u, x_rv, rho_rv,
+                                         Pmat, umat);
 
 
     K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
@@ -3492,6 +3527,7 @@ Ey = sumKx-1;
 errorKx = fabs(Ey);
 
 errorKx = errorKx/sumKx;
+cout << "errorKx: " << errorKx << " sumKx: " << sumKx << " K: " << K << endl;
 
 y = Kx.array()/sumKx;
 

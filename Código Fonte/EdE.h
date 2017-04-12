@@ -978,7 +978,8 @@ return X;
 VectorXd fugacity_function(int nc, int phase, double am, double bm, VectorXd a, VectorXd b, double R, double T, double P,
                            double tolZ, VectorXd EdE_parameters, int MR, VectorXd q_prime, VectorXd r, MatrixXd A, VectorXd x,
                            VectorXd qUNIQUAC, int EdE, MatrixXd alfa_NRTL, int G_ex_model, double k12, VectorXd X, double tolV,
-                           double V, VectorXd n_v, double Vt, double *Z_phase, double *u_phase, double **d2p, double **d2u)
+                           double V, VectorXd n_v, double Vt, double *Z_phase, double *u_phase, double **d2p, double **d2u,
+                           vector<double>& x_rv, vector<double>& rho_rv, double **Pmat, double **umat)
 {
     //Variables-----------------------------------------------------------------------
     int d;
@@ -1674,9 +1675,8 @@ PSI = EdE_parameters[3];
 
 
     case 5: //SRK+RG
-    cout<< "T enter: " << T << endl;
-    {phi(0) = fugacity_renormalized(phase,x(0),P,bm,R,T,d2p,d2u);
-    phi(1) = fugacity_renormalized(phase,x(1),P,bm,R,T,d2p,d2u);}
+    {phi(0) = fugacity_renormalized(phase,x(0),P,bm,R,T,d2p,d2u,x_rv,rho_rv,Pmat,umat);
+    phi(1) = fugacity_renormalized(phase,x(1),P,bm,R,T,d2p,d2u,x_rv,rho_rv,Pmat,umat);}
     break;
 
     }
