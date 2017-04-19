@@ -151,6 +151,16 @@ std::vector<double> rho_rv(1000), x_rv(200);
         for(int k = 0; k <200; k++)
             umat[k] = new double[1000];
 
+        double **u1mat;
+        u1mat = new double *[200];
+        for(int k = 0; k <200; k++)
+            u1mat[k] = new double[1000];
+
+        double **u2mat;
+        u2mat = new double *[200];
+        for(int k = 0; k <200; k++)
+            u2mat[k] = new double[1000];
+
 //--------------------------------------------------------------------------------
 max_num_iter = 500;
 
@@ -199,6 +209,7 @@ if(Renormalization==3)
     d2Pgen(d2P);
     d2ugen(d2u);
     renorm_mat_reader(Pmat,umat);
+    renorm_uu_reader(u1mat,u2mat);
     rho_rv = renorm_rhovec();
     x_rv = renorm_xvec();
     EdE = 5;
@@ -336,7 +347,7 @@ alfa_NRTL(1,0) = alfa_NRTL(0,1);
 
 //Ideal gas constant
 R = 0.08314462; // L.bar/K/mol
-R = 0.000008314; //MPa.m³/mol/K
+R = 0.000008314462; //MPa.m³/mol/K
 //R = 8.3144598;
 
 //Tolerances
@@ -403,6 +414,9 @@ logPsat = A - (CT.asDiagonal().inverse()*B);
 ln10.fill(log(10));
 lnPsat = (logPsat*ln10.transpose()).diagonal();
 Psat = lnPsat.array().exp();
+cout << "Psat bar= " << Psat << endl;
+Psat = Psat.array()/10; //Converting from bar to MPa
+cout << "Psat MPa= " << Psat << endl;
 break;
 
 case 2: //Isobaric
@@ -599,6 +613,8 @@ if(Renormalization==1)
     ofstream dfnout;
     ofstream xpp_out;
     ofstream xpu_out;
+    ofstream xpu1_out;
+    ofstream xpu2_out;
     //ofstream before_renorm;
     //ofstream after_renorm;
 
@@ -607,6 +623,8 @@ if(Renormalization==1)
     dfnout.open("dfn_msa_out.csv");
     xpp_out.open("../Planilhas de análise/xpp.csv");
     xpu_out.open("../Planilhas de análise/xpu.csv");
+    xpu1_out.open("../Planilhas de análise/xpu1.csv");
+    xpu2_out.open("../Planilhas de análise/xpu2.csv");
     //before_renorm.open("../Planilhas de análise/before_renorm.csv");
     //after_renorm.open("../Planilhas de análise/after_renorm.csv");
     Envelope.open("../Planilhas de análise/Envelope.csv");
@@ -631,6 +649,7 @@ if(Renormalization==1)
 
     std::vector<double> rho_vec_out(1000), dP2dV2(1000), dP_dV(1000), P_vec(1000), du_dV(1000);
     std::vector<double> u_vec(1000), u_vec_0(1000), P_vec_0(1000), f_vec_out(1000), f0_vec_out(1000);
+    std::vector<double> rho1_vec_out(1000), rho2_vec_out(1000), u_vec_res1(1000), u_vec_res2(1000);
 
 
     //MatrixXd Area(1000,1000);
@@ -649,6 +668,7 @@ if(Renormalization==1)
 
 
     std::vector<double> rho_vec(n), f_vec(n), u_vec1(n), f0_vec(n), P_vec1(n), Glv2(n), Gsv2(n);
+    std::vector<double> rho1_vec(n), rho2_vec(n);
     std::vector<double> flvv(n), fsvv(n);
     VectorXd fl_old_p(n), fl_oldv(n), fl_old_m(n), fs_old_p(n), fs_oldv(n), fs_old_m(n), rho_vector2(n), f_after(n), f_before(n);
     VectorXd flv(n), fsv(n), fv(n), rho_vector(n), delta_fv(n), f_originalv(n), Glv(n), Gsv(n), argl(n), args(n);
@@ -1083,6 +1103,11 @@ for(w=0; w<1000; w++) //FAAAAAAAAAAAAAAAALSOOOOOOOOO
     rho_vec_out[w] = double(w)/1000/bm;
     rho_vec_out[0] = 1e-6;
 
+    rho1_vec[w] = double(w)/1000/b(0);
+    rho2_vec[w] = double(w)/1000/b(1);
+    rho1_vec_out[w] = double(w)/1000/b(0);
+    rho2_vec_out[w] = double(w)/1000/b(1);
+
     //DIMENSIONLESS!!!************************************************************
     //rho_vec_out[w] = double(w)/1000/bm*bm;
     //rho_vec_out[0] = 1e-6*bm;
@@ -1104,6 +1129,9 @@ f0_vec_out = cspline_vec(rho_vec, f0_vec, rho_vec_out);
 u_vec = cspline_deriv1_vec(rho_vec, f_vec, rho_vec_out);
 u_vec_0 = cspline_deriv1_vec(rho_vec, f0_vec, rho_vec_out);
 
+u_vec_res1 = cspline_deriv1_vec(rho1_vec, f_vec, rho1_vec_out);
+u_vec_res2 = cspline_deriv1_vec(rho2_vec, f_vec, rho2_vec_out);
+
 //Add ideal gas contribution after cubic spline
 for(w=0; w<n; w++)
 {
@@ -1124,18 +1152,18 @@ for(i=0; i<1000; i++)
     //       << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T << endl;
 }
 
-    double a, b;
+    double a, b1;
     a = (P_vec[505]-P_vec[495])/(rho_vec_out[505]-rho_vec_out[495]);
-    b = P_vec[505]-a*rho_vec_out[505];
-    P_vec[496] = a*rho_vec_out[496] + b;
-    P_vec[497] = a*rho_vec_out[497] + b;
-    P_vec[498] = a*rho_vec_out[498] + b;
-    P_vec[499] = a*rho_vec_out[499] + b;
-    P_vec[500] = a*rho_vec_out[500] + b;
-    P_vec[501] = a*rho_vec_out[501] + b;
-    P_vec[502] = a*rho_vec_out[502] + b;
-    P_vec[503] = a*rho_vec_out[503] + b;
-    P_vec[504] = a*rho_vec_out[504] + b;
+    b1 = P_vec[505]-a*rho_vec_out[505];
+    P_vec[496] = a*rho_vec_out[496] + b1;
+    P_vec[497] = a*rho_vec_out[497] + b1;
+    P_vec[498] = a*rho_vec_out[498] + b1;
+    P_vec[499] = a*rho_vec_out[499] + b1;
+    P_vec[500] = a*rho_vec_out[500] + b1;
+    P_vec[501] = a*rho_vec_out[501] + b1;
+    P_vec[502] = a*rho_vec_out[502] + b1;
+    P_vec[503] = a*rho_vec_out[503] + b1;
+    P_vec[504] = a*rho_vec_out[504] + b1;
     //cout << "a = " << a << " / " << b << P_vec[500] << endl;
 
 for(i=0; i<1000; i++)
@@ -1169,29 +1197,42 @@ cout << "=======================================\n" << endl;
     {
         xpp_out << ";"; //Cell A1 clear
         xpu_out << ";"; //Cell A1 clear
+        xpu1_out << ";"; //Cell A1 clear
+        xpu2_out << ";"; //Cell A1 clear
 
         //Write density values on first line
         for(int i=0; i<1000; i++)
         {
         xpp_out << rho_vec_out[i]*bm << ";";//Handle P with mole fraction and density
         xpu_out << rho_vec_out[i]*bm << ";";//Handle u with mole fraction and density
+        xpu1_out << rho1_vec_out[i]*b(0) << ";";//Handle u with mole fraction and density
+        xpu2_out << rho2_vec_out[i]*b(1) << ";";//Handle u with mole fraction and density
         }
 
         xpp_out << endl; //Jump to next line, start mole fractions P and u
         xpu_out << endl; //Jump to next line, start mole fractions P and u
+        xpu1_out << endl; //Jump to next line, start mole fractions P and u
+        xpu2_out << endl; //Jump to next line, start mole fractions P and u
     }
 
 
     xpp_out << x(0) << ";"; //Write mole fraction on first column
     xpu_out << x(0) << ";"; //Write mole fraction on first column
+    xpu1_out << x(0) << ";"; //Write mole fraction on first column
+    xpu2_out << x(0) << ";"; //Write mole fraction on first column DOUBT
 
     for(i=0; i<1000; i++)
     {
         xpp_out << P_vec[i] << ";";//Handle P with mole fraction and density
         xpu_out << u_vec[i] << ";";//Handle u with mole fraction and density
+        xpu1_out << u_vec_res1[i] << ";";//Handle u with mole fraction and density
+        xpu2_out << u_vec_res2[i] << ";";//Handle u with mole fraction and density
     }
+
         xpp_out << bm << endl; //Jump to next line, next mole fraction
         xpu_out << bm << endl; //Jump to next line, next mole fraction
+        xpu1_out << b(0) << endl; //Jump to next line, next mole fraction
+        xpu2_out << b(1) << endl; //Jump to next line, next mole fraction
     //****************************END WRITING FILE WITH f function of mole fraction of density*****************
 
 k++;
@@ -1206,6 +1247,7 @@ p++;
         d2Pgen(d2P);
         d2ugen(d2u);
         renorm_mat_reader(Pmat,umat);
+        renorm_uu_reader(u1mat,u2mat);
         rho_rv = renorm_rhovec();
         x_rv = renorm_xvec();
 
@@ -2522,12 +2564,12 @@ for(i=0;i<(4*nc);i++)
     phase = 1;
     phi_liquid_phase = fugacity_function(nc, phase, al, bl, a, b, R, T, P, tolZl, EdE_parameters, MR, q_prime, r, Aij, x, q, EdE,
                                          alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1, d2P, d2u, x_rv, rho_rv,
-                                         Pmat, umat);
+                                         Pmat, umat, u1mat, u2mat);
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
                                         alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u, x_rv, rho_rv,
-                                        Pmat, umat);
+                                        Pmat, umat, u1mat, u2mat);
 
 
 K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
@@ -2578,7 +2620,7 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
                                         alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u, x_rv, rho_rv,
-                                         Pmat, umat);
+                                         Pmat, umat, u1mat, u2mat);
 
 
     K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
@@ -2979,12 +3021,12 @@ for(i=0;i<(4*nc);i++)
     phase = 1;
     phi_liquid_phase = fugacity_function(nc, phase, al, bl, a, b, R, T, P, tolZl, EdE_parameters, MR, q_prime, r, Aij, x, q, EdE,
                                          alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1, d2P, d2u, x_rv, rho_rv,
-                                         Pmat, umat);
+                                         Pmat, umat, u1mat, u2mat);
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
                                         alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u, x_rv, rho_rv,
-                                         Pmat, umat);
+                                         Pmat, umat, u1mat, u2mat);
 
 
 K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
@@ -3036,7 +3078,7 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
                                         alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u, x_rv, rho_rv,
-                                         Pmat, umat);
+                                         Pmat, umat, u1mat, u2mat);
 
 
     K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
@@ -3439,20 +3481,33 @@ for(i=0;i<(4*nc);i++)
     }
     X1l = Xl(0)*Xl(1)*Xl(2)*Xl(3);
     X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3);
+
+
+    if(EdE==5)
+    {
+    phase = 1;
+    V_renormalized(phase,x(0),P,bl,R,T,d2P,d2u,x_rv,rho_rv,Pmat,umat,&Vl);
+    phase = 2;
+    V_renormalized(phase,y(0),P,bv,R,T,d2P,d2u,x_rv,rho_rv,Pmat,umat,&Vv);
+    }
+
     phase = 1;
     phi_liquid_phase = fugacity_function(nc, phase, al, bl, a, b, R, T, P, tolZl, EdE_parameters, MR, q_prime, r, Aij, x, q, EdE,
                                          alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1, d2P, d2u, x_rv, rho_rv,
-                                         Pmat, umat);
+                                         Pmat, umat, u1mat, u2mat);
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
                                         alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u, x_rv, rho_rv,
-                                         Pmat, umat);
+                                         Pmat, umat, u1mat, u2mat);
 
 
 K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
 Kx = (x.asDiagonal())*K;
-
+cout << "phi:   am:    bm:   P:   x0:   x1:   " << endl;
+cout << phi_liquid_phase << " " << al << " " << bl << " " << P << " " << x(0) << " " << x(1) << endl;
+cout << phi_vapor_phase << " " << av << " " << bv << " " << P << " " << y(0) << " " << y(1) << endl;
+cin >> stop;
     for(i=0; i<nc; i++)
     {
          one(i) = 1;
@@ -3496,10 +3551,16 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
     X1v = Xv(0)*Xv(1)*Xv(2)*Xv(3);
     }
 
+    if(EdE==5)
+    {
+    phase = 2;
+    V_renormalized(phase,y(0),P,bv,R,T,d2P,d2u,x_rv,rho_rv,Pmat,umat,&Vv);
+    }
+
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
                                         alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u, x_rv, rho_rv,
-                                         Pmat, umat);
+                                         Pmat, umat, u1mat, u2mat);
 
 
     K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
@@ -3527,9 +3588,10 @@ Ey = sumKx-1;
 errorKx = fabs(Ey);
 
 errorKx = errorKx/sumKx;
-cout << "errorKx: " << errorKx << " sumKx: " << sumKx << " K: " << K << endl;
 
 y = Kx.array()/sumKx;
+cout << "errorKx: " << errorKx << " sumKx: " << sumKx << " K: " << K << endl;
+
 
 switch(process)
 {
@@ -3659,7 +3721,7 @@ cout <<"--------- counter = " << counter << " ---------" << endl;
 
     if(process==1)
     {
-    output << x(0) << ";" << y(0) << ";" << T << ";" << P*100 << ";" << Vl << ";" << Vv << ";"
+    output << x(0) << ";" << y(0) << ";" << T << ";" << P*1000 << ";" << Vl << ";" << Vv << ";"
            << sumKx << ";" << counter << ";" << u_liquid1 << ";" << u_vapor1 << ";"
            << X1l << ";" << X1v << ";" << Zl << ";" << Zv << ";" << phi_liquid_phase(0)
            << ";" << phi_liquid_phase(1) << ";" << phi_vapor_phase(0) << ";" << phi_vapor_phase(1)
@@ -3668,7 +3730,7 @@ cout <<"--------- counter = " << counter << " ---------" << endl;
 
     if(process==2)
     {
-    output << x(0) << ";" << y(0) << ";" << P*100 << ";" << T << ";" << Vl << ";" << Vv << ";"
+    output << x(0) << ";" << y(0) << ";" << P*1000 << ";" << T << ";" << Vl << ";" << Vv << ";"
            << sumKx << ";" << counter << ";" << u_liquid1 << ";" << u_vapor1 << ";"
            << X1l << ";" << X1v << ";" << Zl << ";" << Zv << ";" << phi_liquid_phase(0)
            << ";" << phi_liquid_phase(1) << ";" << phi_vapor_phase(0) << ";" << phi_vapor_phase(1)

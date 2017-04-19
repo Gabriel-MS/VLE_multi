@@ -866,14 +866,14 @@ vector<double> estimate_L_phi(int k, double T)
 }
 
 double fugacity_renormalized(int phase, double xint, double Pint, double bm, double R, double T, double **d2p, double **d2u,
-                             vector<double> x, vector<double> rho, double **Pmat, double **umat)
+                             vector<double> x, vector<double> rho, double **Pmat, double **umat, double *rho_phase, double *Z_phase)
 {
     //std::vector<double> rho(1000), P(1000), V(1000), A(1000), Pa(1000), f(1000), u(1000), x(200);
     std::vector<double> Pvec(1000), Pfvec(1000);
     std::string fline;
     int number_linesp = 0;
     int number_linesu = 0;
-    double rho_out, uint, ures, Z, lnphi, phi, rhoint;
+    double rho_out, uint, Z, ures, lnphi, phi, rhoint;
 
     //Adjusting parameters to splin2
     int n1 = x.size();
@@ -932,11 +932,13 @@ double fugacity_renormalized(int phase, double xint, double Pint, double bm, dou
     //Calculate coexistence densities in interpolated isotherm for given P
     double rho_vap = falsi_spline(rho, Pfvec, rho[max1], rho[max2], 1e-5);
     double rho_liq = falsi_spline(rho, Pfvec, rho[min1], rho[min2], 1e-5);
-    //cout << "densities found: " << rho_vap/bm << " " << rho_liq/bm << endl;
+    cout << "densities v/l found: " << rho_vap/bm << " " << rho_liq/bm << endl;
 
     //Select desired density
     if(phase==1) rho_out = rho_liq;
     if(phase==2) rho_out = rho_vap;
+
+    (*rho_phase) = rho_out;
 
     //Interpolate chemical potential, calculate residual
     //uint = bicubic_s_int(x,rho,xint,rho_out,umat);
@@ -948,6 +950,7 @@ double fugacity_renormalized(int phase, double xint, double Pint, double bm, dou
 
     //Calculate Z
     Z = Pint/(R*T*(rho_out/bm));
+    (*Z_phase) = Z;
     //cout << "Z: " << Z << " T: " << T << " P: " << Pint << " R: " << R << " rho_out/bm: " << rho_out/bm << endl;
 
     //Calculate phi
@@ -955,6 +958,8 @@ double fugacity_renormalized(int phase, double xint, double Pint, double bm, dou
     phi = exp(lnphi);
 
     //cout << phase << "  phi: " << phi << " " << lnphi << endl;
+    cout << "V= " << 1/(rho_out/bm) << " Z= " << Z << " phase: " << phase << endl;
+    cout << "phi = " << phi << endl;
     //delete[] datap;
     //delete[] datau;
     //delete[] Pmat;
@@ -977,6 +982,431 @@ double fugacity_renormalized(int phase, double xint, double Pint, double bm, dou
 */
     return phi;
 }
+
+void V_renormalized(int phase, double xint, double Pint, double bm, double R, double T, double **d2p, double **d2u,
+                    vector<double> x, vector<double> rho, double **Pmat, double **umat, double *V)
+{
+    //std::vector<double> rho(1000), P(1000), V(1000), A(1000), Pa(1000), f(1000), u(1000), x(200);
+    std::vector<double> Pvec(1000), Pfvec(1000);
+    std::string fline;
+    int number_linesp = 0;
+    int number_linesu = 0;
+    double rho_out, uint, Z, ures, lnphi, phi, rhoint;
+
+    //Adjusting parameters to splin2
+    int n1 = x.size();
+    int n2 = rho.size();
+    double x1a[n1], x2a[n2];
+
+    for(int i=0;i<n1;i++)
+    {
+        x1a[i] = x[i];
+    }
+
+    for(int i=0;i<n2;i++)
+    {
+        x2a[i] = rho[i];
+    }
+
+    //Interpolating isotherm for given x
+    double Pvint;
+
+    splin2(x1a,x2a,Pmat,d2p,n1,n2,xint,0.0005,&Pvint);
+    Pvec[0] = Pvint;
+    Pfvec[0] = Pvec[0] - Pint;
+
+        //cout << "interpolation: " << 0 << " x " << xint << " rho " << 0.0005 << " " << 0.0005/bm
+        //     << " P " << Pvec[0] << " Pf " << Pfvec[0] << endl;
+
+    for(int i=1;i<1000;i++)
+    {
+        rhoint = rho[i];
+        rhoint = double(i)/1000;
+
+        splin2(x1a,x2a,Pmat,d2p,n1,n2,xint,rhoint,&Pvint);
+        Pvec[i] = Pvint;
+        Pfvec[i] = Pvec[i] - Pint;
+
+        //cout << "interpolation: " << i << " x " << xint << " rho " << rhoint << " " << rhoint/bm
+        //     << " P " << Pvec[i] << " Pf " << Pfvec[i] << endl;
+    }
+    //cout << "interpolated phase: " << phase << " x = " << xint << endl;
+
+    //Bracketing the real densities at given P
+    int max1 = 0;
+    int min1 = 900;
+    int max2 = max1+1;
+    int min2 = min1-1;
+    while(Pfvec[max1]*Pfvec[max2]>0)
+    max2 = max2+5;
+    if(max2-10<0) max1 = 0;
+    else max1 = max2-10;
+
+    while(Pfvec[min1]*Pfvec[min2]>0)
+    min2 = min2-5;
+    min1 = min2+10;
+    //cout << "bracketed: " << min1 << " " << min2 << " " << max1 << " " << max2 << endl;
+
+    //Calculate coexistence densities in interpolated isotherm for given P
+    double rho_vap = falsi_spline(rho, Pfvec, rho[max1], rho[max2], 1e-5);
+    double rho_liq = falsi_spline(rho, Pfvec, rho[min1], rho[min2], 1e-5);
+    cout << "densities v/l found: " << rho_vap/bm << " " << rho_liq/bm << endl;
+
+    //Select desired density
+    if(phase==1) rho_out = rho_liq;
+    if(phase==2) rho_out = rho_vap;
+
+    (*V) = 1/(rho_out/bm);
+}
+
+
+double fugacity_renormalized1(int phase, double xint, double Pint, double bm, double R, double T, double **d2p, double **d2u,
+                             vector<double> x, vector<double> rho, double **Pmat, double **umat, double rho_out, double Z)
+{
+    //std::vector<double> rho(1000), P(1000), V(1000), A(1000), Pa(1000), f(1000), u(1000), x(200);
+    std::vector<double> Pvec(1000), Pfvec(1000);
+    std::string fline;
+    int number_linesp = 0;
+    int number_linesu = 0;
+    double uint, ures, lnphi, phi, rhoint;
+
+    //Adjusting parameters to splin2
+    int n1 = x.size();
+    int n2 = rho.size();
+    double x1a[n1], x2a[n2];
+
+    for(int i=0;i<n1;i++)
+    {
+        x1a[i] = x[i];
+    }
+
+    for(int i=0;i<n2;i++)
+    {
+        x2a[i] = rho[i];
+    }
+/*
+    //Interpolating isotherm for given x
+    double Pvint;
+
+    splin2(x1a,x2a,Pmat,d2p,n1,n2,xint,0.0005,&Pvint);
+    Pvec[0] = Pvint;
+    Pfvec[0] = Pvec[0] - Pint;
+
+        //cout << "interpolation: " << 0 << " x " << xint << " rho " << 0.0005 << " " << 0.0005/bm
+        //     << " P " << Pvec[0] << " Pf " << Pfvec[0] << endl;
+
+    for(int i=1;i<1000;i++)
+    {
+        rhoint = rho[i];
+        rhoint = double(i)/1000;
+
+        splin2(x1a,x2a,Pmat,d2p,n1,n2,xint,rhoint,&Pvint);
+        Pvec[i] = Pvint;
+        Pfvec[i] = Pvec[i] - Pint;
+
+        //cout << "interpolation: " << i << " x " << xint << " rho " << rhoint << " " << rhoint/bm
+        //     << " P " << Pvec[i] << " Pf " << Pfvec[i] << endl;
+    }
+    //cout << "interpolated phase: " << phase << " x = " << xint << endl;
+
+    //Bracketing the real densities at given P
+    int max1 = 0;
+    int min1 = 900;
+    int max2 = max1+1;
+    int min2 = min1-1;
+    while(Pfvec[max1]*Pfvec[max2]>0)
+    max2 = max2+5;
+    if(max2-10<0) max1 = 0;
+    else max1 = max2-10;
+
+    while(Pfvec[min1]*Pfvec[min2]>0)
+    min2 = min2-5;
+    min1 = min2+10;
+    //cout << "bracketed: " << min1 << " " << min2 << " " << max1 << " " << max2 << endl;
+
+    //Calculate coexistence densities in interpolated isotherm for given P
+    double rho_vap = falsi_spline(rho, Pfvec, rho[max1], rho[max2], 1e-5);
+    double rho_liq = falsi_spline(rho, Pfvec, rho[min1], rho[min2], 1e-5);
+    cout << "densities v/l found: " << rho_vap/bm << " " << rho_liq/bm << endl;
+
+    //Select desired density
+    if(phase==1) rho_out = rho_liq;
+    if(phase==2) rho_out = rho_vap;
+
+    //Interpolate chemical potential, calculate residual
+    //uint = bicubic_s_int(x,rho,xint,rho_out,umat);
+*/
+    splin2(x1a,x2a,umat,d2u,n1,n2,xint,rho_out,&uint);
+
+    ures = uint - R*T*log(rho_out/bm); //Use bm because throughout the function rho is adimensional
+    //cout << "chemical potential: " << uint << " ures: " << ures << " bm: "  << bm << endl;
+
+    //Calculate Z
+    //Z = Pint/(R*T*(rho_out/bm));
+    cout << "Z: " << Z << " T: " << T << " P: " << Pint << " R: " << R << " rho_out/bm: " << rho_out/bm << endl;
+
+    //Calculate phi
+    lnphi = ures/R/T - log(Z);
+    phi = exp(lnphi);
+
+    cout << phase << "  phi: " << phi << " " << lnphi << endl;
+    cout << "V= " << 1/(rho_out/bm) << " Z= " << Z << " phase: " << phase << endl;
+    cout << "phi = " << phi << endl;
+    //delete[] datap;
+    //delete[] datau;
+    //delete[] Pmat;
+    //delete[] umat;
+/*
+        for(int i=0; i<201; i++)
+        {
+        delete[] datap[i];
+        delete[] datau[i];
+        }
+        for(int i=0; i<200; i++)
+        {
+        delete[] Pmat[i];
+        delete[] umat[i];
+        }
+        delete[] datap;
+        delete[] datau;
+        delete[] Pmat;
+        delete[] umat;
+*/
+    return phi;
+}
+
+double fugacity_renormalized2(int phase, double xint, double Pint, double bm, double R, double T, double **d2p, double **d2u,
+                             vector<double> x, vector<double> rho, double **Pmat, double **umat, double V)
+{
+    //std::vector<double> rho(1000), P(1000), V(1000), A(1000), Pa(1000), f(1000), u(1000), x(200);
+    std::vector<double> Pvec(1000), Pfvec(1000);
+    std::string fline;
+    int number_linesp = 0;
+    int number_linesu = 0;
+    double uint, ures, lnphi, phi, rhoint, Z, rho_out;
+
+    //Adjusting parameters to splin2
+    int n1 = x.size();
+    int n2 = rho.size();
+    double x1a[n1], x2a[n2];
+
+    for(int i=0;i<n1;i++)
+    {
+        x1a[i] = x[i];
+    }
+
+    for(int i=0;i<n2;i++)
+    {
+        x2a[i] = rho[i];
+    }
+/*
+    //Interpolating isotherm for given x
+    double Pvint;
+
+    splin2(x1a,x2a,Pmat,d2p,n1,n2,xint,0.0005,&Pvint);
+    Pvec[0] = Pvint;
+    Pfvec[0] = Pvec[0] - Pint;
+
+        //cout << "interpolation: " << 0 << " x " << xint << " rho " << 0.0005 << " " << 0.0005/bm
+        //     << " P " << Pvec[0] << " Pf " << Pfvec[0] << endl;
+
+    for(int i=1;i<1000;i++)
+    {
+        rhoint = rho[i];
+        rhoint = double(i)/1000;
+
+        splin2(x1a,x2a,Pmat,d2p,n1,n2,xint,rhoint,&Pvint);
+        Pvec[i] = Pvint;
+        Pfvec[i] = Pvec[i] - Pint;
+
+        //cout << "interpolation: " << i << " x " << xint << " rho " << rhoint << " " << rhoint/bm
+        //     << " P " << Pvec[i] << " Pf " << Pfvec[i] << endl;
+    }
+    //cout << "interpolated phase: " << phase << " x = " << xint << endl;
+
+    //Bracketing the real densities at given P
+    int max1 = 0;
+    int min1 = 900;
+    int max2 = max1+1;
+    int min2 = min1-1;
+    while(Pfvec[max1]*Pfvec[max2]>0)
+    max2 = max2+5;
+    if(max2-10<0) max1 = 0;
+    else max1 = max2-10;
+
+    while(Pfvec[min1]*Pfvec[min2]>0)
+    min2 = min2-5;
+    min1 = min2+10;
+    //cout << "bracketed: " << min1 << " " << min2 << " " << max1 << " " << max2 << endl;
+
+    //Calculate coexistence densities in interpolated isotherm for given P
+    double rho_vap = falsi_spline(rho, Pfvec, rho[max1], rho[max2], 1e-5);
+    double rho_liq = falsi_spline(rho, Pfvec, rho[min1], rho[min2], 1e-5);
+    cout << "densities v/l found: " << rho_vap/bm << " " << rho_liq/bm << endl;
+
+    //Select desired density
+    if(phase==1) rho_out = rho_liq;
+    if(phase==2) rho_out = rho_vap;
+
+    //Interpolate chemical potential, calculate residual
+    //uint = bicubic_s_int(x,rho,xint,rho_out,umat);
+*/
+    rho_out = (1/V)*bm;
+    splin2(x1a,x2a,umat,d2u,n1,n2,xint,xint*rho_out,&uint);
+
+    ures = uint - R*T*log(xint*rho_out/bm); //Use bm because throughout the function rho is adimensional
+    cout << "chemical potential: " << uint << " ures: " << ures << " bm: "  << bm << endl;
+
+    //Calculate Z
+    Z = Pint/(R*T*(rho_out/bm));
+    cout << "Z: " << Z << " T: " << T << " P: " << Pint << " R: " << R << " rho_out/bm: " << rho_out << endl;
+
+    //Calculate phi
+    lnphi = ures/R/T - log(Z);
+    phi = exp(lnphi);
+
+    cout << phase << endl;
+    cout << "V= " << 1/(rho_out/bm) << " Z= " << Z << " ures: " << ures << " uint: " << uint << " ures/R/T: " << ures/R/T << endl;
+    cout << "phi = " << phi << endl;
+    //delete[] datap;
+    //delete[] datau;
+    //delete[] Pmat;
+    //delete[] umat;
+/*
+        for(int i=0; i<201; i++)
+        {
+        delete[] datap[i];
+        delete[] datau[i];
+        }
+        for(int i=0; i<200; i++)
+        {
+        delete[] Pmat[i];
+        delete[] umat[i];
+        }
+        delete[] datap;
+        delete[] datau;
+        delete[] Pmat;
+        delete[] umat;
+*/
+    return phi;
+}
+
+double fugacity_renormalized3(int phase, double xint, double Pint, double bm, double R, double T, double **d2p, double **d2u,
+                             vector<double> x, vector<double> rho, double **Pmat, double **umat, double V, double b)
+{
+    //std::vector<double> rho(1000), P(1000), V(1000), A(1000), Pa(1000), f(1000), u(1000), x(200);
+    std::vector<double> Pvec(1000), Pfvec(1000);
+    std::string fline;
+    int number_linesp = 0;
+    int number_linesu = 0;
+    double uint, ures, lnphi, phi, rhoint, Z, rho_out;
+
+    //Adjusting parameters to splin2
+    int n1 = x.size();
+    int n2 = rho.size();
+    double x1a[n1], x2a[n2];
+
+    for(int i=0;i<n1;i++)
+    {
+        x1a[i] = x[i];
+    }
+
+    for(int i=0;i<n2;i++)
+    {
+        x2a[i] = rho[i];
+    }
+/*
+    //Interpolating isotherm for given x
+    double Pvint;
+
+    splin2(x1a,x2a,Pmat,d2p,n1,n2,xint,0.0005,&Pvint);
+    Pvec[0] = Pvint;
+    Pfvec[0] = Pvec[0] - Pint;
+
+        //cout << "interpolation: " << 0 << " x " << xint << " rho " << 0.0005 << " " << 0.0005/bm
+        //     << " P " << Pvec[0] << " Pf " << Pfvec[0] << endl;
+
+    for(int i=1;i<1000;i++)
+    {
+        rhoint = rho[i];
+        rhoint = double(i)/1000;
+
+        splin2(x1a,x2a,Pmat,d2p,n1,n2,xint,rhoint,&Pvint);
+        Pvec[i] = Pvint;
+        Pfvec[i] = Pvec[i] - Pint;
+
+        //cout << "interpolation: " << i << " x " << xint << " rho " << rhoint << " " << rhoint/bm
+        //     << " P " << Pvec[i] << " Pf " << Pfvec[i] << endl;
+    }
+    //cout << "interpolated phase: " << phase << " x = " << xint << endl;
+
+    //Bracketing the real densities at given P
+    int max1 = 0;
+    int min1 = 900;
+    int max2 = max1+1;
+    int min2 = min1-1;
+    while(Pfvec[max1]*Pfvec[max2]>0)
+    max2 = max2+5;
+    if(max2-10<0) max1 = 0;
+    else max1 = max2-10;
+
+    while(Pfvec[min1]*Pfvec[min2]>0)
+    min2 = min2-5;
+    min1 = min2+10;
+    //cout << "bracketed: " << min1 << " " << min2 << " " << max1 << " " << max2 << endl;
+
+    //Calculate coexistence densities in interpolated isotherm for given P
+    double rho_vap = falsi_spline(rho, Pfvec, rho[max1], rho[max2], 1e-5);
+    double rho_liq = falsi_spline(rho, Pfvec, rho[min1], rho[min2], 1e-5);
+    cout << "densities v/l found: " << rho_vap/bm << " " << rho_liq/bm << endl;
+
+    //Select desired density
+    if(phase==1) rho_out = rho_liq;
+    if(phase==2) rho_out = rho_vap;
+
+    //Interpolate chemical potential, calculate residual
+    //uint = bicubic_s_int(x,rho,xint,rho_out,umat);
+*/
+    rho_out = (1/V)*b;
+    splin2(x1a,x2a,umat,d2u,n1,n2,xint,rho_out,&uint);
+
+    ures = uint; //Use bm because throughout the function rho is adimensional
+    cout << "chemical potential: " << uint << " ures: " << ures << " bm: "  << bm << endl;
+
+    //Calculate Z
+    Z = Pint*V/(R*T);
+    cout << "Z: " << Z << " T: " << T << " P: " << Pint << " R: " << R << " rho_out/bm: " << (1/V)*bm << endl;
+
+    //Calculate phi
+    lnphi = ures/R/T - log(Z);
+    phi = exp(lnphi);
+
+    cout << phase << endl;
+    cout << "V= " << V << " Z= " << Z << " ures: " << ures << " uint: " << uint << " ures/R/T: " << ures/R/T << endl;
+    cout << "phi = " << phi << endl;
+    //delete[] datap;
+    //delete[] datau;
+    //delete[] Pmat;
+    //delete[] umat;
+/*
+        for(int i=0; i<201; i++)
+        {
+        delete[] datap[i];
+        delete[] datau[i];
+        }
+        for(int i=0; i<200; i++)
+        {
+        delete[] Pmat[i];
+        delete[] umat[i];
+        }
+        delete[] datap;
+        delete[] datau;
+        delete[] Pmat;
+        delete[] umat;
+*/
+    return phi;
+}
+
 
 void d2Pgen(double **d2y)
 {
@@ -1228,6 +1658,89 @@ void renorm_mat_reader(double **Pmat, double **umat)
     }
 
 }
+
+void renorm_uu_reader(double **u1mat, double **u2mat)
+{
+    std::vector<double> rho(1000), P(1000), V(1000), A(1000), Pa(1000), f(1000), u(1000), x(200);
+    std::vector<double> Pvec(1000), Pfvec(1000);
+    std::string fline;
+    int number_linesu1 = 0;
+    int number_linesu2 = 0;
+    double rho_out, uint, ures, Z, lnphi, phi, rhoint;
+
+    ifstream fileu1("../Planilhas de análise/xpu1.csv");
+    ifstream fileu2("../Planilhas de análise/xpu2.csv");
+
+    while (std::getline(fileu1, fline))
+        ++number_linesu1;
+        fileu1.close();
+
+    while (std::getline(fileu2, fline))
+        ++number_linesu2;
+        fileu2.close();
+
+    //Reading Data Bank for p and u
+    double **datau1;
+    datau1 = new double *[201];
+    for(int k = 0; k <201; k++)
+        datau1[k] = new double[1001];
+
+    double **datau2;
+    datau2 = new double *[201];
+    for(int k = 0; k <201; k++)
+        datau2[k] = new double[1001];
+
+    fileu1.open("../Planilhas de análise/xpu1.csv");
+    for(int row = 0; row < 201; ++row)
+    {
+    string line;
+    getline(fileu1, line);
+    if ( !fileu1.good() )
+    break;
+    stringstream iss(line);
+    for (int col = 0; col < 1001; ++col)
+    {
+    string val;
+    getline(iss, val, ';');
+    if ( !iss )
+    break;
+    stringstream convertor(val);
+    convertor >> datau1[row][col];
+    }
+    }
+    fileu1.close();
+
+    fileu2.open("../Planilhas de análise/xpu2.csv");
+    for(int row = 0; row < 201; ++row)
+    {
+    string line;
+    getline(fileu2, line);
+    if ( !fileu2.good() )
+    break;
+    stringstream iss(line);
+    for (int col = 0; col < 1001; ++col)
+    {
+    string val;
+    getline(iss, val, ';');
+    if ( !iss )
+    break;
+    stringstream convertor(val);
+    convertor >> datau2[row][col];
+    }
+    }
+    fileu2.close();
+
+    for(int i=0; i<200; i++)
+    {
+        for(int j=0; j<1000; j++)
+        {
+        u1mat[i][j] = datau1[i+1][j+1];
+        u2mat[i][j] = datau2[i+1][j+1];
+        }
+    }
+
+}
+
 
 vector<double> renorm_xvec()
 {
