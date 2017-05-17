@@ -1898,4 +1898,5 @@ double linear_regression_angular(vector<double>& x, vector<double>& y)
     return a;
 }
 
+
 #endif // NUMERICAL_H_INCLUDED

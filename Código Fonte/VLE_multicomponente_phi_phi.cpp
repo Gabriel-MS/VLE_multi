@@ -129,37 +129,17 @@ double G_ex;
 VectorXd Tsat(nc), Alog10P(nc), gama(nc), ln_gama(nc);
 double init_T, final_T, step, BETCR, init_P, final_P, Pold;
 int max_num_iter, counter, stop, Renormalization, sr_type, r_type, Iteration;
+
 std::vector<double> rho_rv(1000), x_rv(200);
-
-        double** d2P; //Second derivative 2d array
-        d2P = new double *[200];
-        for(int k = 0; k <200; k++)
-            d2P[k] = new double[1000];
-
-        double** d2u; //Second derivative 2d array
-        d2u = new double *[200];
-        for(int k = 0; k <200; k++)
-            d2u[k] = new double[1000];
-
-        double **Pmat;
-        Pmat = new double *[200];
-        for(int k = 0; k <200; k++)
-            Pmat[k] = new double[1000];
-
-        double **umat;
-        umat = new double *[200];
-        for(int k = 0; k <200; k++)
-            umat[k] = new double[1000];
-
-        double **u1mat;
-        u1mat = new double *[200];
-        for(int k = 0; k <200; k++)
-            u1mat[k] = new double[1000];
-
-        double **u2mat;
-        u2mat = new double *[200];
-        for(int k = 0; k <200; k++)
-            u2mat[k] = new double[1000];
+double** d2P;
+double** d2u;
+double **Pmat;
+double **umat;
+double **u1mat;
+double **u2mat;
+double **p2;
+double **d2u1;
+double **d2u2;
 
 //--------------------------------------------------------------------------------
 max_num_iter = 500;
@@ -206,12 +186,48 @@ cin >> Renormalization;
 
 if(Renormalization==3)
 {
-    d2Pgen(d2P);
-    d2ugen(d2u);
-    renorm_mat_reader(Pmat,umat);
-    renorm_uu_reader(u1mat,u2mat);
-    rho_rv = renorm_rhovec();
-    x_rv = renorm_xvec();
+    cout << "Renormalization steps taken: " << endl;
+    int rstep;
+    cin >> rstep;
+
+    rho_rv.resize(rstep);
+
+        d2P = new double *[200];
+        for(int k = 0; k <200; k++)
+            d2P[k] = new double[rstep];
+
+        d2u1 = new double *[200];
+        for(int k = 0; k <200; k++)
+            d2u1[k] = new double[rstep];
+
+        d2u2 = new double *[200];
+        for(int k = 0; k <200; k++)
+            d2u2[k] = new double[rstep];
+
+        Pmat = new double *[200];
+        for(int k = 0; k <200; k++)
+            Pmat[k] = new double[rstep];
+
+        umat = new double *[200];
+        for(int k = 0; k <200; k++)
+            umat[k] = new double[rstep];
+
+        u1mat = new double *[200];
+        for(int k = 0; k <200; k++)
+            u1mat[k] = new double[rstep];
+
+        u2mat = new double *[200];
+        for(int k = 0; k <200; k++)
+            u2mat[k] = new double[rstep];
+
+
+    d2Pgen(d2P,rstep);
+    d2u1gen(d2u1,rstep);
+    d2u2gen(d2u2,rstep);
+    renorm_mat_reader(Pmat,umat,rstep);
+    renorm_uu_reader(u1mat,u2mat,rstep);
+    rho_rv = renorm_rhovec(rstep);
+    x_rv = renorm_xvec(rstep);
     EdE = 5;
     Renormalization = 2;
 }
@@ -579,6 +595,11 @@ output     << "x1 " << ";" << "y1 " << ";" << "T " << ";" << "P(kPa)" << ";" << 
 
 if(Renormalization==1)
 {
+    cout << "Renormalization density steps: ";
+    cin >> n;
+
+    cout << "everyone ok" << endl;
+
     if(EdE==1)
     {
         if(Tc_virtual[0] != 0)
@@ -637,7 +658,7 @@ if(Renormalization==1)
     dfnout << "i" << ";" << "rho" << ";" << "f" << ";" << "delta_f" << endl;
     //after_renorm << "Density" << ";" << "f_before" << ";" << "f_after" << ";" << ";" << ";" << "T" << endl;
 
-    int i, j, n, k, w, t;
+    int i, j, k, w, t;
     long double kB, L, L3, fi, K, rho, rho_plus, rho_minus, fl_plus, fl, fl_minus, fs_plus, fs, fs_minus;
     long double Gl, Gs, OMEGA, delta_f, f, f0, fl_old_plus, fl_old_minus, fs_old_plus, fs_old_minus, fl_old, fs_old;
     long double OMEGAs, OMEGAl, f_old, alfa_r, am, rho_max, bm, tolZ, rho2, var, f0_plus, f0_minus;
@@ -646,11 +667,6 @@ if(Renormalization==1)
     long double pmax_cond, P_max, P_min, P_average, P_test, test, P_l, u_l, P_v, u_v, pmin_cond, rho_v;
     double pi, eps, lambda, sigma, zeta_squared, NA;
     double sig1, sig2, sig12, l12, cnst;
-
-    std::vector<double> rho_vec_out(1000), dP2dV2(1000), dP_dV(1000), P_vec(1000), du_dV(1000);
-    std::vector<double> u_vec(1000), u_vec_0(1000), P_vec_0(1000), f_vec_out(1000), f0_vec_out(1000);
-    std::vector<double> rho1_vec_out(1000), rho2_vec_out(1000), u_vec_res1(1000), u_vec_res2(1000);
-
 
     //MatrixXd Area(1000,1000);
 
@@ -662,18 +678,19 @@ if(Renormalization==1)
 
     VectorXd rhov(500), x_(500), fv_(500), X_plus(4*nc), X_minus(4*nc);
 
-    cout << "Renormalization density steps: ";
-    cin >> n;
-    //n = 5000;
 
+    std::vector<double> rho_vec_out(n), dP2dV2(n), dP_dV(n), P_vec(n), du_dV(n);
+    std::vector<double> u_vec(n), u_vec_0(n), P_vec_0(n), f_vec_out(n), f0_vec_out(n);
+    std::vector<double> rho1_vec_out(n), rho2_vec_out(n), u_vec_res1(n), u_vec_res2(n);
+    //n = 5000;
 
     std::vector<double> rho_vec(n), f_vec(n), u_vec1(n), f0_vec(n), P_vec1(n), Glv2(n), Gsv2(n);
     std::vector<double> rho1_vec(n), rho2_vec(n);
     std::vector<double> flvv(n), fsvv(n);
     VectorXd fl_old_p(n), fl_oldv(n), fl_old_m(n), fs_old_p(n), fs_oldv(n), fs_old_m(n), rho_vector2(n), f_after(n), f_before(n);
     VectorXd flv(n), fsv(n), fv(n), rho_vector(n), delta_fv(n), f_originalv(n), Glv(n), Gsv(n), argl(n), args(n);
-    VectorXd P_vec_e(1000), u_vec_e(1000), rho_vec_out_e(1000), f_vec_e(1000);
-    std::vector<double> V_vec(1000), A_vec(1000), f_env(1000), rho_env(1000), P_env(1000), u_env(1000);
+    VectorXd P_vec_e(n), u_vec_e(n), rho_vec_out_e(n), f_vec_e(n);
+    std::vector<double> V_vec(n), A_vec(n), f_env(n), rho_env(n), P_env(n), u_env(n);
 
     one_4c << 1, 0,
               1, 0,
@@ -764,7 +781,7 @@ if(EdE != 4)
     cin >> env_type;
 
     int critical_find;
-    cout << "Type of envelope: \n1.Manual \n2.Automatic \n3.Find Tc fast \n";
+    cout << "Type of envelope: \n1.Manual \n2.Automatic \n3.Find Tc fast \n4.Binary Mixture \n";
     cin >> critical_find;
 
     /*
@@ -802,8 +819,10 @@ while(T<=final_T)
 {
     int p=0;
 
-    for(x(0)=0.000; x(0)<=1.001; x(0) = x(0) + 0.005)
+    //for(x(0)=0.000; x(0)<=1.000; x(0) = x(0) + 0.005)
+    for(x(0)=0.000; x(0)<=1.000; x(0) = x(0) + 0.005)
     {
+    if(x(0)==0) x(0)=0.000001;
     cout << "x0 = " << x(0) << endl;
 
     if(cp[0]==cp[1]) x(0) = 1; //If both components are equal, then consider pure component
@@ -851,6 +870,7 @@ while(T<=final_T)
 
     bm = b_mixing_rules_function(nc, b, x, MR);
     am = a_mixing_rules_function(nc, MR, a, x, k12, bl, b, T, q, r, Aij, R, alfa_NRTL, EdE, G_ex_model);
+    cout << "n = " << n << endl;
 
     if(EdE==4)
     {
@@ -929,7 +949,6 @@ if(r_type==1)
     //DIMENSIONLESS!!!************************************************************
     rho = 1e-6*bm;
 
-
     for(k=0; k<n; k++)
     {
     rho_vec[k] = double(k)/n/bm;
@@ -998,8 +1017,6 @@ if(r_type==1)
         T = T*R/am;
         }
 
-        //cout << "Kn = " << Kn << endl;
-        //cout << "fv before = " << fv(201) << endl;
         //Kn = kB*T*NA/((pow(2,3*i))*L*b(0));
 
         //Preparar vetores f_l e f_s
@@ -1098,15 +1115,22 @@ rho = 1e-6;
 w=0;
 
 
-for(w=0; w<1000; w++) //FAAAAAAAAAAAAAAAALSOOOOOOOOO
+for(w=0; w<n; w++) //FAAAAAAAAAAAAAAAALSOOOOOOOOO
 {
-    rho_vec_out[w] = double(w)/1000/bm;
+    rho_vec_out[w] = double(w)/n/bm;
     rho_vec_out[0] = 1e-6;
 
-    rho1_vec[w] = double(w)/1000/b(0);
-    rho2_vec[w] = double(w)/1000/b(1);
-    rho1_vec_out[w] = double(w)/1000/b(0);
-    rho2_vec_out[w] = double(w)/1000/b(1);
+    rho1_vec[w] = double(w)/n/b(0);
+    rho2_vec[w] = double(w)/n/b(1);
+    rho1_vec_out[w] = double(w)/n/b(0);
+    rho2_vec_out[w] = double(w)/n/b(1);
+
+    //rho1_vec[w] = rho_vec_out[w]*x(0);
+    //rho2_vec[w] = rho_vec_out[w]*x(1);
+    //rho1_vec_out[w] = rho_vec_out[w]*x(0);
+    //rho2_vec_out[w] = rho_vec_out[w]*x(1);
+
+    //cout << "densities m 1 2: " << rho_vec_out[w] << " " << rho1_vec_out[w] << " " << rho2_vec_out[w] << endl;
 
     //DIMENSIONLESS!!!************************************************************
     //rho_vec_out[w] = double(w)/1000/bm*bm;
@@ -1137,13 +1161,15 @@ for(w=0; w<n; w++)
 {
     f_vec_out[w] = f_vec_out[w] + rho_vec_out[w]*R*T*(log(rho_vec_out[w])-1);
     f0_vec_out[w] = f0_vec_out[w] + rho_vec_out[w]*R*T*(log(rho_vec_out[w])-1);
+
+    //SHOULDN'T IT BE xi FOR MIXTURES INSTEAD OF RHO???
     u_vec[w] = u_vec[w] + R*T*(log(rho_vec_out[w]));
     u_vec_0[w] = u_vec_0[w] + R*T*(log(rho_vec_out[w]));
 }
     if(EdE!=4) T = T/am*bm*R;
     if(EdE==4) T = T/am*R;
 
-for(i=0; i<1000; i++)
+for(i=0; i<n; i++)
 {
     P_vec[i] = -f_vec_out[i] + rho_vec_out[i]*u_vec[i];
     P_vec_0[i] = -f0_vec_out[i] + rho_vec_out[i]*u_vec_0[i];
@@ -1153,20 +1179,20 @@ for(i=0; i<1000; i++)
 }
 
     double a, b1;
-    a = (P_vec[505]-P_vec[495])/(rho_vec_out[505]-rho_vec_out[495]);
-    b1 = P_vec[505]-a*rho_vec_out[505];
-    P_vec[496] = a*rho_vec_out[496] + b1;
-    P_vec[497] = a*rho_vec_out[497] + b1;
-    P_vec[498] = a*rho_vec_out[498] + b1;
-    P_vec[499] = a*rho_vec_out[499] + b1;
-    P_vec[500] = a*rho_vec_out[500] + b1;
-    P_vec[501] = a*rho_vec_out[501] + b1;
-    P_vec[502] = a*rho_vec_out[502] + b1;
-    P_vec[503] = a*rho_vec_out[503] + b1;
-    P_vec[504] = a*rho_vec_out[504] + b1;
+    a = (P_vec[n/2+5]-P_vec[n/2-5])/(rho_vec_out[n/2+5]-rho_vec_out[n/2-5]);
+    b1 = P_vec[n/2+5]-a*rho_vec_out[n/2+5];
+    P_vec[n/2-4] = a*rho_vec_out[n/2-4] + b1;
+    P_vec[n/2-3] = a*rho_vec_out[n/2-3] + b1;
+    P_vec[n/2-2] = a*rho_vec_out[n/2-2] + b1;
+    P_vec[n/2-1] = a*rho_vec_out[n/2-1] + b1;
+    P_vec[n/2] = a*rho_vec_out[n/2] + b1;
+    P_vec[n/2+1] = a*rho_vec_out[n/2+1] + b1;
+    P_vec[n/2+2] = a*rho_vec_out[n/2+2] + b1;
+    P_vec[n/2+3] = a*rho_vec_out[n/2+3] + b1;
+    P_vec[n/2+4] = a*rho_vec_out[n/2+4] + b1;
     //cout << "a = " << a << " / " << b << P_vec[500] << endl;
 
-for(i=0; i<1000; i++)
+for(i=0; i<n; i++)
 {
 // Renorm << std::fixed << std::setprecision(15) << rho_vec_out[i] << ";" << f_vec_out[i] << ";"
 //        << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T << endl;
@@ -1200,13 +1226,16 @@ cout << "=======================================\n" << endl;
         xpu1_out << ";"; //Cell A1 clear
         xpu2_out << ";"; //Cell A1 clear
 
+        //xpu1_out << 0 << ";"; //Cell A2 0
+        //xpu2_out << 0 << ";"; //Cell A2 0
+
         //Write density values on first line
-        for(int i=0; i<1000; i++)
+        for(int i=0; i<n; i++)
         {
         xpp_out << rho_vec_out[i]*bm << ";";//Handle P with mole fraction and density
         xpu_out << rho_vec_out[i]*bm << ";";//Handle u with mole fraction and density
-        xpu1_out << rho1_vec_out[i]*b(0) << ";";//Handle u with mole fraction and density
-        xpu2_out << rho2_vec_out[i]*b(1) << ";";//Handle u with mole fraction and density
+        xpu1_out << rho_vec_out[i]*bm << ";";//Handle u with mole fraction and density
+        xpu2_out << rho_vec_out[i]*bm << ";";//Handle u with mole fraction and density
         }
 
         xpp_out << endl; //Jump to next line, start mole fractions P and u
@@ -1221,7 +1250,7 @@ cout << "=======================================\n" << endl;
     xpu1_out << x(0) << ";"; //Write mole fraction on first column
     xpu2_out << x(0) << ";"; //Write mole fraction on first column DOUBT
 
-    for(i=0; i<1000; i++)
+    for(i=0; i<n; i++)
     {
         xpp_out << P_vec[i] << ";";//Handle P with mole fraction and density
         xpu_out << u_vec[i] << ";";//Handle u with mole fraction and density
@@ -1238,19 +1267,57 @@ cout << "=======================================\n" << endl;
 k++;
 p++;
 
+    if(x(0)==0.000001) x(0)=x(0)-0.000001;
     } //end for x loop
     T = T + step;
     g++;
 } //end while T loop
+
     if(cp[0] != cp[1])
     {
-        d2Pgen(d2P);
-        d2ugen(d2u);
-        renorm_mat_reader(Pmat,umat);
-        renorm_uu_reader(u1mat,u2mat);
-        rho_rv = renorm_rhovec();
-        x_rv = renorm_xvec();
+        d2P = new double *[200];
+        for(int k = 0; k <200; k++)
+            d2P[k] = new double[n];
 
+        d2u1 = new double *[200];
+        for(int k = 0; k <200; k++)
+            d2u1[k] = new double[n];
+
+        d2u2 = new double *[200];
+        for(int k = 0; k <200; k++)
+            d2u2[k] = new double[n];
+
+        Pmat = new double *[200];
+        for(int k = 0; k <200; k++)
+            Pmat[k] = new double[n];
+
+        umat = new double *[200];
+        for(int k = 0; k <200; k++)
+            umat[k] = new double[n];
+
+        u1mat = new double *[200];
+        for(int k = 0; k <200; k++)
+            u1mat[k] = new double[n];
+
+        u2mat = new double *[200];
+        for(int k = 0; k <200; k++)
+            u2mat[k] = new double[n];
+
+        rho_rv.resize(n);
+
+        d2Pgen(d2P,n);
+        cout << "d2P ok" << endl;
+        d2u1gen(d2u1,n);
+        d2u2gen(d2u2,n);
+        cout << "d2u1 and d2u2 ok" << endl;
+        renorm_mat_reader(Pmat,umat,n);
+        cout << "Pmat umat ok" << endl;
+        renorm_uu_reader(u1mat,u2mat,n);
+        cout << "u1mat u2mat ok" << endl;
+        rho_rv = renorm_rhovec(n);
+        cout << "rho_rv ok" << endl;
+        x_rv = renorm_xvec(n);
+        cout << "x_rv ok" << endl;
         T = T_original;
         Renormalization=2;
         EdE = 5;
@@ -1537,9 +1604,9 @@ rho = 1e-6;
 w=0;
 
 
-for(w=0; w<1000; w++) //FAAAAAAAAAAAAAAAALSOOOOOOOOO
+for(w=0; w<n; w++) //FAAAAAAAAAAAAAAAALSOOOOOOOOO
 {
-    rho_vec_out[w] = double(w)/1000/bm;
+    rho_vec_out[w] = double(w)/n/bm;
     rho_vec_out[0] = 1e-6;
 
     //DIMENSIONLESS!!!************************************************************
@@ -1554,7 +1621,7 @@ u_vec = cspline_deriv1_vec(rho_vec, f_vec, rho_vec_out);
 u_vec_0 = cspline_deriv1_vec(rho_vec, f0_vec, rho_vec_out);
 
 
-for(i=0; i<1000; i++)
+for(i=0; i<n; i++)
 {
     P_vec[i] = -f_vec_out[i] + rho_vec_out[i]*u_vec[i];
     P_vec_0[i] = -f0_vec_out[i] + rho_vec_out[i]*u_vec_0[i];
@@ -1563,21 +1630,21 @@ for(i=0; i<1000; i++)
     //       << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T << endl;
 }
 
-    double a, b;
-    a = (P_vec[505]-P_vec[495])/(rho_vec_out[505]-rho_vec_out[495]);
-    b = P_vec[505]-a*rho_vec_out[505];
-    P_vec[496] = a*rho_vec_out[496] + b;
-    P_vec[497] = a*rho_vec_out[497] + b;
-    P_vec[498] = a*rho_vec_out[498] + b;
-    P_vec[499] = a*rho_vec_out[499] + b;
-    P_vec[500] = a*rho_vec_out[500] + b;
-    P_vec[501] = a*rho_vec_out[501] + b;
-    P_vec[502] = a*rho_vec_out[502] + b;
-    P_vec[503] = a*rho_vec_out[503] + b;
-    P_vec[504] = a*rho_vec_out[504] + b;
+    double a, b1;
+    a = (P_vec[n/2+5]-P_vec[n/2-5])/(rho_vec_out[n/2+5]-rho_vec_out[n/2-5]);
+    b1 = P_vec[n/2+5]-a*rho_vec_out[n/2+5];
+    P_vec[n/2-4] = a*rho_vec_out[n/2-4] + b1;
+    P_vec[n/2-3] = a*rho_vec_out[n/2-3] + b1;
+    P_vec[n/2-2] = a*rho_vec_out[n/2-2] + b1;
+    P_vec[n/2-1] = a*rho_vec_out[n/2-1] + b1;
+    P_vec[n/2] = a*rho_vec_out[n/2] + b1;
+    P_vec[n/2+1] = a*rho_vec_out[n/2+1] + b1;
+    P_vec[n/2+2] = a*rho_vec_out[n/2+2] + b1;
+    P_vec[n/2+3] = a*rho_vec_out[n/2+3] + b1;
+    P_vec[n/2+4] = a*rho_vec_out[n/2+4] + b1;
     //cout << "a = " << a << " / " << b << P_vec[500] << endl;
 
-for(i=0; i<1000; i++)
+for(i=0; i<n; i++)
 {
 
     if(EdE!=4)
@@ -1597,7 +1664,7 @@ for(i=0; i<1000; i++)
 //=============================================================
 
 
-for(i=0;i<1000;i++)
+for(i=0;i<n;i++)
     {
         P_vec_e(i) = bm*bm*P_vec[i]/am;
         u_vec_e(i) = bm*u_vec[i]/am;
@@ -1722,30 +1789,79 @@ for(i=0;i<1000;i++)
 
     //***************************************************************************
     //
+    //                  CASE 3
+    //                  FIND TC FAST
+    //                  FIND TC FAST
+    //                  FIND TC FAST
+    //                  CASE 3
     //
-    //                  FIND TC FAST BELOW
-    //                  FIND TC FAST BELOW
-    //                  FIND TC FAST BELOW
-    //
-    //
-    //****************************************************************************
+    //****************************************************************************//
 
 
 
     case 3: //Find critical point using inflexion
+    {
         int estim_L;
-        double step_L, final_L, T_original2, Tnew_original;
+        double step_L, final_L, T_original2, Tnew_original, x_iter, T_L;
+        double Tcl, Pcl, ucl, rhocl, ucline, betal, betal2, deltal;
         cout << "range L parameter? \n 1.Yes\n 2.No \n If yes, give step value after answer, and then, final L" << endl;
         cin >> estim_L;
+        if(estim_L==1)
+        {
+        cout << "step L: ";
         cin >> step_L;
+        cout << "final L: ";
         cin >> final_L;
-        if(estim_L!=1) final_L = L;
+        }
+        else
+        {
+        final_L = L;
+        step_L = L;
+        }
         T_original2 = T;
         Tnew_original = final_T;
 
+        ofstream critical_line("../critical_line.csv");
+        critical_line << "Critical Line Report-----------------------------" << endl;
+        critical_line << "Equation of state = " << EdE << endl;
+        critical_line << "Component 1 = " << cp[0] << endl;
+        critical_line << "Component 2 = " << cp[1] << endl;
+        critical_line << "x1" << ";" << "Tc" << ";" << "Pc" << ";" << "rhoc" << ";" << "uc" << ";" << "beta" << ";" << "beta2" << "delta"
+                      << ";" << "L" << ";" << "phi_r" << endl;
+
+        if(cp[0]==cp[1]) x(0) = 1; //If both components are equal, then consider pure component
+        else
+        {
+            if(iter_choice==2) x(0) = 0.000;
+            else
+            {
+            cout << "Give molar fraction for component 1: \n";
+            cin >> x_iter;
+            }
+        }
+
+                for(x(0)=0.00; x(0)<=1.00 ;x(0)=x(0)+0.05)
+                {
+                if(cp[0]==cp[1]) x(0) = 1;
+                cout << "BEGIN X ITERATION === x0 = " << x(0) << endl;
+                if(cp[0]!=cp[1])
+                {
+                if(x(0)>0.000) T = Tcl - 2;
+                else T = T_original2;
+                }
+                T_L = T;
+                final_T = Tnew_original;
+                if(iter_choice==1) x(0) = x_iter;
+
+                x(1) = 1 - x(0);
+                //RG parameters
+                L = x(0)*pow(L_rg(0),3)+x(1)*pow(L_rg(1),3);
+                L = pow(L,(1./3.));
+                phi_r = x(0)*phi_rg(0) + x(1)*phi_rg(1);
+
         while(L<=final_L)
         {
-        T = T_original2;
+        T = T_L;
         flag = 0;
 
     {
@@ -2023,9 +2139,9 @@ rho = 1e-6;
 w=0;
 
 
-for(w=0; w<1000; w++) //FAAAAAAAAAAAAAAAALSOOOOOOOOO
+for(w=0; w<n; w++) //FAAAAAAAAAAAAAAAALSOOOOOOOOO
 {
-    rho_vec_out[w] = double(w)/1000/bm;
+    rho_vec_out[w] = double(w)/n/bm;
     rho_vec_out[0] = 1e-6;
 
     //DIMENSIONLESS!!!************************************************************
@@ -2040,7 +2156,7 @@ u_vec = cspline_deriv1_vec(rho_vec, f_vec, rho_vec_out);
 u_vec_0 = cspline_deriv1_vec(rho_vec, f0_vec, rho_vec_out);
 
 
-for(i=0; i<1000; i++)
+for(i=0; i<n; i++)
 {
     P_vec[i] = -f_vec_out[i] + rho_vec_out[i]*u_vec[i];
     P_vec_0[i] = -f0_vec_out[i] + rho_vec_out[i]*u_vec_0[i];
@@ -2049,21 +2165,21 @@ for(i=0; i<1000; i++)
     //       << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T << endl;
 }
 
-    double a, b;
-    a = (P_vec[505]-P_vec[495])/(rho_vec_out[505]-rho_vec_out[495]);
-    b = P_vec[505]-a*rho_vec_out[505];
-    P_vec[496] = a*rho_vec_out[496] + b;
-    P_vec[497] = a*rho_vec_out[497] + b;
-    P_vec[498] = a*rho_vec_out[498] + b;
-    P_vec[499] = a*rho_vec_out[499] + b;
-    P_vec[500] = a*rho_vec_out[500] + b;
-    P_vec[501] = a*rho_vec_out[501] + b;
-    P_vec[502] = a*rho_vec_out[502] + b;
-    P_vec[503] = a*rho_vec_out[503] + b;
-    P_vec[504] = a*rho_vec_out[504] + b;
+    double a, b1;
+    a = (P_vec[n/2+5]-P_vec[n/2-5])/(rho_vec_out[n/2+5]-rho_vec_out[n/2-5]);
+    b1 = P_vec[n/2+5]-a*rho_vec_out[n/2+5];
+    P_vec[n/2-4] = a*rho_vec_out[n/2-4] + b1;
+    P_vec[n/2-3] = a*rho_vec_out[n/2-3] + b1;
+    P_vec[n/2-2] = a*rho_vec_out[n/2-2] + b1;
+    P_vec[n/2-1] = a*rho_vec_out[n/2-1] + b1;
+    P_vec[n/2] = a*rho_vec_out[n/2] + b1;
+    P_vec[n/2+1] = a*rho_vec_out[n/2+1] + b1;
+    P_vec[n/2+2] = a*rho_vec_out[n/2+2] + b1;
+    P_vec[n/2+3] = a*rho_vec_out[n/2+3] + b1;
+    P_vec[n/2+4] = a*rho_vec_out[n/2+4] + b1;
     //cout << "a = " << a << " / " << b << P_vec[500] << endl;
 
-for(i=0; i<1000; i++)
+for(i=0; i<n; i++)
 {
 
     if(EdE!=4)
@@ -2083,7 +2199,7 @@ for(i=0; i<1000; i++)
 //=============================================================
 
 
-for(i=0;i<1000;i++)
+for(i=0;i<n;i++)
     {
         P_vec_e(i) = bm*bm*P_vec[i]/am;
         u_vec_e(i) = bm*u_vec[i]/am;
@@ -2108,15 +2224,15 @@ for(i=0;i<1000;i++)
         k++;
         g++;
 
-        std::vector<double> d1P(1000);
+        std::vector<double> d1P(n);
         d1P = fin_diff_1_vec(rho_vec_out, P_vec);
         int inflex;
-        for(w=1; w<475; w++)
+        for(w=1; w<n-25; w++)
         {
             if(d1P[w] < 0)
             {
                 inflex = 1; //Isotherm has inflexion point
-                w = 1000;
+                w = n;
             }
 
             else inflex = 0; //Isotherm does not have inflexion point
@@ -2260,6 +2376,14 @@ for(i=0;i<1000;i++)
          out_simulation << EdE << ";" << cp[0] << ";" << Tcritical << ";" << Pcritical << ";" << rhocritical << ";"
                         << ucritical << ";" << b_crit << ";" << b_crit2 << ";" << d_crit << ";" << L << ";" << phi_r << endl;
 
+        Tcl = Tcritical;
+        Pcl = Pcritical;
+        rhocl = rhocritical;
+        ucline = ucritical;
+        betal = b_crit;
+        betal2 = b_crit2;
+        deltal = d_crit;
+
         Envelope.close();
         envelope_exponent.close();
         envelope_exponent2.close();
@@ -2276,13 +2400,594 @@ for(i=0;i<1000;i++)
         envelope_exponent.close();
         envelope_exponent2.close();
         crit_isot.close();
-
     }
 
         L = L + step_L;
         }
+
+                critical_line << Tcl << ";" << Pcl << ";" << rhocl << ";"
+                              << ucline << ";" << betal << ";" << betal2 << ";" << deltal
+                              << ";" << L-step_L << ";" << phi_r << endl;
+
+                if(iter_choice==1) x(0) = 1; //Stop iteration, user chose to calculate single point
+                }
+
+    }
     break;
 
+    case 4: //Binary mixture
+
+    double **bfnl;
+    bfnl = new double *[n];
+    for(int k = 0; k <n; k++)
+        bfnl[k] = new double[n];
+
+    double **bfns;
+    bfns = new double *[n];
+    for(int k = 0; k <n; k++)
+        bfns[k] = new double[n];
+
+    double **rho_mat;
+    rho_mat = new double *[n];
+    for(int k = 0; k <n; k++)
+        rho_mat[k] = new double[n];
+
+    double **fv_mat;
+    fv_mat = new double *[n];
+    for(int k = 0; k <n; k++)
+        fv_mat[k] = new double[n];
+
+    double **f0_mat;
+    f0_mat = new double *[n];
+    for(int k = 0; k <n; k++)
+        f0_mat[k] = new double[n];
+
+    double **f_originalm;
+    f_originalm = new double *[n];
+    for(int k = 0; k <n; k++)
+        f_originalm[k] = new double[n];
+
+    double **f_mat;
+    f_mat = new double *[n];
+    for(int k = 0; k <n; k++)
+        f_mat[k] = new double[n];
+
+    double **flm;
+    flm = new double *[n];
+    for(int k = 0; k <n; k++)
+        flm[k] = new double[n];
+
+    double **fsm;
+    fsm = new double *[n];
+    for(int k = 0; k <n; k++)
+        fsm[k] = new double[n];
+
+    double di, dfm, dy;
+    double rho1a[n], rho2a[n];
+
+    dy = double(1/n);
+    cout << "dy inicial = " << dy << " " << 1/n << " " << double(1/n) << endl;
+    dy = pow(n,-1);
+    cout << "dy inicial = " << dy << " " << 1/n << " " << double(1/n) << endl;
+
+    while(T<=final_T)
+    {
+    int p=0;
+
+    for(x(0)=0.000; x(0)<=1.001; x(0) = x(0) + 0.005)
+    {
+    cout << "x0 = " << x(0) << endl;
+
+    if(cp[0]==cp[1]) x(0) = 1; //If both components are equal, then consider pure component
+
+    x(1) = 1 - x(0);
+    //RG parameters
+    L = x(0)*pow(L_rg(0),3)+x(1)*pow(L_rg(1),3);
+    L = pow(L,(1./3.));
+    phi_r = x(0)*phi_rg(0) + x(1)*phi_rg(1);
+    cout << "BEGIN==============================================================\n";
+    //Recalculating Temperature-dependent parameters
+
+    //DIMENSIONLESS!!!************************************************************
+    T = T_original + g*step_original;
+    final_T = final_T_original;
+    step = step_original;
+
+    cout << "T = " << T << endl;
+    if(EdE==1)
+    {
+        if(Tc_virtual[0] != 0)
+        {
+        Tr = T*Tc_virtual.asDiagonal().inverse().diagonal(); //Vetor com temperaturas reduzidas virtuais
+        alfa = alfa_function(EdE, nc, Tr, omega_virtual, a0, c1);
+        a = a_function(nc, R, EdE_parameters, omega_virtual, Tc_virtual, Pc_virtual, alfa, EdE, a0);
+        b = b_function(nc, R, EdE_parameters, omega_virtual, Tc_virtual, Pc_virtual, alfa, bCPA, EdE);
+        }
+
+        else
+        {
+        Tr = T*(Tc.asDiagonal().inverse().diagonal()); //Vetor com temperaturas reduzidas virtuais
+        alfa = alfa_function(EdE, nc, Tr, omega, a0, c1);
+        a = a_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, EdE, a0);
+        b = b_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, bCPA, EdE);
+        }
+    }
+
+    else
+    {
+    Tr = T*(Tc.asDiagonal().inverse().diagonal()); //Vetor com temperaturas reduzidas virtuais
+    alfa = alfa_function(EdE, nc, Tr, omega, a0, c1);
+    a = a_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, EdE, a0);
+    b = b_function(nc, R, EdE_parameters, omega, Tc, Pc, alfa, bCPA, EdE);
+    }
+
+    bm = b_mixing_rules_function(nc, b, x, MR);
+    am = a_mixing_rules_function(nc, MR, a, x, k12, bl, b, T, q, r, Aij, R, alfa_NRTL, EdE, G_ex_model);
+    cout << "n = " << n << endl;
+
+    if(EdE==4)
+    {
+        eps = 8.75;
+        lambda = 1.65;
+        sigma = 4.86e-10;
+        L = 0.8e-4; //omega
+        pi = 3.14159265359796;
+        NA = 6.023e23;
+        cnst = pi/6;
+        l12 = 0;
+
+        a = a_function_msa(nc, R, EdE_parameters, omega, Tc, Pc, alfa, EdE, a0, T);
+        b = b_function_msa(nc, R, EdE_parameters, omega, Tc, Pc, alfa, bCPA, EdE, T);
+
+        sig1 = pow((b(0)/cnst),(1.0/3.0));
+        sig2 = pow((b(1)/cnst),(1.0/3.0));
+        sig12 = 0.5*(sig1+sig2)*(1.0-l12);
+        bm = (pi/6)*pow(sig12,3.0);
+        am = pow((a(0)*a(1)),0.5)*(1.0-k12);
+        /*
+        cout << "sig1 = " << sig1 << endl;
+        cout << "sig2 = " << sig2 << endl;
+        cout << "sig12 = " << sig12 << endl;
+        cout << "b(0) = " << b(0) << endl;
+        cout << "b(1) = " << b(1) << endl;
+        cout << "cnst = " << cnst << endl;
+        cout << "bm = " << bm << endl;
+        cout << "am = " << am << endl;
+        */
+
+        zeta_squared = pow(lambda,2)*pow(sigma,2)/5;
+
+        rho_max = 6/(pi*pow(sigma,3))/NA;
+
+        //DIMENSIONLESS
+        rho_max = rho_max*bm;
+
+        phi_r = zeta_squared*10;
+    }
+
+    E_row = ((E_row.array().log())*Told/T).exp();
+    E_col = ((E_col.array().log())*Told/T).exp();
+    E_auto = ((E_auto.array().log())*Told/T).exp();
+
+    Told = T;
+
+    rho = 1e-6;
+
+    //DIMENSIONLESS!!!************************************************************
+    rho = 1e-6*bm;
+
+    w = 0;
+
+    //DIMENSIONLESS!!!************************************************************
+    T = T*bm*R/am;
+    final_T = final_T_original*bm*R/am;
+    step = step_original*bm*R/am;
+
+    if(EdE==4)
+    {
+        T = T/bm;
+        final_T = final_T/bm;
+        step = step/bm;
+    }
+
+
+    //====================================================================
+    cout << "Before renormalization =======================================\n";
+
+if(r_type==1)
+{
+    //Calcular vetor de f em f0 com um cálculo
+    rho = 1e-6;
+
+    //DIMENSIONLESS!!!************************************************************
+    rho = 1e-6*bm;
+
+    for(int k1=0; k1<n; k1++)
+    {
+    rho1_vec[k1] = double(k1)/n/b(0);
+    rho2_vec[k1] = double(k1)/n/b(0);
+    rho1_vec[0] = 1e-6;
+    rho2_vec[0] = 1e-6;
+
+    rho1_vec[k1] = rho1_vec[k1]*b(0);
+    rho2_vec[k1] = rho2_vec[k1]*b(1);
+
+    cout << "rho 1 / 2 = " << rho1_vec[k1] << " " << rho2_vec[k1] << " " << k1 << endl;
+    }
+
+    for(int k1=0; k1<n; k1++)
+    {
+        for(int k2=0; k2<n; k2++)
+        {
+        x(0) = double(k1)/n;
+        x(1) = double(k2)/n;
+
+
+    //NON BONDED FRACTION DIMENSIONAL**************************
+    T = T/bm/R*am;
+
+    //if(EdE==3) X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
+    //                 tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho_vector(k), deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
+
+    T = T*bm*R/am;
+    //*********************************************************
+
+
+    //DIMENSIONLESS!!!************************************************************
+    rho_mat[k1][k2] = x(0)*rho_vec[k1] + x(1)*rho2_vec[k2];
+
+    fv_mat[k1][k2] = helmholtz_repulsive(5, R, T, rho_mat[k1][k2], am, bm, X, x, sigma, eps, kB);
+    //cout << "rho / fv = " << rho_vec[k] << " / " << fv(k) << " / "  << X(0) << endl;
+
+    f_originalm[k1][k2] = fv_mat[k1][k2];
+
+    if(EdE != 4) fv_mat[k1][k2] = fv_mat[k1][k2] + 0.5*rho_mat[k1][k2]*rho_mat[k1][k2];
+
+    f0_mat[k1][k2] = f_originalm[k1][k2];
+    rho = rho + rho_max/n;
+        }
+    }
+    cout << "fv_mat ok" << endl;
+
+    //Iteração principal - o n
+    for(i=1; i<9; i++) //i começando em 1
+    {
+        cout << "renormalizing: i = " << i << endl;
+        //Calcular K
+        Kn = kB*T/((pow(2,3*i))*pow(L,3));
+
+        //DIMENSIONLESS!!!************************************************************
+        Kn = T/pow(2,3*i)/(pow(L,3)/bm*6.023e23);
+
+
+        //DIMENSIONLESS FOR MSA!!!!!
+        if(EdE==4)
+        {
+        T = T/R*am;
+
+        Kn = R*T/((pow(2,3*i))*L);
+        Kn = Kn/am*bm;
+
+        T = T*R/am;
+        }
+
+        //Kn = kB*T*NA/((pow(2,3*i))*L*b(0));
+
+        //Preparar vetores f_l e f_s
+        rho = 1e-6;
+
+        //DIMENSIONLESS!!!************************************************************
+        rho = 1e-6*bm;
+
+        if(EdE==3) X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
+                     tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho, deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
+
+        for(int k1=0; k1<n; k1++)
+        {
+            for(int k2=0; k2<n; k2++)
+            {
+            flm[k1][k2] = helmholtz_recursion_long(EdE, fv_mat[k1][k2], rho_mat[k1][k2], am, bm, R, T);
+            fsm[k1][k2] = helmholtz_recursion_short(EdE, fv_mat[k1][k2], rho_mat[k1][k2], am, bm, i, L, phi_r, sr_type, R, T);
+            rho = rho + rho_max/n;
+            bfnl[k1][k2] = flm[k1][k2];
+            bfns[k1][k2] = fsm[k1][k2];
+            }
+        }
+
+        cout << "calculated bfnl and bfns" << endl;
+
+        //cout << "flv before 201 / 201-100 = " << flv(201) << " / " << flv(201-100) << endl;
+        //cout << "fsv before 201 / 201-100 = " << fsv(201) << " / " << fsv(201-100) << endl;
+
+            //Iteração 2 - calcular os valores para f no i atual
+            rho = 1e-6;
+
+            //DIMENSIONLESS!!!************************************************************
+            rho = 1e-6*bm;
+
+            w = 0;
+            width = rho_max/n;
+
+            for(int k1=0; k1<n; k1++)
+            {
+                for(int k2=0; k2<n; k2++)
+                {
+                if(EdE != 4) di = di_calculation(bfnl,bfns,1/Kn,dy,k1,k2,n);
+                //cout << "di = " << di << endl;
+                    if(EdE == 4)
+                    {
+                    if(rho_mat[k1][k2]<n/2) di = di_calculation(bfnl,bfns,1/Kn,dy,k1,k2,n);
+                    else di = 0;
+                    }
+                dfm = -di*Kn;
+                cout << "k1,k2: " << k1 << " " << k2 << " " << di << " " << dfm << " " << fv_mat[k1][k2] << " " << Kn << endl;
+                fv_mat[k1][k2] = fv_mat[k1][k2] + dfm;
+                }
+            }
+
+            cout << "corrected fv_mat" << endl;
+
+
+        //Calcular o novo vetor de f, ajustando com o vetor de delta_f
+        //fv.array() = fv.array() + delta_fv.array();
+        cout << "i = " << i << " / Kn = " << Kn*am/bm << " / f 200/200 = " << fv_mat[200][200]*am/bm << " / delta 60 --> "
+             << delta_fv(60)*am/bm << endl;
+        //cin >> stop;
+        /*
+        for(w=0; w<n; w++)
+        {
+            dfnout << i << ";" << rho_vector(w)/bm << ";" << fv(w)*am/bm << ";" << delta_fv(w)*am/bm << endl;
+        }
+        */
+    }
+
+    rho = 1e-6;
+
+    //DIMENSIONLESS!!!************************************************************
+    rho = 1e-6*bm;
+
+    for(int k1=0; k1<n; k1++)
+    {
+        for(int k2=0; k2<n; k2++)
+        {
+    if(EdE != 4) fv_mat[k1][k2] = fv_mat[k1][k2] - 0.5*rho_mat[k1][k2]*rho_mat[k1][k2];
+
+    f_mat[k1][k2] = fv_mat[k1][k2];
+
+    //DIMENSIONLESS!!!************************************************************
+    if(EdE != 4)
+    {
+    f_vec[w] = fv(w)*am/bm/bm;
+    f0_vec[w] = f0_vec[w]*am/bm/bm;
+    rho_vec[w] = rho_vec[w]/bm;
+    }
+
+    if(EdE == 4)
+    {
+    f_vec[w] = fv(w)*am/bm;
+    f0_vec[w] = f0_vec[w]*am/bm;
+    rho_vec[w] = rho_vec[w]/bm;
+    }
+
+
+    //cout << "rho = " << rho_vector(w) << "  //  f = " << fv(w) << endl;
+    Not_splined << std::fixed << std::setprecision(15) << rho_vector(w) << ";" << fv(w) << ";" << f_originalv(w) << ";"
+                << T << endl;
+    rho = rho + rho_max/n;
+        }
+    }
+}
+    //====================================================================
+
+rho = 1e-6;
+w=0;
+
+for(w=0; w<n; w++) //FAAAAAAAAAAAAAAAALSOOOOOOOOO
+{
+    rho_vec_out[w] = double(w)/n/bm;
+    rho_vec_out[0] = 1e-6;
+
+    rho1_vec[w] = double(w)/n/b(0);
+    rho2_vec[w] = double(w)/n/b(1);
+    rho1_vec_out[w] = double(w)/n/b(0);
+    rho2_vec_out[w] = double(w)/n/b(1);
+
+    rho1a[w] = rho1_vec[w];
+    rho2a[w] = rho2_vec[w];
+
+    //DIMENSIONLESS!!!************************************************************
+    //rho_vec_out[w] = double(w)/1000/bm*bm;
+    //rho_vec_out[0] = 1e-6*bm;
+}
+
+    if(EdE!=4) T = T*am/bm/R;
+    if(EdE==4) T = T*am/R;
+
+//Subtract ideal gas contribution before cubic spline
+for(w=0; w<n; w++)
+{
+    f_vec[w] = f_vec[w] - rho_vec[w]*R*T*(log(rho_vec[w])-1);
+    f0_vec[w] = f0_vec[w] - rho_vec[w]*R*T*(log(rho_vec[w])-1);
+}
+
+f_vec_out = cspline_vec(rho_vec, f_vec, rho_vec_out);
+f0_vec_out = cspline_vec(rho_vec, f0_vec, rho_vec_out);
+
+u_vec = cspline_deriv1_vec(rho_vec, f_vec, rho_vec_out);
+u_vec_0 = cspline_deriv1_vec(rho_vec, f0_vec, rho_vec_out);
+
+u_vec_res1 = cspline_deriv1_vec(rho1_vec, f_vec, rho1_vec_out);
+u_vec_res2 = cspline_deriv1_vec(rho2_vec, f_vec, rho2_vec_out);
+
+//Add ideal gas contribution after cubic spline
+for(w=0; w<n; w++)
+{
+    f_vec_out[w] = f_vec_out[w] + rho_vec_out[w]*R*T*(log(rho_vec_out[w])-1);
+    f0_vec_out[w] = f0_vec_out[w] + rho_vec_out[w]*R*T*(log(rho_vec_out[w])-1);
+    u_vec[w] = u_vec[w] + R*T*(log(rho_vec_out[w]));
+    u_vec_0[w] = u_vec_0[w] + R*T*(log(rho_vec_out[w]));
+}
+    if(EdE!=4) T = T/am*bm*R;
+    if(EdE==4) T = T/am*R;
+
+for(i=0; i<n; i++)
+{
+    P_vec[i] = -f_vec_out[i] + rho_vec_out[i]*u_vec[i];
+    P_vec_0[i] = -f0_vec_out[i] + rho_vec_out[i]*u_vec_0[i];
+
+    //Renorm << std::fixed << std::setprecision(15) << rho_vec_out[i] << ";" << f_vec_out[i] << ";"
+    //       << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T << endl;
+}
+
+    double a, b1;
+    a = (P_vec[n/2+5]-P_vec[n/2-5])/(rho_vec_out[n/2+5]-rho_vec_out[n/2-5]);
+    b1 = P_vec[n/2+5]-a*rho_vec_out[n/2+5];
+    P_vec[n/2-4] = a*rho_vec_out[n/2-4] + b1;
+    P_vec[n/2-3] = a*rho_vec_out[n/2-3] + b1;
+    P_vec[n/2-2] = a*rho_vec_out[n/2-2] + b1;
+    P_vec[n/2-1] = a*rho_vec_out[n/2-1] + b1;
+    P_vec[n/2] = a*rho_vec_out[n/2] + b1;
+    P_vec[n/2+1] = a*rho_vec_out[n/2+1] + b1;
+    P_vec[n/2+2] = a*rho_vec_out[n/2+2] + b1;
+    P_vec[n/2+3] = a*rho_vec_out[n/2+3] + b1;
+    P_vec[n/2+4] = a*rho_vec_out[n/2+4] + b1;
+    //cout << "a = " << a << " / " << b << P_vec[500] << endl;
+
+for(i=0; i<n; i++)
+{
+// Renorm << std::fixed << std::setprecision(15) << rho_vec_out[i] << ";" << f_vec_out[i] << ";"
+//        << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T << endl;
+
+        //DIMENSIONLESS!!!************************************************************
+ if(EdE!=4)
+ {
+ Renorm << std::fixed << std::setprecision(15) << rho_vec_out[i] << ";" << f_vec_out[i] << ";"
+        << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i] << ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T*am/bm/R << endl;
+ }
+
+ if(EdE==4)
+ {
+ Renorm << std::fixed << std::setprecision(15) << rho_vec_out[i] << ";" << f_vec_out[i] << ";"
+        << f0_vec_out[i] << ";" << u_vec[i] << ";" << P_vec[i]<< ";" << u_vec_0[i] << ";" << P_vec_0[i] << ";" << T*am/R << endl;
+ }
+
+}
+
+//=============================================================
+
+if(EdE==4) cout << "T = " << T*am/R << endl;
+if(EdE!=4) cout << "T = " << T*am/bm/R << endl;
+cout << "=======================================\n" << endl;
+
+    //****************************START WRITING FILE WITH f function of mole fraction of density*****************
+    if(p<1)
+    {
+        xpp_out << ";"; //Cell A1 clear
+        xpu_out << ";"; //Cell A1 clear
+        xpu1_out << ";"; //Cell A1 clear
+        xpu2_out << ";"; //Cell A1 clear
+
+        //Write density values on first line
+        for(int i=0; i<n; i++)
+        {
+        xpp_out << rho_vec_out[i]*bm << ";";//Handle P with mole fraction and density
+        xpu_out << rho_vec_out[i]*bm << ";";//Handle u with mole fraction and density
+        xpu1_out << rho1_vec_out[i]*b(0) << ";";//Handle u with mole fraction and density
+        xpu2_out << rho2_vec_out[i]*b(1) << ";";//Handle u with mole fraction and density
+        }
+
+        xpp_out << endl; //Jump to next line, start mole fractions P and u
+        xpu_out << endl; //Jump to next line, start mole fractions P and u
+        xpu1_out << endl; //Jump to next line, start mole fractions P and u
+        xpu2_out << endl; //Jump to next line, start mole fractions P and u
+    }
+
+
+    xpp_out << x(0) << ";"; //Write mole fraction on first column
+    xpu_out << x(0) << ";"; //Write mole fraction on first column
+    xpu1_out << x(0) << ";"; //Write mole fraction on first column
+    xpu2_out << x(0) << ";"; //Write mole fraction on first column DOUBT
+
+    for(i=0; i<n; i++)
+    {
+        xpp_out << P_vec[i] << ";";//Handle P with mole fraction and density
+        xpu_out << u_vec[i] << ";";//Handle u with mole fraction and density
+        xpu1_out << u_vec_res1[i] << ";";//Handle u with mole fraction and density
+        xpu2_out << u_vec_res2[i] << ";";//Handle u with mole fraction and density
+    }
+
+        xpp_out << bm << endl; //Jump to next line, next mole fraction
+        xpu_out << bm << endl; //Jump to next line, next mole fraction
+        xpu1_out << b(0) << endl; //Jump to next line, next mole fraction
+        xpu2_out << b(1) << endl; //Jump to next line, next mole fraction
+    //****************************END WRITING FILE WITH f function of mole fraction of density*****************
+
+k++;
+p++;
+
+    } //end for x loop
+
+    T = T + step;
+    g++;
+} //end while T loop
+
+    if(cp[0] != cp[1])
+    {
+        d2P = new double *[200];
+        for(int k = 0; k <200; k++)
+            d2P[k] = new double[n];
+
+        d2u = new double *[200];
+        for(int k = 0; k <200; k++)
+            d2u[k] = new double[n];
+
+        Pmat = new double *[200];
+        for(int k = 0; k <200; k++)
+            Pmat[k] = new double[n];
+
+        umat = new double *[200];
+        for(int k = 0; k <200; k++)
+            umat[k] = new double[n];
+
+        u1mat = new double *[200];
+        for(int k = 0; k <200; k++)
+            u1mat[k] = new double[n];
+
+        u2mat = new double *[200];
+        for(int k = 0; k <200; k++)
+            u2mat[k] = new double[n];
+
+        p2 = new double *[n];
+        for(int k = 0; k <n; k++)
+            p2[k] = new double[n];
+
+        d2u1 = new double *[n];
+        for(int k = 0; k <n; k++)
+            d2u1[k] = new double[n];
+
+        d2u2 = new double *[n];
+        for(int k = 0; k <n; k++)
+            d2u2[k] = new double[n];
+
+        rho_rv.resize(n);
+
+        d2Pgen(d2P,n);
+        d2u1gen(d2u1,n);
+        d2u2gen(d2u2,n);
+        renorm_mat_reader(Pmat,umat,n);
+        renorm_uu_reader(u1mat,u2mat,n);
+        rho_rv = renorm_rhovec(n);
+        x_rv = renorm_xvec(n);
+
+        d2_chem_p(f_mat,rho1a,rho2a,n,b(0)/n,b(1)/n,p2,d2u1,d2u1);
+
+        T = T_original;
+        Renormalization=2;
+        EdE = 5;
+    }
+    else envelope_tracer(1e-5,env_type);
+
+    break;
 
 
 }
@@ -2563,13 +3268,13 @@ for(i=0;i<(4*nc);i++)
 
     phase = 1;
     phi_liquid_phase = fugacity_function(nc, phase, al, bl, a, b, R, T, P, tolZl, EdE_parameters, MR, q_prime, r, Aij, x, q, EdE,
-                                         alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1, d2P, d2u, x_rv, rho_rv,
-                                         Pmat, umat, u1mat, u2mat);
+                                         alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1, d2P, d2u1, d2u2,
+                                         x_rv, rho_rv, Pmat, umat, u1mat, u2mat);
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
-                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u, x_rv, rho_rv,
-                                        Pmat, umat, u1mat, u2mat);
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u1, d2u2,
+                                         x_rv, rho_rv, Pmat, umat, u1mat, u2mat);
 
 
 K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
@@ -2619,8 +3324,8 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
-                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u, x_rv, rho_rv,
-                                         Pmat, umat, u1mat, u2mat);
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u1, d2u2,
+                                         x_rv, rho_rv, Pmat, umat, u1mat, u2mat);
 
 
     K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
@@ -3020,13 +3725,13 @@ for(i=0;i<(4*nc);i++)
 
     phase = 1;
     phi_liquid_phase = fugacity_function(nc, phase, al, bl, a, b, R, T, P, tolZl, EdE_parameters, MR, q_prime, r, Aij, x, q, EdE,
-                                         alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1, d2P, d2u, x_rv, rho_rv,
-                                         Pmat, umat, u1mat, u2mat);
+                                         alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1, d2P, d2u1, d2u2,
+                                         x_rv, rho_rv, Pmat, umat, u1mat, u2mat);
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
-                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u, x_rv, rho_rv,
-                                         Pmat, umat, u1mat, u2mat);
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u1, d2u2,
+                                         x_rv, rho_rv, Pmat, umat, u1mat, u2mat);
 
 
 K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
@@ -3077,8 +3782,8 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
-                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u, x_rv, rho_rv,
-                                         Pmat, umat, u1mat, u2mat);
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u1, d2u2,
+                                         x_rv, rho_rv, Pmat, umat, u1mat, u2mat);
 
 
     K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
@@ -3424,6 +4129,8 @@ k=1;
 errorKx = tolKx + 1;
 tol_u = 0.00001;
 
+cout << "x = " << x(0) << endl;
+
 while(errorKx>tolKx)
 {
 Tr = T*Tc.asDiagonal().inverse().diagonal();
@@ -3493,21 +4200,22 @@ for(i=0;i<(4*nc);i++)
 
     phase = 1;
     phi_liquid_phase = fugacity_function(nc, phase, al, bl, a, b, R, T, P, tolZl, EdE_parameters, MR, q_prime, r, Aij, x, q, EdE,
-                                         alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1, d2P, d2u, x_rv, rho_rv,
-                                         Pmat, umat, u1mat, u2mat);
+                                         alfa_NRTL, G_ex_model, k12, Xl, tolV, Vl, n_v, Vl, &Zl, &u_liquid1, d2P, d2u1, d2u2,
+                                         x_rv, rho_rv, Pmat, umat, u1mat, u2mat);
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
-                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u, x_rv, rho_rv,
-                                         Pmat, umat, u1mat, u2mat);
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u1, d2u2,
+                                         x_rv, rho_rv, Pmat, umat, u1mat, u2mat);
 
 
 K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
 Kx = (x.asDiagonal())*K;
-cout << "phi:   am:    bm:   P:   x0:   x1:   " << endl;
-cout << phi_liquid_phase << " " << al << " " << bl << " " << P << " " << x(0) << " " << x(1) << endl;
-cout << phi_vapor_phase << " " << av << " " << bv << " " << P << " " << y(0) << " " << y(1) << endl;
-cin >> stop;
+//cout << "phi:   am:    bm:   P:   x0:   x1:   " << endl;
+//cout << phi_liquid_phase << " " << al << " " << bl << " " << P << " " << x(0) << " " << x(1) << endl;
+//cout << phi_vapor_phase << " " << av << " " << bv << " " << P << " " << y(0) << " " << y(1) << endl;
+//cin >> stop;
+
     for(i=0; i<nc; i++)
     {
          one(i) = 1;
@@ -3559,8 +4267,8 @@ while(errorSUMKx>tolSUMKx || counter2<=1)
 
     phase = 2;
     phi_vapor_phase = fugacity_function(nc, phase, av, bv, a, b, R, T, P, tolZv, EdE_parameters, MR, q_prime, r, Aij, y, q, EdE,
-                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u, x_rv, rho_rv,
-                                         Pmat, umat, u1mat, u2mat);
+                                        alfa_NRTL, G_ex_model, k12, Xv, tolV, Vv, n_v, Vv, &Zv, &u_vapor1, d2P, d2u1, d2u2,
+                                         x_rv, rho_rv, Pmat, umat, u1mat, u2mat);
 
 
     K = (phi_vapor_phase.asDiagonal().inverse())*phi_liquid_phase;
@@ -3590,7 +4298,7 @@ errorKx = fabs(Ey);
 errorKx = errorKx/sumKx;
 
 y = Kx.array()/sumKx;
-cout << "errorKx: " << errorKx << " sumKx: " << sumKx << " K: " << K << endl;
+//cout << "errorKx: " << errorKx << " sumKx: " << sumKx << " K: " << K << endl;
 
 
 switch(process)

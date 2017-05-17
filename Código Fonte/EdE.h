@@ -978,9 +978,9 @@ return X;
 VectorXd fugacity_function(int nc, int phase, double am, double bm, VectorXd a, VectorXd b, double R, double T, double P,
                            double tolZ, VectorXd EdE_parameters, int MR, VectorXd q_prime, VectorXd r, MatrixXd A, VectorXd x,
                            VectorXd qUNIQUAC, int EdE, MatrixXd alfa_NRTL, int G_ex_model, double k12, VectorXd X, double tolV,
-                           double V, VectorXd n_v, double Vt, double *Z_phase, double *u_phase, double **d2p, double **d2u,
-                           vector<double>& x_rv, vector<double>& rho_rv, double **Pmat, double **umat, double **u1mat,
-                           double **u2mat)
+                           double V, VectorXd n_v, double Vt, double *Z_phase, double *u_phase, double **d2p, double **d2u1,
+                           double **d2u2, vector<double>& x_rv, vector<double>& rho_rv, double **Pmat, double **umat,
+                           double **u1mat, double **u2mat)
 {
     //Variables-----------------------------------------------------------------------
     int d;
@@ -1224,8 +1224,10 @@ d = 0;
     bZ1 = b/bm*Z1;
     pre_phi = bZ1.array()-logZB+q_I.array();
     phi =  (pre_phi).array().exp(); //Aqui deve-se diagonalizar o vetor phi para uma matriz "A" e depois fazer e^A
-    //cout << "V= " << V << " Z= " << Z << " phase: " << phase << endl;
-    //cout << "phi = " << phi << endl;
+    cout << "V= " << V << " Z= " << Z << " ures1= " << R*T*(log(phi(0))+log(Z)) << " phase: " << phase << endl;
+    cout << "V= " << V << " Z= " << Z << " ures2= " << R*T*(log(phi(1))+log(Z)) << " phase: " << phase << endl;
+    cout << "rho= " << 1/V << " rho*bm= " << (1/V)*bm << endl;
+    cout << "phi = " << phi << endl;
     break;
 
     //==============================================================================================================
@@ -1689,8 +1691,10 @@ PSI = EdE_parameters[3];
     //phi(0) = fugacity_renormalized2(phase,x(1),P,bm,R,T,d2p,d2u,x_rv,rho_rv,Pmat,umat,V);
     //phi(1) = fugacity_renormalized2(phase,x(0),P,bm,R,T,d2p,d2u,x_rv,rho_rv,Pmat,umat,V);
 
-    phi(0) = fugacity_renormalized3(phase,x(1),P,bm,R,T,d2p,d2u,x_rv,rho_rv,Pmat,u1mat,V,b(1));
-    phi(1) = fugacity_renormalized3(phase,x(0),P,bm,R,T,d2p,d2u,x_rv,rho_rv,Pmat,u2mat,V,b(0));
+    //cout << "phi0 --- V: " << V << endl;
+    phi(0) = fugacity_renormalized3(phase,x(0),P,bm,R,T,d2p,d2u1,x_rv,rho_rv,Pmat,u1mat,V,b(0),0,b);
+    //cout << "phi1 --- V: " << V << endl;
+    phi(1) = fugacity_renormalized3(phase,x(0),P,bm,R,T,d2p,d2u2,x_rv,rho_rv,Pmat,u2mat,V,b(1),1,b);
 
     }
     break;
