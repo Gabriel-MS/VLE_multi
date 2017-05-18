@@ -1842,7 +1842,7 @@ for(i=0;i<n;i++)
 
                 for(x(0)=0.00; x(0)<=1.00 ;x(0)=x(0)+0.05)
                 {
-                if(cp[0]==cp[1]) x(0) = 1;
+                if(cp[0]==cp[1]) x(0) = 0.999999;
                 cout << "BEGIN X ITERATION === x0 = " << x(0) << endl;
                 if(cp[0]!=cp[1])
                 {
@@ -2003,7 +2003,7 @@ if(r_type==1)
 
     if(EdE==3) X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
                      tolX, x, EdE, EdE_parameters, b, tolZ, 1/rho_vector(k), deltaV, X, 0, a, &Q_func, BETCR, E_auto, beta_auto);
-
+    //cout << "X = \n" << X << endl;
     T = T*bm*R/am;
     //*********************************************************
 
@@ -2015,7 +2015,7 @@ if(r_type==1)
     rho_vector(0) = rho_vector(0)*bm;
 
     fv(k) = helmholtz_repulsive(EdE, R, T, rho_vector(k), am, bm, X, x, sigma, eps, kB);
-    //cout << "rho / fv = " << rho_vec[k] << " / " << fv(k) << " / "  << X(0) << endl;
+    //cout << "rho / fv = " << rho_vec[k] << " / " << fv(k) << " / "  << X(0) << " " << x(1) << " " << am << " " << bm << endl;
 
     //DIMENSIONLESS!!!************************************************************
     //if(EdE != 4) fv(k) = fv(k) + 0.5*am*rho_vector(k)*rho_vector(k);
