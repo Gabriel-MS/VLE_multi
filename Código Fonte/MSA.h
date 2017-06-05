@@ -633,7 +633,7 @@ vector<double> data(7);
 pi = 3.14159265359796;
 cnst = pi/6;
 cnst1 = 6/pi;
-data = data_msa(1);
+data = data_msa(1); //CO2
 a111 = data[0];
 a112 = data[1];
 a113 = data[2];
@@ -641,7 +641,7 @@ b111 = data[3];
 b112 = data[4];
 b113 = data[5];
 xlam11 = data[6];
-data = data_msa(2);
+data = data_msa(2); //C4
 a221 = data[0];
 a222 = data[1];
 a223 = data[2];

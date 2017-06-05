@@ -159,7 +159,7 @@ return Area;
 }
 
 
-///Finite difference method to calculate approximate first derivative
+//Finite difference method to calculate approximate first derivative
 //x and y vectors must have the same size
 //Outputs first derivatives in vector
 vector<double> fin_diff_1_vec(vector<double>& x, vector<double>& y)
@@ -180,7 +180,7 @@ return y1;
 }
 
 
-//Finite difference method to calculate approximate first derivative
+//Finite difference method to calculate approximate second derivative
 //x and y vectors must have the same size
 //x MUST have equal spacing between neighbour characters
 //Outputs first derivatives in vector
@@ -198,6 +198,78 @@ y2[SIZE-1] = (y[SIZE-1] - 2*y[SIZE-2] + y[SIZE-3])/(pow(x[SIZE-2]-x[SIZE-3],2));
 return y2;
 }
 
+/*
+//Finite difference method to calculate approximate cross second derivative
+//x1 refers to rows and x2 refers to columns
+//Outputs second cross derivative dy/dx1dx2 in y2
+void cross_deriv(double x1, double x2, int n1, int n2, double **y, double **y2)
+{
+int i;
+
+double **y1;
+y1 = new double[n1];
+for(int k=0;k<n1;k++)
+    y1[k]=new double[n2];
+
+    //corners
+    y1[0][0] = (y[1][0]-y[0][0])/(x1[1]-x1[0]);
+    y1[0][1] = (y[1][1]-y[0][1])/(x1[1]-x1[0]);
+    y2[0][0] = (y1[0][1]-y1[0][0])/(x2[1]-x2[0]);
+
+    y1[0][n2-1] = (y[1][n2-1]-y[0][n2-1])/(x1[1]-x1[0]);
+    y1[0][n2-2] = (y[1][n2-2]-y[0][n2-2])/(x1[1]-x1[0]);
+    y2[0][n2-1] = (y1[0][n2-2]-y1[0][n2-1])/(x2[n2-1]-x2[n2-2]);
+
+    y1[n1-1][0] = (y[n1-1][0]-y[n1-2][0])/(x1[n1-1]-x1[n1-1]);
+    y1[n1-1][1] = (y[n1-1][1]-y[n1-2][1])/(x1[n1-1]-x1[n1-2]);
+    y2[n1-1][0] = (y1[n1-1][1]-y1[n1-1][0])/(x2[1]-x2[0]);
+
+    y1[n1-1][n2-1] = (y[n1-1][n2-1]-y[n1-2][n2-1])/(x1[n1-1]-x1[n1-2]);
+    y1[n1-1][n2-2] = (y[n1-1][n2-2]-y[n1-2][n2-2])/(x1[n1-1]-x1[n1-1]);
+    y2[n1-1][n2-1] = (y1[n1-1][n2-2]-y1[n1-2][n2-1])/(x2[n2-1]-x2[n2-2]);
+
+    for(i=1;i<n1-1;i++)
+    {
+        for(j=1;j<n2-1;j++)
+        {
+        y1[i][j] = (y[i][j+1]-y[i][j-1])/(x1[j+1]-x1[j-1]);
+        }
+    }
+
+    for(i=1;i<n1-1;i++)
+    {
+        for(j=1;j<n2-1;j++)
+        {
+        y2[i][j] = (y1[i][j+1]-y1[i][j-1])/(x2[j+1]-x2[j-1]);
+        }
+    }
+
+}
+*/
+
+void forward_row_deriv(double *x1, double *x2, int n1, int n2, double **y, double **y1)
+{
+    for(int j=0; j<n2; j++)
+    {
+         for(int i=0; i<n1-1; i++)
+         {
+         y1[i][j] = (y[i+1][j]-y[i][j])/(x1[i+1]-x1[i]);
+         }
+    y1[n1-1][j] = (y[n1-1][j]-y[n1-2][j])/(x1[n1-1]-x1[n1-2]);
+    }
+}
+
+void forward_col_deriv(double *x1, double *x2, int n1, int n2, double **y, double **y1)
+{
+    for(int i=0; i<n1; i++)
+    {
+         for(int j=0; j<n2-1; j++)
+         {
+         y1[i][j] = (y[i][j+1]-y[i][j])/(x2[j+1]-x2[j]);
+         }
+    y1[i][n2-1] = (y[i][n2-1]-y[i][n2-2])/(x2[n2-1]-x2[n2-2]);
+    }
+}
 
 //Interval method to find root between interval, outputs x value of root
 //Using discrete data points, outputs x vector position at root
@@ -304,6 +376,17 @@ y1 = s.deriv(2,x);
 return y1;
 }
 
+
+void transpose(double **A, int l, int c, double **At)
+{
+    for(int i=0; i<l; i++)
+    {
+        for(int j=0; j<c; j++)
+        {
+         At[j][i] = A[i][j];
+        }
+    }
+}
 
 //Cubic spline derivative, outputs vectors of 1st derivatives in cubic splines
 vector<double> cspline_deriv2_vec(vector<double>& X, vector<double>& Y, vector<double>& x)
@@ -1562,9 +1645,9 @@ vector<double> dens_maxwell_seed(vector<double>& rho, vector<double>& P, double 
 
 //Function to calculate phase coexistence densities
 //Using Newton method
-vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>& P, vector<double>& u, double tol)
+vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>& P, vector<double>& u, double tol, int n)
 {
-    std::vector<double> dPdrho(1000), Pf1(1000), Pf2(1000), rhov(6);
+    std::vector<double> dPdrho(n), Pf1(n), Pf2(n), rhov(6);
     int i, max1, min1, min2;
     double rhomax, rhomin, Pmax, Pmin, P1, P2, f1, f2, u1, u2, du1, du2, dP1, dP2, detJ, drho1, drho2;
     double rho1, rho2, area;
@@ -1591,7 +1674,7 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
 
     if (Pmin<0) Pmin=1e-3;
 
-    for(i=0; i<1000; i++)
+    for(i=0; i<n; i++)
     {
         if(Pmin<0) Pf1[i] = P[i] + Pmin;
         else Pf1[i] = P[i] - Pmin;
@@ -1608,7 +1691,8 @@ vector<double> dens_newt(vector<double>& rho, vector<double>& f, vector<double>&
     //cout << "Pmax/min = " << Pmax << " / " << Pmin << endl;
     //cout << "max/min = " << max1 << " / " << min1 << endl;
     //cout << "rho = " << rhomax << " / " << rhomin << endl;
-    //cout << "0 / max / min / 700 = " << rho[0] << " / " << rhomax << " / " << rhomin << " / " << rho[700] << endl;
+    //cout << "rho0 / max / min / 700 = " << rho[0] << " / " << rhomax << " / " << rhomin << " / " << rho[700] << endl;
+
     //Find initial guess for densities
     rho1 = falsi_spline(rho, Pf1, rho[0], rhomax, 1e-3);
     //cout << "rho1 = " << rho1 << endl;

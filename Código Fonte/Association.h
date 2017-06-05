@@ -574,7 +574,7 @@ return E_auto_assoc;
 MatrixXd DELTA_function(int combining_rule, int nc, int phase, double R, double T, double P, double tolV,
                VectorXd alfa, double am, double bm, MatrixXd beta_col, MatrixXd beta_row, MatrixXd E_col,
                MatrixXd E_row, int EdE, VectorXd x, VectorXd X, VectorXd EdE_parameters, VectorXd bi, double tolZ,
-               double V, double BETCR, MatrixXd E_auto, MatrixXd beta_auto)
+               double V, double BETCR, MatrixXd E_auto, MatrixXd beta_auto, double Dij)
 {
     int nc4;
     nc4 = 4*nc;
@@ -623,7 +623,7 @@ cout << "BiBj2 = \n" << BiBj2 << endl;
 //Definindo a matriz para energia e volume de associação-cruzada
 MatrixXd E_cross(nc4,nc4), E_cross_1(nc4,nc4), beta_cross(nc4,nc4), DELTA(nc4,nc4), DELTA_row(nc4,nc4),
          E_row_1(nc4,nc4), E_col_1(nc4,nc4), DELTA_col(nc4,nc4), beta_cross_BETCR(nc4,nc4), zero4(nc4,nc4),
-         E_auto_1(nc4,nc4), DELTA_auto(nc4,nc4), DELTA_cross(nc4,nc4);
+         E_auto_1(nc4,nc4), DELTA_auto(nc4,nc4), DELTA_cross(nc4,nc4), D12(nc4,nc4);
          int j;
 
   switch(combining_rule)
@@ -779,6 +779,16 @@ MatrixXd E_cross(nc4,nc4), E_cross_1(nc4,nc4), beta_cross(nc4,nc4), DELTA(nc4,nc
 
   }
 
+  D12 << 1.00, 1.00, 1.00, 1.00, Dij, Dij, Dij, Dij,
+         1.00, 1.00, 1.00, 1.00, Dij, Dij, Dij, Dij,
+         1.00, 1.00, 1.00, 1.00, Dij, Dij, Dij, Dij,
+         1.00, 1.00, 1.00, 1.00, Dij, Dij, Dij, Dij,
+         Dij, Dij, Dij, Dij, 1.00, 1.00, 1.00, 1.00,
+         Dij, Dij, Dij, Dij, 1.00, 1.00, 1.00, 1.00,
+         Dij, Dij, Dij, Dij, 1.00, 1.00, 1.00, 1.00,
+         Dij, Dij, Dij, Dij, 1.00, 1.00, 1.00, 1.00;
+
+DELTA = DELTA.cwiseProduct(D12);
 return DELTA;
 }
 
@@ -786,7 +796,7 @@ return DELTA;
 VectorXd fraction_nbs_initial(int nc, int combining_rule, int phase, double R, double T, double P, double tolV,
                       VectorXd alfa, double am, double bm, MatrixXd beta_col, MatrixXd beta_row, MatrixXd E_col,
                       MatrixXd E_row, double tolX, VectorXd x, int EdE, VectorXd EdE_parameters, VectorXd bi,
-                      double tolZ, double V, double BETCR, MatrixXd E_auto, MatrixXd beta_auto)
+                      double tolZ, double V, double BETCR, MatrixXd E_auto, MatrixXd beta_auto, double Dij)
 {
     VectorXd X(4*nc), Xnew(4*nc), Xcond(4*nc), pre_Xnew(4*nc), g(4*nc), deltaX(4*nc), lnXX(4*nc), X1(4*nc), lnXX2(4*nc);
     MatrixXd DELTA(4*nc,4*nc), xXD (4*nc,4*nc), one_4_x(4,nc), H(4*nc,4*nc), K(4*nc,4*nc), I(4*nc,4*nc), H_1(4*nc,4*nc);
@@ -876,7 +886,7 @@ while(X_max>tolX)
     if(i<=5) //Os primeiros cinco passos são dados com o método de substituição sucessiva
     {
     DELTA = DELTA_function(combining_rule, nc, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
-                           EdE, x, X, EdE_parameters, bi, tolZ, V, BETCR, E_auto, beta_auto);
+                           EdE, x, X, EdE_parameters, bi, tolZ, V, BETCR, E_auto, beta_auto, Dij);
 
     zero_one << 0, 0, 0, 0, 1, 1, 1, 1,
                0, 0, 0, 0, 1, 1, 1, 1,
@@ -967,7 +977,7 @@ VectorXd fraction_nbs(int nc, int combining_rule, int phase, double R, double T,
                       VectorXd alfa, double am, double bm, MatrixXd beta_col, MatrixXd beta_row, MatrixXd E_col,
                       MatrixXd E_row, double tolX, VectorXd x, int EdE, VectorXd EdE_parameters,
                       VectorXd bi, double tolZ, double V, double deltaV, VectorXd X, int iter, VectorXd a,
-                      double *Q_func, double BETCR, MatrixXd E_auto, MatrixXd beta_auto)
+                      double *Q_func, double BETCR, MatrixXd E_auto, MatrixXd beta_auto, double Dij)
 {
     VectorXd Xnew(4*nc), Xnew2(4*nc), Xcond(4*nc), pre_Xnew(4*nc), pre_XnewV2(4*nc), g(4*nc), deltaX(4*nc), lnXX(4*nc),
              X1(4*nc), lnXX2(4*nc), dX_dV(4*nc), QXV(4*nc), X2(4*nc);
@@ -999,7 +1009,7 @@ VectorXd fraction_nbs(int nc, int combining_rule, int phase, double R, double T,
 
     //Chute inicial de X a partir de deltaV
     DELTA = DELTA_function(combining_rule, nc, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
-                           EdE, x, X, EdE_parameters, bi, tolZ, V, BETCR, E_auto, beta_auto);
+                           EdE, x, X, EdE_parameters, bi, tolZ, V, BETCR, E_auto, beta_auto, Dij);
 
     DELTA_pure = (1/(1-1.9*(bm/4/V)))*(exp(E_col(1,0)/R/T)-1)*((bi(0)+bi(1))/2)*beta_col(0,1);
 
@@ -1055,7 +1065,7 @@ while(X_max>tolX || g.maxCoeff()>tolX)
     if(i<=4) //Os primeiros cinco passos são dados com o método de substituição sucessiva
     {
     DELTA = DELTA_function(combining_rule, nc, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
-                           EdE, x, X, EdE_parameters, bi, tolZ, V, BETCR, E_auto, beta_auto);
+                           EdE, x, X, EdE_parameters, bi, tolZ, V, BETCR, E_auto, beta_auto, Dij);
 
     zero_one << 0, 0, 0, 0, 1, 1, 1, 1,
                 0, 0, 0, 0, 1, 1, 1, 1,
@@ -1105,7 +1115,7 @@ while(X_max>tolX || g.maxCoeff()>tolX)
     else //Os passos restantes são dados com o método de segunda ordem
     {
     DELTA = DELTA_function(combining_rule, nc, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
-                           EdE, x, X, EdE_parameters, bi, tolZ, V, BETCR, E_auto, beta_auto);
+                           EdE, x, X, EdE_parameters, bi, tolZ, V, BETCR, E_auto, beta_auto, Dij);
 
     zero_one << 1, 1, 1, 1, 0, 0, 0, 0,
                 1, 1, 1, 1, 0, 0, 0, 0,

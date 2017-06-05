@@ -1,16 +1,16 @@
 Dados da simulação 
  -------------------------------------------------------------------------------------
 Number of Components = 2
-Component 1 = 90
-Component 2 = 90
+Component 1 = 130
+Component 2 = 130
 Equation of state = 3
 Renormalization = 1
 Mixing Rule = 1
-Defined Temperature = 710 K
+Defined Temperature = 300 K
 kij = 0
 Combining Rule = 1
-Association model component 1 =3
-Association model component 2 =3
+Association model component 1 =8
+Association model component 2 =8
 -------------------------------------------------------------------------------------------------------------
 
 Cálculos 

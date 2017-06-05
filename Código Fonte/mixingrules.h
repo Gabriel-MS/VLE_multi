@@ -18,8 +18,9 @@ double a_mixing_rules_function(int nc, int MR, VectorXd ai, VectorXd x, double k
 
     switch(EdE)
     {
-        case 1:  C_ = -0.69314; //SRK
+        case 1:  C_ = -0.69314; //SRK , ln(2)
         case 2:  C_ = -0.62323; //PR
+        case 3:  C_ = -0.69314; //CPA , ln(2)
     }
 
     nc_nc = pow(nc,nc);

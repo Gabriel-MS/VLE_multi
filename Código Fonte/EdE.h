@@ -55,7 +55,7 @@ switch(EdE)
         alfa = pre_alfa2.array().pow(2);
         break;
 
-    case 5: //SRK
+    case 5: //SRK+RG
         pre_Tr = (-Tr.array().pow(0.5))+1;
         omega2 = omega.array().pow(2);
         alfa_termo1 = 0.48 + omega.array()*1.574 - 0.176*omega2.array();
@@ -64,6 +64,17 @@ switch(EdE)
         //pre_alfa = 1 + ((omega.array()*1.574 - 0.176*omega.array().pow(2) + 0.480) * pre_Tr.asDiagonal()).diagonal();
         alfa = pre_alfa2.array().pow(2);
         break;
+
+    case 6: //CPA+RG
+        pre_Tr = (-Tr.array().pow(0.5))+1;
+        omega2 = omega.array().pow(2);
+        alfa_termo1 = c1;
+        pre_alfa = (alfa_termo1 * pre_Tr.transpose());
+        pre_alfa2 = 1 + pre_alfa.diagonal().array();
+        //pre_alfa = 1 + ((omega.array()*1.574 - 0.176*omega.array().pow(2) + 0.480) * pre_Tr.asDiagonal()).diagonal();
+        alfa = pre_alfa2.array().pow(2);
+        break;
+
 	}
 return alfa;
 }
@@ -111,6 +122,13 @@ VectorXd EdE_parameters_function(int EdE)
         PSI = 0.42748;
         break;
 
+    case 6: //CPA-SRK+RG
+        sigma = 1;
+        epsilon = 0;
+        OMEGA = 0.08664;
+        PSI = 0.42748;
+        break;
+
 	}
 EdE_parameters[0] = sigma;
 EdE_parameters[1] = epsilon;
@@ -142,8 +160,8 @@ switch(EdE)
     a221 = msa_data[0];
     a222 = msa_data[1];
     a223 = msa_data[2];
-    a(0) = (a111 + pow((a112/T),a113));
-    a(1) = (a221 + pow((a222/T),a223));
+    a(0) = (a111 + pow((a112/T),a113)); //CO2
+    a(1) = (a221 + pow((a222/T),a223)); //C4
     break;
 }
 
@@ -272,7 +290,10 @@ switch(EdE)
     a = 1000*((Pc.asDiagonal().inverse())*((Tc2.asDiagonal()*pre_a))).array();
     //a = a.array()*1000;
     //cin>> sigma;
+    break;
 
+    case 6: //CPA+RG
+    a = (a0.asDiagonal())*alfa;
     break;
 }
 
@@ -325,6 +346,11 @@ case 5: //SRK
     pre_b = OMEGA*R*Tc.array();
     b = pre_b.transpose()*Pc.asDiagonal().inverse();
     break;
+
+case 6: //CPA+RG
+    b = bCPA;
+    break;
+
 }
 
     return b;
@@ -412,7 +438,7 @@ VectorXd volume_function(int nc, int EdE, int phase, VectorXd x, VectorXd X, Vec
                        double am, double R, double T, double P, double tolV, double tolZ, VectorXd b, int combining_rule,
                        MatrixXd beta_row, MatrixXd beta_col, MatrixXd E_row, MatrixXd E_col, VectorXd alfa, double tolX,
                        VectorXd n_v, double *V, double Vinit, VectorXd a, double *V_obj, double *Q, double *dP_dV_output,
-                       double BETCR, MatrixXd E_auto, MatrixXd beta_auto)
+                       double BETCR, MatrixXd E_auto, MatrixXd beta_auto, double Dij)
 {
     int i;
     double B, sigma, epsilon, OMEGA, PSI, Vi, errorV, errorZ, condV, Vnew, F_obj, F_obj_plus, F_obj_minus;
@@ -635,7 +661,7 @@ iter = 0;
     if(i==0)
     {
     X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row, tolX, x, EdE,
-                     EdE_parameters, b, tolZ, (*V), deltaV, X, i, a, &Q_func, BETCR, E_auto, beta_auto);
+                     EdE_parameters, b, tolZ, (*V), deltaV, X, i, a, &Q_func, BETCR, E_auto, beta_auto, Dij);
     }
 
     F_obj = CPA_volume_obj_function(nc, (*V), R, P, am, bm, T, x, X, Bcpa, iota, i, a);
@@ -714,7 +740,7 @@ iter = 0;
     if(i!=0)
     {
     X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row, tolX, x, EdE,
-                     EdE_parameters, b, tolZ, (*V), deltaV, X, i, a, &Q_func, BETCR, E_auto, beta_auto);
+                     EdE_parameters, b, tolZ, (*V), deltaV, X, i, a, &Q_func, BETCR, E_auto, beta_auto, Dij);
     }
 
     v_dlng_dv = 0.475*bm/((*V)-0.475*bm);
@@ -730,7 +756,7 @@ iter = 0;
 
 //********************************ESSA PARTE É NOVA PARA CALCULAR NOVO h!!!!!********************************************************************
     DELTA = DELTA_function(combining_rule, nc, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row,
-                           EdE, x, X, EdE_parameters, b, tolZ, (*V), BETCR, E_auto, beta_auto);
+                           EdE, x, X, EdE_parameters, b, tolZ, (*V), BETCR, E_auto, beta_auto, Dij);
     xXD = (((one_4_x_vector.asDiagonal()*X)*one_4nc.transpose()).transpose()).cwiseProduct(DELTA);
     pre_Xnew = ((one_4nc.transpose()*xXD).array())/(*V);
     QXV = (one_4_x_vector.asDiagonal()*pre_Xnew)*(1/(*V)-1);
@@ -806,7 +832,7 @@ iter = 0;
         (*V) = Vinit+Vinit*0.001*k;
         iota = bm/(*V);
         X = fraction_nbs(nc, combining_rule, phase, R, T, P, tolV, alfa, am, bm, beta_col, beta_row, E_col, E_row, tolX, x, EdE,
-                     EdE_parameters, b, tolZ, (*V), deltaV, X, i, a, &Q_func, BETCR, E_auto, beta_auto);
+                     EdE_parameters, b, tolZ, (*V), deltaV, X, i, a, &Q_func, BETCR, E_auto, beta_auto, Dij);
         max_dP_dV = 0.1;
         cond_iota = tolV+1;
         k++;
@@ -980,7 +1006,7 @@ VectorXd fugacity_function(int nc, int phase, double am, double bm, VectorXd a, 
                            VectorXd qUNIQUAC, int EdE, MatrixXd alfa_NRTL, int G_ex_model, double k12, VectorXd X, double tolV,
                            double V, VectorXd n_v, double Vt, double *Z_phase, double *u_phase, double **d2p, double **d2u1,
                            double **d2u2, vector<double>& x_rv, vector<double>& rho_rv, double **Pmat, double **umat,
-                           double **u1mat, double **u2mat)
+                           double **u1mat, double **u2mat, double V11, double V22)
 {
     //Variables-----------------------------------------------------------------------
     int d;
@@ -1123,10 +1149,10 @@ d = 0;
        V = f_v/f_v_der;
        errorV = fabs(V-Vi);
        Vi = V;
-       if(d==1000)
-       {
+        if(d==1000)
+        {
            errorV = tolV-1;
-       }
+        }
        d++;
       }
       V1 = V;
@@ -1160,10 +1186,10 @@ d = 0;
        V = f_v/f_v_der;
        errorV = fabs(V-Vi);
        Vi = V;
-       if(d==1000)
-       {
+        if(d==1000)
+        {
            errorV = tolV-1;
-       }
+        }
        d++;
       }
       V1 = V;
@@ -1224,10 +1250,12 @@ d = 0;
     bZ1 = b/bm*Z1;
     pre_phi = bZ1.array()-logZB+q_I.array();
     phi =  (pre_phi).array().exp(); //Aqui deve-se diagonalizar o vetor phi para uma matriz "A" e depois fazer e^A
-    cout << "V= " << V << " Z= " << Z << " ures1= " << R*T*(log(phi(0))+log(Z)) << " phase: " << phase << endl;
-    cout << "V= " << V << " Z= " << Z << " ures2= " << R*T*(log(phi(1))+log(Z)) << " phase: " << phase << endl;
+    cout << "(1/V)*bm= " << (1/V)*bm << endl;
+    cout << "V= " << V << " Z= " << Z << " ures1= " << R*T*(log(phi(0))+log(Z)) << "ures1/R/T= " << (log(phi(0))+log(Z)) << " phase: " << phase << endl;
+    cout << "V= " << V << " Z= " << Z << " ures2= " << R*T*(log(phi(1))+log(Z)) << "ures2/R/T= " << (log(phi(1))+log(Z)) << " phase: " << phase << endl;
     cout << "rho= " << 1/V << " rho*bm= " << (1/V)*bm << endl;
     cout << "phi = " << phi << endl;
+    cout << "\nln_phi = " << pre_phi << " ----------------" << endl;
     break;
 
     //==============================================================================================================
@@ -1691,11 +1719,18 @@ PSI = EdE_parameters[3];
     //phi(0) = fugacity_renormalized2(phase,x(1),P,bm,R,T,d2p,d2u,x_rv,rho_rv,Pmat,umat,V);
     //phi(1) = fugacity_renormalized2(phase,x(0),P,bm,R,T,d2p,d2u,x_rv,rho_rv,Pmat,umat,V);
 
-    //cout << "phi0 --- V: " << V << endl;
-    phi(0) = fugacity_renormalized3(phase,x(0),P,bm,R,T,d2p,d2u1,x_rv,rho_rv,Pmat,u1mat,V,b(0),0,b);
-    //cout << "phi1 --- V: " << V << endl;
-    phi(1) = fugacity_renormalized3(phase,x(0),P,bm,R,T,d2p,d2u2,x_rv,rho_rv,Pmat,u2mat,V,b(1),1,b);
+    cout << "phi0 --- V: " << V << " " << V11 << endl;
+    phi(0) = fugacity_renormalized3(phase,x(0),P,bm,R,T,d2p,d2u1,x_rv,rho_rv,Pmat,u1mat,V11,b(0),0,b,V);
+    cout << "phi1 --- V: " << V << " " << V22 << endl;
+    phi(1) = fugacity_renormalized3(phase,x(0),P,bm,R,T,d2p,d2u2,x_rv,rho_rv,Pmat,u2mat,V22,b(1),1,b,V);
 
+    }
+    break;
+
+    case 6: //CPA+RG
+    {
+    phi(0) = fugacity_renormalized3(phase,x(0),P,bm,R,T,d2p,d2u1,x_rv,rho_rv,Pmat,u1mat,V11,b(0),0,b,V);
+    phi(1) = fugacity_renormalized3(phase,x(0),P,bm,R,T,d2p,d2u2,x_rv,rho_rv,Pmat,u2mat,V22,b(1),1,b,V);
     }
     break;
 

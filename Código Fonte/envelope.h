@@ -12,7 +12,7 @@ using namespace std;
 void envelope_mix_vle(double tol, int choice)
 {
 cout.precision(10);
-std::vector<double> rho(1000), P(1000), V(1000), A(1000), Pa(1000), f(1000), u(1000), zero(6), zerom(7), x(200);
+std::vector<double> rho(n), P(n), V(n), A(n), Pa(n), f(n), u(n), zero(6), zerom(7), x(200);
 std::vector<double> zerom_last(3), zero_last(6);
 int stop, w, k, r;
 std::string fline;
@@ -87,7 +87,7 @@ while (std::getline(fileu, fline))
 
     for(int i=0; i<200; i++)
     {
-        for(int j=0; j<1000; j++)
+        for(int j=0; j<n; j++)
         {
         x[i] = datap[i+1][0];
         if(i<1) rhob[i] = datap[0][j+1];
@@ -144,16 +144,16 @@ while (std::getline(fileu, fline))
                  << zerom[5] << ";" << zerom[6] << ";" << fabs(zerom[3]-zerom[4]) << ";" << fabs(zerom[5]-zerom[6]) << ";" << endl;
 
     w++;
-    minline = w*1000+1;
+    minline = w*n+1;
     maxline = minline+999;
     }
 }
 */
 
-void envelope_tracer_seed(double tol, int choice)
+void envelope_tracer_seed(double tol, int choice, int n)
 {
 cout.precision(10);
-std::vector<double> rho(1000), P(1000), V(1000), A(1000), Pa(1000), f(1000), u(1000), zero(3), zerom(3);
+std::vector<double> rho(n), P(n), V(n), A(n), Pa(n), f(n), u(n), zero(3), zerom(3);
 std::vector<double> zerom_last(3), zero_last(3);
 int stop, w, k, r;
 std::string fline;
@@ -177,12 +177,12 @@ int maxline = minline+999;
 r = 0;
 file.close();
 
-    while(w*1000-1<number_lines)
+    while(w*n-1<number_lines)
     {
         cout << "BEGIN======================" << endl;
 
     //Reading Data Bank
-    double data[1000][8];
+    double data[n][8];
     file.open("../Planilhas de análise/Renormalization.csv");
     for(int row = 0; row < number_lines; ++row)
     {
@@ -208,7 +208,7 @@ file.close();
     file.close();
     r = 0;
 
-    for(int i=0; i<1000; i++)
+    for(int i=0; i<n; i++)
     {
     T = data[i][7];
     rho[i] = data[i][0];
@@ -225,7 +225,7 @@ file.close();
     //cout << "maxwell = " << T << " / " << zerom[0] << " / " << zerom[1] << " / " << zerom[2] << endl;
     //zero = dens_area(V, A, P);
     //cout << "area = " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
-    zero = dens_newt(rho,f,P,u,tol);
+    zero = dens_newt(rho,f,P,u,tol,n);
     cout << "newton = " << T << " / " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
     }
 
@@ -249,15 +249,15 @@ file.close();
     Envelope_max << T << ";" << zerom[0] << ";" << zerom[1] << ";" << zerom[2] << endl;
 
     w++;
-    minline = w*1000+1;
+    minline = w*n+1;
     maxline = minline+999;
     }
 }
 
-void envelope_tracer(double tol, int choice)
+void envelope_tracer(double tol, int choice, int n)
 {
 cout.precision(10);
-std::vector<double> rho(1000), P(1000), V(1000), A(1000), Pa(1000), f(1000), u(1000), zero(6), zerom(7);
+std::vector<double> rho(n), P(n), V(n), A(n), Pa(n), f(n), u(n), zero(6), zerom(7);
 std::vector<double> zerom_last(3), zero_last(6);
 int stop, w, k, r;
 std::string fline;
@@ -282,12 +282,13 @@ int maxline = minline+999;
 r = 0;
 file.close();
 
-    while(w*1000-1<number_lines)
+    //It was w*n-1
+    while(w*n<number_lines)
     {
         cout << "BEGIN======================" << endl;
 
     //Reading Data Bank
-    double data[1000][8];
+    double data[n][8];
     file.open("../Planilhas de análise/Renormalization.csv");
     for(int row = 0; row < number_lines; ++row)
     {
@@ -313,7 +314,7 @@ file.close();
     file.close();
     r = 0;
 
-    for(int i=0; i<1000; i++)
+    for(int i=0; i<n; i++)
     {
     T = data[i][7];
     rho[i] = data[i][0];
@@ -339,14 +340,14 @@ file.close();
         break;
 
     case 3: //Newton
-        zero = dens_newt(rho,f,P,u,tol);
+        zero = dens_newt(rho,f,P,u,tol,n);
         cout << "newton = " << T << " / " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
         break;
 
     case 4: //Maxwell + Newton
         zerom = dens_maxwell(rho, P, f, tol);
         cout << "maxwell = " << T << " / " << zerom[0] << " / " << zerom[1] << " / " << zerom[2] << endl;
-        zero = dens_newt(rho,f,P,u,tol);
+        zero = dens_newt(rho,f,P,u,tol,n);
         cout << "newton = " << T << " / " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
         break;
 
@@ -356,7 +357,7 @@ file.close();
         break;
 
     case 6: //Newton seed
-        if(w==0) zero = dens_newt(rho,f,P,u,tol);
+        if(w==0) zero = dens_newt(rho,f,P,u,tol,n);
         else zero = dens_newt_seed(rho,f,P,u,tol,zero_last);
         cout << "newton seed= " << T << " / " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
         break;
@@ -372,7 +373,7 @@ file.close();
                  << zerom[5] << ";" << zerom[6] << ";" << fabs(zerom[3]-zerom[4]) << ";" << fabs(zerom[5]-zerom[6]) << ";" << endl;
 
     w++;
-    minline = w*1000+1;
+    minline = w*n+1;
     maxline = minline+999;
     }
 }
