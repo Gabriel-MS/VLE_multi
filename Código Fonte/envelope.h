@@ -235,7 +235,7 @@ file.close();
     //cout << "maxwell = " << T << " / " << zerom[0] << " / " << zerom[1] << " / " << zerom[2] << endl;
     //zero = dens_area(V, A, P);
     //cout << "area = " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
-    zero = dens_newt_seed(rho,f,P,u,tol,zero_last);
+    zero = dens_newt_seed(rho,f,P,u,tol,zero_last,n);
     cout << "newton = " << T << " / " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
     }
 
@@ -278,12 +278,13 @@ while (std::getline(file, fline))
         ++number_lines;
         cout << "number of lines in file: " << number_lines << endl;
 int minline = 1;
-int maxline = minline+999;
+int maxline = minline+(n-1);
+double Told;
 r = 0;
 file.close();
 
     //It was w*n-1
-    while(w*n<number_lines)
+    while(w*n-1<number_lines)
     {
         cout << "BEGIN======================" << endl;
 
@@ -324,10 +325,13 @@ file.close();
     f[i] = data[i][1];
     u[i] = data[i][3];
     }
-    //cout << " rho = " << rho[0] << " / " << rho[500] << " / " << rho[999] << endl;
-    //cout << " f = " << f[0] << " / " << f[500] << " / " << f[999] << endl;
-    //cout << " P = " << P[0] << " / " << P[500] << " / " << P[999] << endl;
-    //cout << " u = " << u[0] << " / " << u[500] << " / " << u[999] << endl;
+
+    if(T==Told) break;
+    Told = T;
+    //cout << " rho = " << rho[0] << " / " << rho[200] << " / " << rho[399] << endl;
+    //cout << " f = " << f[0] << " / " << f[200] << " / " << f[399] << endl;
+    //cout << " P = " << P[0] << " / " << P[200] << " / " << P[399] << endl;
+    //cout << " u = " << u[0] << " / " << u[200] << " / " << u[399] << endl;
 
     switch(choice)
     {
@@ -358,7 +362,7 @@ file.close();
 
     case 6: //Newton seed
         if(w==0) zero = dens_newt(rho,f,P,u,tol,n);
-        else zero = dens_newt_seed(rho,f,P,u,tol,zero_last);
+        else zero = dens_newt_seed(rho,f,P,u,tol,zero_last,n);
         cout << "newton seed= " << T << " / " << zero[0] << " / " << zero[1] << " / " << zero[2] << endl;
         break;
     }
@@ -374,7 +378,7 @@ file.close();
 
     w++;
     minline = w*n+1;
-    maxline = minline+999;
+    maxline = minline+(n-1);
     }
 }
 

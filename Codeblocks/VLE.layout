@@ -2,32 +2,17 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Debug" />
-	<File name="..\Código Fonte\mixingrules.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="..\Código Fonte\Renormalization.h" open="1" top="1" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1430" topLine="15" />
-		</Cursor>
-	</File>
-	<File name="..\Código Fonte\numerical.h" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="43345" topLine="1544" />
+			<Cursor1 position="15642" topLine="501" />
 		</Cursor>
 		<Folding>
-			<Collapse line="27" />
-			<Collapse line="50" />
-			<Collapse line="69" />
-			<Collapse line="86" />
-			<Collapse line="104" />
-			<Collapse line="122" />
-			<Collapse line="144" />
-			<Collapse line="165" />
-			<Collapse line="1648" />
-			<Collapse line="1758" />
-			<Collapse line="1853" />
+			<Collapse line="523" />
 		</Folding>
 	</File>
-	<File name="..\Código Fonte\VLE_multicomponente_phi_phi.cpp" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="..\Código Fonte\VLE_multicomponente_phi_phi.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="26568" topLine="683" />
+			<Cursor1 position="26544" topLine="716" />
 		</Cursor>
 		<Folding>
 			<Collapse line="279" />
@@ -37,11 +22,56 @@
 			<Collapse line="468" />
 			<Collapse line="490" />
 			<Collapse line="538" />
-			<Collapse line="1530" />
-			<Collapse line="1551" />
-			<Collapse line="2089" />
-			<Collapse line="2154" />
-			<Collapse line="2775" />
+			<Collapse line="1377" />
+			<Collapse line="1535" />
+			<Collapse line="1556" />
+			<Collapse line="2094" />
+			<Collapse line="2780" />
+			<Collapse line="3365" />
+		</Folding>
+	</File>
+	<File name="..\Código Fonte\Gibbs.h" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="50" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="..\Código Fonte\envelope.h" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="8739" topLine="239" />
+		</Cursor>
+		<Folding>
+			<Collapse line="385" />
+		</Folding>
+	</File>
+	<File name="..\Código Fonte\interpolation_util.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="12276" topLine="78" />
+		</Cursor>
+		<Folding>
+			<Collapse line="286" />
+			<Collapse line="376" />
+			<Collapse line="399" />
+		</Folding>
+	</File>
+	<File name="..\Código Fonte\EdE.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="52714" topLine="1347" />
+		</Cursor>
+		<Folding>
+			<Collapse line="21" />
+			<Collapse line="83" />
+			<Collapse line="143" />
+			<Collapse line="207" />
+			<Collapse line="304" />
+			<Collapse line="361" />
+		</Folding>
+	</File>
+	<File name="..\Código Fonte\bicubic.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2369" topLine="5" />
+		</Cursor>
+		<Folding>
+			<Collapse line="8" />
 		</Folding>
 	</File>
 	<File name="..\Código Fonte\Association.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -54,23 +84,30 @@
 			<Collapse line="799" />
 		</Folding>
 	</File>
-	<File name="..\Código Fonte\EdE.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="..\Código Fonte\mixingrules.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="52923" topLine="1356" />
+			<Cursor1 position="1430" topLine="15" />
+		</Cursor>
+	</File>
+	<File name="..\Código Fonte\numerical.h" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="26371" topLine="851" />
 		</Cursor>
 		<Folding>
-			<Collapse line="21" />
-			<Collapse line="83" />
-			<Collapse line="143" />
-			<Collapse line="207" />
-			<Collapse line="304" />
-			<Collapse line="361" />
+			<Collapse line="27" />
+			<Collapse line="50" />
+			<Collapse line="69" />
+			<Collapse line="86" />
+			<Collapse line="104" />
+			<Collapse line="122" />
+			<Collapse line="144" />
+			<Collapse line="165" />
+			<Collapse line="969" />
+			<Collapse line="1046" />
+			<Collapse line="1062" />
+			<Collapse line="1760" />
+			<Collapse line="1855" />
 		</Folding>
-	</File>
-	<File name="..\Código Fonte\Gibbs.h" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="50" topLine="0" />
-		</Cursor>
 	</File>
 	<File name="..\Código Fonte\MSA.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
@@ -91,43 +128,5 @@
 			<Collapse line="578" />
 		</Folding>
 	</File>
-	<File name="..\Código Fonte\Renormalization.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="875" topLine="15" />
-		</Cursor>
-		<Folding>
-			<Collapse line="166" />
-			<Collapse line="185" />
-			<Collapse line="247" />
-			<Collapse line="286" />
-			<Collapse line="341" />
-		</Folding>
-	</File>
-	<File name="..\Código Fonte\bicubic.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2369" topLine="5" />
-		</Cursor>
-		<Folding>
-			<Collapse line="8" />
-		</Folding>
-	</File>
-	<File name="..\Código Fonte\envelope.h" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="11963" topLine="249" />
-		</Cursor>
-		<Folding>
-			<Collapse line="257" />
-		</Folding>
-	</File>
-	<File name="..\Código Fonte\interpolation_util.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="12276" topLine="78" />
-		</Cursor>
-		<Folding>
-			<Collapse line="286" />
-			<Collapse line="376" />
-			<Collapse line="399" />
-		</Folding>
-	</File>
-	<EditorTabsLayout layout="0ab6d94059343a2e000025f000000002=*0;VLE:..\Código Fonte\VLE_multicomponente_phi_phi.cpp,1;VLE:..\Código Fonte\numerical.h,2;VLE:..\Código Fonte\Renormalization.h,3;VLE:..\Código Fonte\EdE.h,4;VLE:..\Código Fonte\envelope.h@layout2|name=dummy;caption=;state=2098174;dir=3;layer=0;row=0;pos=0;prop=100000;bestw=577;besth=204;minw=577;minh=204;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=0ab6d94059343a2e000025f000000002;caption=;state=2098172;dir=5;layer=0;row=0;pos=0;prop=100000;bestw=200;besth=200;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|dock_size(5,0,0)=202|" />
+	<EditorTabsLayout layout="0b6cf6105935c78a0000e11600000002=0;VLE:..\Código Fonte\VLE_multicomponente_phi_phi.cpp,1;VLE:..\Código Fonte\numerical.h,*2;VLE:..\Código Fonte\Renormalization.h,3;VLE:..\Código Fonte\EdE.h,4;VLE:..\Código Fonte\envelope.h@layout2|name=dummy;caption=;state=2098174;dir=3;layer=0;row=0;pos=0;prop=100000;bestw=577;besth=204;minw=577;minh=204;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=0b6cf6105935c78a0000e11600000002;caption=;state=2098172;dir=5;layer=0;row=0;pos=0;prop=100000;bestw=200;besth=200;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|dock_size(5,0,0)=202|" />
 </CodeBlocks_layout_file>

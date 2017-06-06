@@ -1030,8 +1030,9 @@ return 0.0;
 //Finds maximum integer position of dPdV inside binodal curve
 int bin_max(vector<double>& dP_dV)
 {
+int SIZE = dP_dV.size();
 double pmax_cond;
-int i=50;
+int i=0.05*SIZE;
 do
 {
  pmax_cond = dP_dV[i];
@@ -1044,7 +1045,8 @@ do
 //Finds minimum integer position of dPdV inside binodal curve
 int bin_min(vector<double>& dP_dV)
 {
-int j=900;
+int SIZE = dP_dV.size();
+int j=0.9*SIZE;
 double pmin_cond;
 do
 {
@@ -1850,9 +1852,9 @@ vector<double> dens_newt5(vector<double>& rho, vector<double>& f, vector<double>
 
 //Function to calculate phase coexistence densities
 //Using Newton method
-vector<double> dens_newt_seed(vector<double>& rho, vector<double>& f, vector<double>& P, vector<double>& u, double tol, vector<double>& seed)
+vector<double> dens_newt_seed(vector<double>& rho, vector<double>& f, vector<double>& P, vector<double>& u, double tol, vector<double>& seed, int n)
 {
-    std::vector<double> dPdrho(1000), Pf1(1000), Pf2(1000), rhov(1000);
+    std::vector<double> dPdrho(n), Pf1(n), Pf2(n), rhov(n);
     int i, max1, min1;
     double rhomax, rhomin, Pmax, Pmin, P1, P2, f1, f2, u1, u2, du1, du2, dP1, dP2, detJ, drho1, drho2;
     double rho1, rho2, area;

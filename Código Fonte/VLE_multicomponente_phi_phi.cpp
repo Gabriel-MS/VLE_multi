@@ -873,6 +873,7 @@ if(EdE != 4)
 switch(critical_find)
 {
     case 1: //Use designated final temperature and steps
+
 while(T<=final_T)
 {
     int p=0;
@@ -1089,7 +1090,7 @@ if(r_type==1)
 
         for(w=0; w<n; w++)
         {
-        flv(w) = helmholtz_recursion_long(EdE, fv(w), rho_vector(w), am, bm, R, T);
+        flv(w) = helmholtz_recursion_long(EdE, fv(w), rho_vector(w), am, bm, R, T, sr_type);
         fsv(w) = helmholtz_recursion_short(EdE, fv(w), rho_vector(w), am, bm, i, L, phi_r, sr_type, R, T);
         rho = rho + rho_max/n;
         }
@@ -1482,6 +1483,7 @@ p++;
         if(EdE==1) EdE = 5;
         if(EdE==3) EdE = 6;
     }
+
     else envelope_tracer(1e-5,env_type,n);
 
     break;
@@ -2422,7 +2424,7 @@ if(r_type==1)
 
         for(w=0; w<n; w++)
         {
-        flv(w) = helmholtz_recursion_long(EdE, fv(w), rho_vector(w), am, bm, R, T);
+        flv(w) = helmholtz_recursion_long(EdE, fv(w), rho_vector(w), am, bm, R, T, sr_type);
         fsv(w) = helmholtz_recursion_short(EdE, fv(w), rho_vector(w), am, bm, i, L, phi_r, sr_type, R, T);
         rho = rho + rho_max/n;
         }
@@ -3047,7 +3049,7 @@ if(r_type==1)
         {
             for(int k2=0; k2<n; k2++)
             {
-            flm[k1][k2] = helmholtz_recursion_long(EdE, fv_mat[k1][k2], rho_mat[k1][k2], am, bm, R, T);
+            flm[k1][k2] = helmholtz_recursion_long(EdE, fv_mat[k1][k2], rho_mat[k1][k2], am, bm, R, T, sr_type);
             fsm[k1][k2] = helmholtz_recursion_short(EdE, fv_mat[k1][k2], rho_mat[k1][k2], am, bm, i, L, phi_r, sr_type, R, T);
             rho = rho + rho_max/n;
             bfnl[k1][k2] = flm[k1][k2];
